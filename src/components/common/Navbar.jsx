@@ -18,6 +18,10 @@ function Navbar() {
   const [scrolled, setScrolled] = useState(false);
   const location = useLocation();
   const { theme, isMobile } = useTheme();
+  
+  // Environment variables
+  const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000';
+  const DASHBOARD_URL = import.meta.env.VITE_DASHBOARD_URL || 'http://localhost:3000';
 
   const checkAuth = async (forceLogout = false) => {
     if (forceLogout) {
@@ -32,7 +36,7 @@ function Navbar() {
     const storedToken = localStorage.getItem('token');
     if (storedToken) {
       try {
-        const response = await axios.get('http://localhost:5000/api/user/profile', {
+        const response = await axios.get(`${API_URL}/api/user/profile`, {
           headers: { Authorization: `Bearer ${storedToken}` },
         });
         setIsAuthenticated(true);
@@ -169,7 +173,7 @@ function Navbar() {
             {isAuthenticated ? (
               <>
                 <motion.a
-                  href={`http://localhost:3000/dashboard?token=${token}`}
+                  href={`${DASHBOARD_URL}/dashboard?token=${token}`}
                   className="px-4 py-2 text-sm font-bold rounded-lg transition-all duration-200"
                   style={{ ...theme.glassEffect }}
                   variants={itemVariants}
@@ -268,7 +272,7 @@ function Navbar() {
             {isAuthenticated ? (
               <>
                 <motion.a
-                  href={`http://localhost:3000/dashboard?token=${token}`}
+                  href={`${DASHBOARD_URL}/dashboard?token=${token}`}
                   onClick={() => setIsOpen(false)}
                   className="block px-4 py-2 text-base font-medium rounded-lg m-2"
                   style={{ background: 'rgba(255, 255, 255, 0.1)' }}

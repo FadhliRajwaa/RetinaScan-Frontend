@@ -6,6 +6,9 @@ import { Box, CircularProgress, Typography } from '@mui/material';
 const ProtectedRoute = ({ children }) => {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
+  
+  // Environment variable
+  const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000';
 
   useEffect(() => {
     const verifyToken = async () => {
@@ -18,7 +21,7 @@ const ProtectedRoute = ({ children }) => {
       }
 
       try {
-        await axios.get('http://localhost:5000/api/auth/verify', {
+        await axios.get(`${API_URL}/api/auth/verify`, {
           headers: {
             Authorization: `Bearer ${token}`
           }
@@ -35,7 +38,7 @@ const ProtectedRoute = ({ children }) => {
     };
 
     verifyToken();
-  }, []);
+  }, [API_URL]);
 
   if (isLoading) {
     return (
