@@ -15,13 +15,17 @@ function LoginPage() {
   const [showPassword, setShowPassword] = useState(false);
   const navigate = useNavigate();
   const { theme, isMobile } = useTheme();
+  
+  // Environment variables
+  const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000';
+  const DASHBOARD_URL = import.meta.env.VITE_DASHBOARD_URL || 'http://localhost:3000';
 
   useEffect(() => {
     const checkAuth = async () => {
       const token = localStorage.getItem('token');
       if (token) {
         try {
-          await axios.get('http://localhost:5000/api/user/profile', {
+          await axios.get(`${API_URL}/api/user/profile`, {
             headers: { Authorization: `Bearer ${token}` },
           });
           setIsAuthenticated(true);
@@ -32,7 +36,7 @@ function LoginPage() {
       }
     };
     checkAuth();
-  }, []);
+  }, [API_URL]);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -41,8 +45,9 @@ function LoginPage() {
     try {
       const { token } = await login({ email, password });
       localStorage.setItem('token', token);
-      window.location.href = `http://localhost:3000/dashboard?token=${token}`;
+      window.location.href = `${DASHBOARD_URL}/dashboard?token=${token}`;
     } catch (err) {
+      console.error('Login error:', err);
       setError('Email atau kata sandi salah.');
     } finally {
       setIsLoading(false);
