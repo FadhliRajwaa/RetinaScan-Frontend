@@ -45,7 +45,7 @@ function LoginPage() {
     try {
       const { token } = await login({ email, password });
       localStorage.setItem('token', token);
-      window.location.href = `${DASHBOARD_URL}/?token=${token}`;
+      window.location.href = `${DASHBOARD_URL}/#/?token=${token}`;
     } catch (err) {
       console.error('Login error:', err);
       setError('Email atau kata sandi salah.');
