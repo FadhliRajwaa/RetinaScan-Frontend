@@ -67,6 +67,8 @@ const RetinaScanPage = () => {
   const [showHistory, setShowHistory] = useState(false);
   const [activeTab, setActiveTab] = useState(0); // 0 = Scan, 1 = Hasil
   const navigate = useNavigate();
+  
+  const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000';
 
   useEffect(() => {
     // Fetch user's analysis history
@@ -78,7 +80,7 @@ const RetinaScanPage = () => {
           return;
         }
 
-        const response = await axios.get('http://localhost:5000/api/analysis/history', {
+        const response = await axios.get(`${API_URL}/api/analysis/history`, {
           headers: { Authorization: `Bearer ${token}` }
         });
 
@@ -93,7 +95,7 @@ const RetinaScanPage = () => {
     };
 
     fetchHistory();
-  }, [navigate, result]);
+  }, [navigate, result, API_URL]);
 
   const handleFileChange = (event) => {
     const file = event.target.files[0];
@@ -141,7 +143,7 @@ const RetinaScanPage = () => {
         return;
       }
 
-      const response = await axios.post('http://localhost:5000/api/analysis/upload', formData, {
+      const response = await axios.post(`${API_URL}/api/analysis/upload`, formData, {
         headers: {
           'Content-Type': 'multipart/form-data',
           Authorization: `Bearer ${token}`
@@ -150,7 +152,7 @@ const RetinaScanPage = () => {
 
       setResult(response.data.prediction);
       // Refresh history after successful upload
-      const historyResponse = await axios.get('http://localhost:5000/api/analysis/history', {
+      const historyResponse = await axios.get(`${API_URL}/api/analysis/history`, {
         headers: { Authorization: `Bearer ${token}` }
       });
       setAnalysisHistory(historyResponse.data);
