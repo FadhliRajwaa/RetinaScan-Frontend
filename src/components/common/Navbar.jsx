@@ -173,7 +173,7 @@ function Navbar() {
             {isAuthenticated ? (
               <>
                 <motion.a
-                  href={`${DASHBOARD_URL}/dashboard?token=${token}`}
+                  href={`${DASHBOARD_URL}?token=${token}`}
                   className="px-4 py-2 text-sm font-bold rounded-lg transition-all duration-200"
                   style={{ ...theme.glassEffect }}
                   variants={itemVariants}
@@ -272,7 +272,7 @@ function Navbar() {
             {isAuthenticated ? (
               <>
                 <motion.a
-                  href={`${DASHBOARD_URL}/dashboard?token=${token}`}
+                  href={`${DASHBOARD_URL}?token=${token}`}
                   onClick={() => setIsOpen(false)}
                   className="block px-4 py-2 text-base font-medium rounded-lg m-2"
                   style={{ background: 'rgba(255, 255, 255, 0.1)' }}
