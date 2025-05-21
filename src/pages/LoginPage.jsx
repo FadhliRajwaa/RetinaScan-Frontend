@@ -43,24 +43,27 @@ function LoginPage() {
     setIsLoading(true);
     setError('');
     try {
-      console.log('Mencoba login untuk email:', email);
       const response = await login({ email, password });
+      console.log('Login response:', response);
       
       if (response && response.token) {
-        console.log('Login berhasil, token diterima');
+        // Simpan token ke localStorage
         localStorage.setItem('token', response.token);
         
-        // Tambahkan delay kecil untuk memastikan token tersimpan
-        setTimeout(() => {
-          console.log('Redirect ke dashboard dengan token');
-          window.location.href = `${DASHBOARD_URL}/?token=${response.token}`;
-        }, 300);
+        // Simpan informasi user jika ada
+        if (response.user) {
+          localStorage.setItem('user', JSON.stringify(response.user));
+        }
+        
+        console.log('Login berhasil, redirect ke dashboard');
+        // Redirect ke dashboard dengan token sebagai parameter
+        window.location.href = `${DASHBOARD_URL}/?token=${response.token}`;
       } else {
-        throw new Error('Token tidak diterima dari server');
+        throw new Error('Token tidak ditemukan dalam respon');
       }
     } catch (err) {
       console.error('Login error:', err);
-      setError(err.response?.data?.message || 'Email atau kata sandi salah.');
+      setError('Email atau kata sandi salah. Silakan periksa kembali informasi login Anda.');
     } finally {
       setIsLoading(false);
     }

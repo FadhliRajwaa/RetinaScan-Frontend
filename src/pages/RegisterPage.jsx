@@ -80,11 +80,26 @@ function RegisterPage() {
     setPasswordError('');
     
     try {
-      await register({ name, email, password });
+      console.log('Mengirim data registrasi:', { name, email, password: '***' });
+      
+      const result = await register({ name, email, password });
+      console.log('Hasil registrasi:', result);
+      
       setSuccess('Registrasi berhasil! Anda akan dialihkan ke halaman login.');
-      setTimeout(() => navigate('/login'), 1500);
+      
+      // Tunggu 2 detik sebelum redirect ke halaman login
+      setTimeout(() => {
+        console.log('Redirecting to login page...');
+        navigate('/login');
+      }, 2000);
     } catch (err) {
-      setError(err.response?.data?.message || 'Registrasi gagal. Email mungkin sudah digunakan.');
+      console.error('Registration error:', err);
+      // Tampilkan pesan error yang lebih detail
+      if (err.response && err.response.data) {
+        setError(err.response.data.message || 'Registrasi gagal. Coba lagi nanti.');
+      } else {
+        setError('Terjadi kesalahan dalam proses registrasi. Periksa koneksi internet Anda.');
+      }
     } finally {
       setIsLoading(false);
     }

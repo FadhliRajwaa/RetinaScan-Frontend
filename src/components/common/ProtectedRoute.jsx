@@ -15,21 +15,36 @@ const ProtectedRoute = ({ children }) => {
       const token = localStorage.getItem('token');
       
       if (!token) {
+        console.log('No token found in localStorage');
         setIsAuthenticated(false);
         setIsLoading(false);
         return;
       }
 
       try {
-        await axios.get(`${API_URL}/api/auth/verify`, {
-          headers: {
-            Authorization: `Bearer ${token}`
-          }
-        });
-        
-        setIsAuthenticated(true);
+        // Coba verifikasi token dengan endpoint yang benar
+        // Coba API user/profile terlebih dahulu
+        try {
+          await axios.get(`${API_URL}/api/user/profile`, {
+            headers: {
+              Authorization: `Bearer ${token}`
+            }
+          });
+          console.log('Token verified via user/profile');
+          setIsAuthenticated(true);
+        } catch (profileError) {
+          // Jika user/profile gagal, coba auth/verify
+          console.log('Failed to verify via profile API, trying auth/verify');
+          await axios.get(`${API_URL}/api/auth/verify`, {
+            headers: {
+              Authorization: `Bearer ${token}`
+            }
+          });
+          console.log('Token verified via auth/verify');
+          setIsAuthenticated(true);
+        }
       } catch (error) {
-        console.error('Token verification error:', error);
+        console.error('Token verification failed:', error);
         localStorage.removeItem('token');
         setIsAuthenticated(false);
       } finally {

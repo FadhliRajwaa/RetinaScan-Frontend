@@ -60,8 +60,7 @@ function Navbar() {
     const query = new URLSearchParams(location.search);
     const logoutParam = query.get('logout');
     const fromParam = query.get('from');
-    
-    console.log('Query params:', { logout: logoutParam, from: fromParam }); // Debugging
+    console.log('Query logout param:', logoutParam, 'From:', fromParam); // Debugging
     
     // Jika parameter logout=true, paksa logout
     if (logoutParam === 'true') {
@@ -71,6 +70,12 @@ function Navbar() {
       setIsAuthenticated(false);
       setUserName('');
       setToken('');
+      
+      // Tampilkan pesan jika dari dashboard
+      if (fromParam === 'dashboard') {
+        // Bisa ditambahkan notifikasi sukses logout jika perlu
+        console.log('Berhasil logout dari dashboard');
+      }
       
       // Hapus parameter logout dari URL
       const newUrl = window.location.pathname;
@@ -111,8 +116,8 @@ function Navbar() {
     setUserName('');
     setToken('');
     
-    // Redirect ke landing page
-    window.location.href = '/';
+    // Redirect ke landing page dengan paksa refresh
+    window.location.href = '/?logout=true&from=frontend';
   };
 
   const navbarVariants = {
@@ -252,8 +257,13 @@ function Navbar() {
                 >
                   <Link
                     to="/register"
-                    className="px-4 py-2 text-sm font-medium rounded-lg transition-all duration-200"
-                    style={{ ...theme.glassEffect }}
+                    className="px-4 py-2 text-sm font-medium rounded-lg transition-all duration-200 ripple"
+                    style={{ 
+                      background: 'rgba(255, 255, 255, 0.2)',
+                      backdropFilter: 'blur(8px)',
+                      border: '1px solid rgba(255, 255, 255, 0.2)',
+                      boxShadow: theme.smallShadow 
+                    }}
                   >
                     Register
                   </Link>
