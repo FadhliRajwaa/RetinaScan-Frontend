@@ -25,16 +25,51 @@ function LoginPage() {
       const token = localStorage.getItem('token');
       if (token) {
         try {
-          await axios.get(`${API_URL}/api/user/profile`, {
-            headers: { Authorization: `Bearer ${token}` },
-          });
-          setIsAuthenticated(true);
+          console.log('Checking existing token...');
+          // Coba dengan endpoint profile terlebih dahulu
+          try {
+            await axios.get(`${API_URL}/api/user/profile`, {
+              headers: { Authorization: `Bearer ${token}` },
+            });
+            console.log('Token valid via profile endpoint');
+            setIsAuthenticated(true);
+          } catch (profileError) {
+            console.log('Profile endpoint failed, trying verify endpoint');
+            // Jika gagal, coba dengan endpoint verify
+            try {
+              await axios.get(`${API_URL}/api/auth/verify`, {
+                headers: { Authorization: `Bearer ${token}` },
+              });
+              console.log('Token valid via verify endpoint');
+              setIsAuthenticated(true);
+            } catch (verifyError) {
+              console.error('All verification methods failed');
+              localStorage.removeItem('token');
+              setIsAuthenticated(false);
+            }
+          }
         } catch (error) {
+          console.error('Token verification error:', error);
           localStorage.removeItem('token');
           setIsAuthenticated(false);
         }
+      } else {
+        console.log('No token found in localStorage');
       }
     };
+    
+    // Periksa parameter URL untuk error login
+    const urlParams = new URLSearchParams(window.location.search);
+    const authError = urlParams.get('auth');
+    const from = urlParams.get('from');
+    
+    if (authError === 'failed' && from === 'dashboard') {
+      console.log('Login error detected from URL parameters');
+      setError('Sesi login gagal. Silakan login kembali.');
+      // Hapus parameter dari URL
+      window.history.replaceState({}, document.title, window.location.pathname);
+    }
+    
     checkAuth();
   }, [API_URL]);
 
@@ -43,6 +78,10 @@ function LoginPage() {
     setIsLoading(true);
     setError('');
     try {
+      console.log('Mencoba login dengan:', { email, password: '***' });
+      console.log('API URL:', API_URL);
+      console.log('DASHBOARD URL:', DASHBOARD_URL);
+      
       const response = await login({ email, password });
       console.log('Login response:', response);
       
@@ -56,8 +95,16 @@ function LoginPage() {
         }
         
         console.log('Login berhasil, redirect ke dashboard');
+        
+        // Pastikan DASHBOARD_URL tidak kosong
+        const dashboardUrl = DASHBOARD_URL || 'http://localhost:3000';
+        console.log('Redirecting to:', `${dashboardUrl}/?token=${response.token}`);
+        
         // Redirect ke dashboard dengan token sebagai parameter
-        window.location.href = `${DASHBOARD_URL}/?token=${response.token}`;
+        // Gunakan timeout untuk memastikan log selesai tercetak
+        setTimeout(() => {
+          window.location.href = `${dashboardUrl}/?token=${response.token}`;
+        }, 500);
       } else {
         throw new Error('Token tidak ditemukan dalam respon');
       }
