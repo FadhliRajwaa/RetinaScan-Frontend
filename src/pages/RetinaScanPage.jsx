@@ -181,7 +181,9 @@ const RetinaScanPage = () => {
         }
       });
 
+      // Sekarang response langsung berisi imageData (base64)
       setResult(response.data.prediction);
+      
       // Refresh history after successful upload
       const historyResponse = await axios.get(`${API_URL}/api/analysis/history`, {
         headers: { Authorization: `Bearer ${token}` }
