@@ -41,9 +41,18 @@ export const cleanupAfterLogout = () => {
     console.log('Token removed from localStorage');
   }
   
+  // Remove user data if exists
+  if (localStorage.getItem('user')) {
+    localStorage.removeItem('user');
+    console.log('User data removed from localStorage');
+  }
+  
   // Clear session storage
   sessionStorage.clear();
   console.log('Session storage cleared');
+  
+  // Remove any auth cookies if they exist
+  document.cookie = 'auth=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;';
   
   // Could add more cleanup here if needed
 };
@@ -65,4 +74,50 @@ export const getLogoutMessage = (params) => {
   }
   
   return 'Anda telah berhasil logout.';
+};
+
+/**
+ * Handle logout from frontend
+ * @param {Function} setIsAuthenticated - Function to update authentication state
+ * @param {Function} setUserName - Function to update user name state
+ * @param {Function} setToken - Function to update token state
+ * @param {Function} navigate - React Router navigate function
+ * @returns {void}
+ */
+export const handleFrontendLogout = (setIsAuthenticated, setUserName, setToken, navigate) => {
+  // Clean up all auth data
+  cleanupAfterLogout();
+  
+  // Update state
+  if (setIsAuthenticated) setIsAuthenticated(false);
+  if (setUserName) setUserName('');
+  if (setToken) setToken('');
+  
+  // Navigate to login page if navigate function is provided
+  if (navigate) {
+    navigate('/#/?logout=true&from=frontend');
+  } else {
+    // Fallback to window.location if navigate is not provided
+    window.location.href = '/#/?logout=true&from=frontend';
+  }
+};
+
+/**
+ * Parse hash parameters from URL
+ * @returns {URLSearchParams} - URL search params from hash
+ */
+export const getHashParams = () => {
+  const hashParts = window.location.hash.split('?');
+  const hashParams = hashParts.length > 1 ? hashParts[1] : '';
+  return new URLSearchParams(hashParams);
+};
+
+/**
+ * Clean URL by removing hash parameters
+ * @returns {void}
+ */
+export const cleanHashParams = () => {
+  const hashPath = window.location.hash.split('?')[0] || '#/';
+  window.history.replaceState({}, document.title, hashPath);
+  console.log('Parameters removed from URL, new hash:', hashPath);
 };

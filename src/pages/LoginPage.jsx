@@ -4,6 +4,7 @@ import { motion } from 'framer-motion';
 import axios from 'axios';
 import { login } from '../services/authService';
 import { useTheme } from '../context/ThemeContext';
+import { handleFrontendLogout, getHashParams, cleanHashParams } from '../utils/authUtils';
 import { HomeIcon, ArrowLeftOnRectangleIcon, EyeIcon, EyeSlashIcon, ArrowRightIcon } from '@heroicons/react/24/outline';
 
 function LoginPage() {
@@ -59,13 +60,12 @@ function LoginPage() {
     };
     
     // Periksa parameter URL untuk error login (dari hash karena HashRouter)
-    const hashParams = window.location.hash.split('?')[1];
-    const query = hashParams ? new URLSearchParams(hashParams) : new URLSearchParams();
+    const query = getHashParams();
     
     const authError = query.get('auth');
     const from = query.get('from');
     
-    console.log('Hash params:', hashParams);
+    console.log('Hash params:', query.toString());
     console.log('Auth params:', { auth: authError, from });
     
     if (authError === 'failed' && from === 'dashboard') {
@@ -73,9 +73,7 @@ function LoginPage() {
       setError('Sesi login gagal. Silakan login kembali.');
       
       // Hapus parameter dari URL (sesuai dengan HashRouter)
-      const newHash = window.location.hash.split('?')[0] || '#/';
-      window.history.replaceState({}, document.title, newHash);
-      console.log('Parameters removed from URL, new hash:', newHash);
+      cleanHashParams();
     }
     
     checkAuth();
@@ -128,9 +126,7 @@ function LoginPage() {
   };
 
   const handleLogout = () => {
-    localStorage.removeItem('token');
-    setIsAuthenticated(false);
-    navigate('/login');
+    handleFrontendLogout(setIsAuthenticated, null, null, navigate);
   };
   
   const formVariants = {

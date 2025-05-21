@@ -1,15 +1,56 @@
 import { useState, useEffect } from 'react';
-import { Link, useLocation } from 'react-router-dom';
+import { Link, useLocation, useNavigate } from 'react-router-dom';
 import axios from 'axios';
-import { motion } from 'framer-motion';
+import { motion, AnimatePresence } from 'framer-motion';
 import { useTheme } from '../../context/ThemeContext';
-import { processLogoutParams, cleanupAfterLogout, getLogoutMessage } from '../../utils/authUtils';
+import { 
+  processLogoutParams, 
+  cleanupAfterLogout, 
+  getLogoutMessage,
+  handleFrontendLogout,
+  getHashParams,
+  cleanHashParams
+} from '../../utils/authUtils';
 import {
   Bars3Icon,
   XMarkIcon,
   UserCircleIcon,
   ArrowLeftOnRectangleIcon,
+  CheckCircleIcon,
+  ExclamationCircleIcon
 } from '@heroicons/react/24/outline';
+
+// Komponen notifikasi untuk logout
+const LogoutNotification = ({ message, type = 'success', onClose }) => {
+  const bgColor = type === 'success' ? 'bg-green-500' : 'bg-red-500';
+  const Icon = type === 'success' ? CheckCircleIcon : ExclamationCircleIcon;
+  
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      if (onClose) onClose();
+    }, 5000);
+    
+    return () => clearTimeout(timer);
+  }, [onClose]);
+  
+  return (
+    <motion.div
+      initial={{ opacity: 0, y: -50 }}
+      animate={{ opacity: 1, y: 0 }}
+      exit={{ opacity: 0, y: -50 }}
+      className={`fixed top-4 left-1/2 transform -translate-x-1/2 z-50 ${bgColor} text-white px-6 py-3 rounded-lg shadow-lg flex items-center`}
+    >
+      <Icon className="h-5 w-5 mr-2" />
+      {message}
+      <button 
+        onClick={onClose} 
+        className="ml-4 hover:bg-white/20 rounded-full p-1"
+      >
+        <XMarkIcon className="h-4 w-4" />
+      </button>
+    </motion.div>
+  );
+};
 
 function Navbar() {
   const [isOpen, setIsOpen] = useState(false);
@@ -18,6 +59,7 @@ function Navbar() {
   const [token, setToken] = useState('');
   const [scrolled, setScrolled] = useState(false);
   const location = useLocation();
+  const navigate = useNavigate();
   const { theme, isMobile } = useTheme();
   
   // Environment variables
@@ -27,7 +69,7 @@ function Navbar() {
   const checkAuth = async (forceLogout = false) => {
     if (forceLogout) {
       console.log('Forcing logout due to query parameter'); // Debugging
-      localStorage.removeItem('token');
+      cleanupAfterLogout();
       setIsAuthenticated(false);
       setUserName('');
       setToken('');
@@ -45,7 +87,7 @@ function Navbar() {
         setToken(storedToken);
       } catch (error) {
         console.error('Auth check failed:', error);
-        localStorage.removeItem('token');
+        cleanupAfterLogout();
         setIsAuthenticated(false);
         setUserName('');
         setToken('');
@@ -57,19 +99,19 @@ function Navbar() {
     }
   };
 
-  const [logoutMessage, setLogoutMessage] = useState(null);
+  const [notification, setNotification] = useState({
+    show: false,
+    message: '',
+    type: 'success'
+  });
 
   useEffect(() => {
     // Dengan HashRouter, kita perlu mengambil query parameter dari hash
     // Format URL: /#/?logout=true&from=dashboard
-    const hashParts = location.hash.split('?');
-    const hashPath = hashParts[0] || '#/';
-    const hashParams = hashParts.length > 1 ? hashParts[1] : '';
-    const query = hashParams ? new URLSearchParams(hashParams) : new URLSearchParams();
+    const query = getHashParams();
     
     console.log('Current URL:', window.location.href);
-    console.log('Hash path:', hashPath);
-    console.log('Hash params:', hashParams);
+    console.log('Hash params:', query.toString());
     
     // Proses parameter logout menggunakan utility function
     const logoutParams = processLogoutParams(query);
@@ -90,34 +132,27 @@ function Navbar() {
       const message = getLogoutMessage(logoutParams);
       if (message) {
         console.log('Logout message:', message);
-        setLogoutMessage(message);
-        
-        // Hapus pesan setelah beberapa detik
-        setTimeout(() => {
-          setLogoutMessage(null);
-        }, 5000);
-        
-        // Tampilkan notifikasi
-        alert(message);
+        setNotification({
+          show: true,
+          message,
+          type: logoutParams.hasError ? 'error' : 'success'
+        });
       }
       
       // Hapus parameter logout dari URL (sesuai dengan HashRouter)
-      window.history.replaceState({}, document.title, hashPath);
-      console.log('Parameters removed from URL, new hash:', hashPath);
+      cleanHashParams();
     } else if (query.get('auth') === 'failed' && query.get('from') === 'dashboard') {
       console.log('Authentication failed from dashboard');
       // Hapus parameter dari URL (sesuai dengan HashRouter)
-      window.history.replaceState({}, document.title, hashPath);
-      console.log('Parameters removed from URL, new hash:', hashPath);
+      cleanHashParams();
       
       // Tambahkan notifikasi error login
-      setLogoutMessage('Sesi login Anda telah berakhir. Silakan login kembali.');
-      alert('Sesi login Anda telah berakhir. Silakan login kembali.');
-      
-      // Hapus pesan setelah beberapa detik
-      setTimeout(() => {
-        setLogoutMessage(null);
-      }, 5000);
+      const message = 'Sesi login Anda telah berakhir. Silakan login kembali.';
+      setNotification({
+        show: true,
+        message,
+        type: 'error'
+      });
     } else {
       // Hanya periksa autentikasi jika tidak sedang logout
       checkAuth(false);
@@ -143,20 +178,8 @@ function Navbar() {
   const handleLogout = () => {
     console.log('Logging out from frontend'); // Debugging
     
-    // Hapus token dari localStorage
-    localStorage.removeItem('token');
-    
-    // Hapus semua data session lainnya jika ada
-    sessionStorage.clear();
-    
-    // Reset state
-    setIsAuthenticated(false);
-    setUserName('');
-    setToken('');
-    
-    // Redirect ke landing page dengan paksa refresh
-    // Gunakan format yang sesuai dengan HashRouter
-    window.location.href = '/#/?logout=true&from=frontend';
+    // Gunakan fungsi utility untuk logout
+    handleFrontendLogout(setIsAuthenticated, setUserName, setToken, navigate);
   };
 
   const navbarVariants = {
@@ -207,17 +230,16 @@ function Navbar() {
 
   return (
     <>
-      {/* Logout Message Notification */}
-      {logoutMessage && (
-        <motion.div
-          initial={{ opacity: 0, y: -50 }}
-          animate={{ opacity: 1, y: 0 }}
-          exit={{ opacity: 0, y: -50 }}
-          className="fixed top-4 left-1/2 transform -translate-x-1/2 z-50 bg-green-500 text-white px-6 py-3 rounded-lg shadow-lg"
-        >
-          {logoutMessage}
-        </motion.div>
-      )}
+      {/* Logout Notification */}
+      <AnimatePresence>
+        {notification.show && (
+          <LogoutNotification 
+            message={notification.message}
+            type={notification.type}
+            onClose={() => setNotification({ ...notification, show: false })}
+          />
+        )}
+      </AnimatePresence>
       
       <motion.nav 
         initial="hidden"
