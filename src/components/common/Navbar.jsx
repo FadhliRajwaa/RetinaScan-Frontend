@@ -57,7 +57,26 @@ function Navbar() {
   };
 
   useEffect(() => {
-    checkAuth();
+    const query = new URLSearchParams(location.search);
+    const logoutParam = query.get('logout');
+    console.log('Query logout param:', logoutParam); // Debugging
+    
+    // Jika parameter logout=true, paksa logout
+    if (logoutParam === 'true') {
+      console.log('Forcing logout due to query parameter');
+      localStorage.removeItem('token');
+      sessionStorage.clear();
+      setIsAuthenticated(false);
+      setUserName('');
+      setToken('');
+      
+      // Hapus parameter logout dari URL
+      const newUrl = window.location.pathname;
+      window.history.replaceState({}, document.title, newUrl);
+    } else {
+      // Hanya periksa autentikasi jika tidak sedang logout
+      checkAuth(false);
+    }
   }, [location]);
   
   useEffect(() => {
@@ -78,10 +97,19 @@ function Navbar() {
 
   const handleLogout = () => {
     console.log('Logging out from frontend'); // Debugging
+    
+    // Hapus token dari localStorage
     localStorage.removeItem('token');
+    
+    // Hapus semua data session lainnya jika ada
+    sessionStorage.clear();
+    
+    // Reset state
     setIsAuthenticated(false);
     setUserName('');
     setToken('');
+    
+    // Redirect ke landing page
     window.location.href = '/';
   };
 
