@@ -59,7 +59,9 @@ function Navbar() {
   useEffect(() => {
     const query = new URLSearchParams(location.search);
     const logoutParam = query.get('logout');
-    console.log('Query logout param:', logoutParam); // Debugging
+    const fromParam = query.get('from');
+    
+    console.log('Query params:', { logout: logoutParam, from: fromParam }); // Debugging
     
     // Jika parameter logout=true, paksa logout
     if (logoutParam === 'true') {
@@ -250,13 +252,8 @@ function Navbar() {
                 >
                   <Link
                     to="/register"
-                    className="px-4 py-2 text-sm font-medium rounded-lg transition-all duration-200 ripple"
-                    style={{ 
-                      background: 'rgba(255, 255, 255, 0.2)',
-                      backdropFilter: 'blur(8px)',
-                      border: '1px solid rgba(255, 255, 255, 0.2)',
-                      boxShadow: theme.smallShadow 
-                    }}
+                    className="px-4 py-2 text-sm font-medium rounded-lg transition-all duration-200"
+                    style={{ ...theme.glassEffect }}
                   >
                     Register
                   </Link>
