@@ -3,6 +3,7 @@ import { Link, useLocation } from 'react-router-dom';
 import axios from 'axios';
 import { motion } from 'framer-motion';
 import { useTheme } from '../../context/ThemeContext';
+import { processLogoutParams, cleanupAfterLogout, getLogoutMessage } from '../../utils/authUtils';
 import {
   Bars3Icon,
   XMarkIcon,
@@ -56,44 +57,67 @@ function Navbar() {
     }
   };
 
+  const [logoutMessage, setLogoutMessage] = useState(null);
+
   useEffect(() => {
     // Dengan HashRouter, kita perlu mengambil query parameter dari hash
     // Format URL: /#/?logout=true&from=dashboard
-    const hashParams = location.hash.split('?')[1];
+    const hashParts = location.hash.split('?');
+    const hashPath = hashParts[0] || '#/';
+    const hashParams = hashParts.length > 1 ? hashParts[1] : '';
     const query = hashParams ? new URLSearchParams(hashParams) : new URLSearchParams();
     
-    const logoutParam = query.get('logout');
-    const fromParam = query.get('from');
-    const authParam = query.get('auth');
-    
+    console.log('Current URL:', window.location.href);
+    console.log('Hash path:', hashPath);
     console.log('Hash params:', hashParams);
-    console.log('Query params:', { logout: logoutParam, from: fromParam, auth: authParam });
+    
+    // Proses parameter logout menggunakan utility function
+    const logoutParams = processLogoutParams(query);
     
     // Jika parameter logout=true, paksa logout
-    if (logoutParam === 'true') {
+    if (logoutParams.isLogout) {
       console.log('Forcing logout due to query parameter');
-      localStorage.removeItem('token');
-      sessionStorage.clear();
+      
+      // Bersihkan data setelah logout
+      cleanupAfterLogout();
+      
+      // Reset state
       setIsAuthenticated(false);
       setUserName('');
       setToken('');
       
-      // Tampilkan pesan jika dari dashboard
-      if (fromParam === 'dashboard') {
-        // Bisa ditambahkan notifikasi sukses logout jika perlu
-        console.log('Berhasil logout dari dashboard');
+      // Dapatkan pesan logout yang sesuai
+      const message = getLogoutMessage(logoutParams);
+      if (message) {
+        console.log('Logout message:', message);
+        setLogoutMessage(message);
+        
+        // Hapus pesan setelah beberapa detik
+        setTimeout(() => {
+          setLogoutMessage(null);
+        }, 5000);
+        
+        // Tampilkan notifikasi
+        alert(message);
       }
       
       // Hapus parameter logout dari URL (sesuai dengan HashRouter)
-      const newHash = location.hash.split('?')[0] || '#/';
-      window.history.replaceState({}, document.title, newHash);
-      console.log('Parameters removed from URL, new hash:', newHash);
-    } else if (authParam === 'failed' && fromParam === 'dashboard') {
+      window.history.replaceState({}, document.title, hashPath);
+      console.log('Parameters removed from URL, new hash:', hashPath);
+    } else if (query.get('auth') === 'failed' && query.get('from') === 'dashboard') {
       console.log('Authentication failed from dashboard');
       // Hapus parameter dari URL (sesuai dengan HashRouter)
-      const newHash = location.hash.split('?')[0] || '#/';
-      window.history.replaceState({}, document.title, newHash);
-      console.log('Parameters removed from URL, new hash:', newHash);
+      window.history.replaceState({}, document.title, hashPath);
+      console.log('Parameters removed from URL, new hash:', hashPath);
+      
+      // Tambahkan notifikasi error login
+      setLogoutMessage('Sesi login Anda telah berakhir. Silakan login kembali.');
+      alert('Sesi login Anda telah berakhir. Silakan login kembali.');
+      
+      // Hapus pesan setelah beberapa detik
+      setTimeout(() => {
+        setLogoutMessage(null);
+      }, 5000);
     } else {
       // Hanya periksa autentikasi jika tidak sedang logout
       checkAuth(false);
@@ -182,18 +206,31 @@ function Navbar() {
     : `linear-gradient(90deg, ${theme.primary}, ${theme.accent})`;
 
   return (
-    <motion.nav 
-      initial="hidden"
-      animate="visible"
-      variants={navbarVariants}
-      className="fixed top-0 left-0 right-0 z-50 transition-all duration-300"
-      style={{
-        background: bgGradient,
-        color: 'white',
-        boxShadow: scrolled ? theme.mediumShadow : 'none',
-        padding: scrolled ? '0.5rem 0' : '1rem 0',
-      }}
-    >
+    <>
+      {/* Logout Message Notification */}
+      {logoutMessage && (
+        <motion.div
+          initial={{ opacity: 0, y: -50 }}
+          animate={{ opacity: 1, y: 0 }}
+          exit={{ opacity: 0, y: -50 }}
+          className="fixed top-4 left-1/2 transform -translate-x-1/2 z-50 bg-green-500 text-white px-6 py-3 rounded-lg shadow-lg"
+        >
+          {logoutMessage}
+        </motion.div>
+      )}
+      
+      <motion.nav 
+        initial="hidden"
+        animate="visible"
+        variants={navbarVariants}
+        className="fixed top-0 left-0 right-0 z-40 transition-all duration-300"
+        style={{
+          background: bgGradient,
+          color: 'white',
+          boxShadow: scrolled ? theme.mediumShadow : 'none',
+          padding: scrolled ? '0.5rem 0' : '1rem 0',
+        }}
+      >
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex justify-between items-center">
           <motion.div 
@@ -375,6 +412,7 @@ function Navbar() {
         </motion.div>
       )}
     </motion.nav>
+    </>
   );
 }
 
