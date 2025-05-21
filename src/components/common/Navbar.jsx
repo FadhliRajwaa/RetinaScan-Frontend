@@ -57,10 +57,7 @@ function Navbar() {
   };
 
   useEffect(() => {
-    const query = new URLSearchParams(location.search);
-    const logoutParam = query.get('logout');
-    console.log('Query logout param:', logoutParam); // Debugging
-    checkAuth(logoutParam === 'true');
+    checkAuth();
   }, [location]);
   
   useEffect(() => {
