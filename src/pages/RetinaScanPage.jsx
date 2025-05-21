@@ -97,6 +97,37 @@ const RetinaScanPage = () => {
     fetchHistory();
   }, [navigate, result, API_URL]);
 
+  const handleDeleteAnalysis = async (id) => {
+    try {
+      const token = localStorage.getItem('token');
+      if (!token) {
+        navigate('/login');
+        return;
+      }
+
+      // Konfirmasi penghapusan
+      if (!window.confirm('Apakah Anda yakin ingin menghapus data analisis ini?')) {
+        return;
+      }
+
+      await axios.delete(`${API_URL}/api/analysis/${id}`, {
+        headers: { Authorization: `Bearer ${token}` }
+      });
+
+      // Refresh daftar setelah penghapusan
+      const response = await axios.get(`${API_URL}/api/analysis/history`, {
+        headers: { Authorization: `Bearer ${token}` }
+      });
+      setAnalysisHistory(response.data);
+    } catch (error) {
+      console.error('Error deleting analysis:', error);
+      if (error.response && error.response.status === 401) {
+        localStorage.removeItem('token');
+        navigate('/login');
+      }
+    }
+  };
+
   const handleFileChange = (event) => {
     const file = event.target.files[0];
     if (file) {
@@ -397,12 +428,24 @@ const RetinaScanPage = () => {
                       <ListItem
                         alignItems="flex-start"
                         secondaryAction={
-                          <Typography 
-                            variant="body2" 
-                            color="text.secondary"
-                          >
-                            {format(new Date(item.createdAt), 'dd/MM/yyyy HH:mm')}
-                          </Typography>
+                          <Box display="flex" alignItems="center">
+                            <Typography 
+                              variant="body2" 
+                              color="text.secondary"
+                              mr={1}
+                            >
+                              {format(new Date(item.createdAt), 'dd/MM/yyyy HH:mm')}
+                            </Typography>
+                            <IconButton 
+                              edge="end" 
+                              aria-label="delete"
+                              onClick={() => handleDeleteAnalysis(item._id)}
+                              size="small"
+                              color="error"
+                            >
+                              <DeleteIcon />
+                            </IconButton>
+                          </Box>
                         }
                       >
                         <Avatar 
