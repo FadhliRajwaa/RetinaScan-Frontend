@@ -58,16 +58,24 @@ function LoginPage() {
       }
     };
     
-    // Periksa parameter URL untuk error login
-    const urlParams = new URLSearchParams(window.location.search);
-    const authError = urlParams.get('auth');
-    const from = urlParams.get('from');
+    // Periksa parameter URL untuk error login (dari hash karena HashRouter)
+    const hashParams = window.location.hash.split('?')[1];
+    const query = hashParams ? new URLSearchParams(hashParams) : new URLSearchParams();
+    
+    const authError = query.get('auth');
+    const from = query.get('from');
+    
+    console.log('Hash params:', hashParams);
+    console.log('Auth params:', { auth: authError, from });
     
     if (authError === 'failed' && from === 'dashboard') {
       console.log('Login error detected from URL parameters');
       setError('Sesi login gagal. Silakan login kembali.');
-      // Hapus parameter dari URL
-      window.history.replaceState({}, document.title, window.location.pathname);
+      
+      // Hapus parameter dari URL (sesuai dengan HashRouter)
+      const newHash = window.location.hash.split('?')[0] || '#/';
+      window.history.replaceState({}, document.title, newHash);
+      console.log('Parameters removed from URL, new hash:', newHash);
     }
     
     checkAuth();
@@ -98,12 +106,15 @@ function LoginPage() {
         
         // Pastikan DASHBOARD_URL tidak kosong
         const dashboardUrl = DASHBOARD_URL || 'http://localhost:3000';
-        console.log('Redirecting to:', `${dashboardUrl}/?token=${response.token}`);
+        
+        // Karena menggunakan HashRouter, kita perlu menyesuaikan URL redirect
+        // Format yang benar: https://dashboard.example.com/#/?token=xxx
+        console.log('Redirecting to:', `${dashboardUrl}/#/?token=${response.token}`);
         
         // Redirect ke dashboard dengan token sebagai parameter
         // Gunakan timeout untuk memastikan log selesai tercetak
         setTimeout(() => {
-          window.location.href = `${dashboardUrl}/?token=${response.token}`;
+          window.location.href = `${dashboardUrl}/#/?token=${response.token}`;
         }, 500);
       } else {
         throw new Error('Token tidak ditemukan dalam respon');

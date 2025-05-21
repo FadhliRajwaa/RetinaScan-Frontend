@@ -57,10 +57,17 @@ function Navbar() {
   };
 
   useEffect(() => {
-    const query = new URLSearchParams(location.search);
+    // Dengan HashRouter, kita perlu mengambil query parameter dari hash
+    // Format URL: /#/?logout=true&from=dashboard
+    const hashParams = location.hash.split('?')[1];
+    const query = hashParams ? new URLSearchParams(hashParams) : new URLSearchParams();
+    
     const logoutParam = query.get('logout');
     const fromParam = query.get('from');
-    console.log('Query logout param:', logoutParam, 'From:', fromParam); // Debugging
+    const authParam = query.get('auth');
+    
+    console.log('Hash params:', hashParams);
+    console.log('Query params:', { logout: logoutParam, from: fromParam, auth: authParam });
     
     // Jika parameter logout=true, paksa logout
     if (logoutParam === 'true') {
@@ -77,9 +84,16 @@ function Navbar() {
         console.log('Berhasil logout dari dashboard');
       }
       
-      // Hapus parameter logout dari URL
-      const newUrl = window.location.pathname;
-      window.history.replaceState({}, document.title, newUrl);
+      // Hapus parameter logout dari URL (sesuai dengan HashRouter)
+      const newHash = location.hash.split('?')[0] || '#/';
+      window.history.replaceState({}, document.title, newHash);
+      console.log('Parameters removed from URL, new hash:', newHash);
+    } else if (authParam === 'failed' && fromParam === 'dashboard') {
+      console.log('Authentication failed from dashboard');
+      // Hapus parameter dari URL (sesuai dengan HashRouter)
+      const newHash = location.hash.split('?')[0] || '#/';
+      window.history.replaceState({}, document.title, newHash);
+      console.log('Parameters removed from URL, new hash:', newHash);
     } else {
       // Hanya periksa autentikasi jika tidak sedang logout
       checkAuth(false);
@@ -117,7 +131,8 @@ function Navbar() {
     setToken('');
     
     // Redirect ke landing page dengan paksa refresh
-    window.location.href = '/?logout=true&from=frontend';
+    // Gunakan format yang sesuai dengan HashRouter
+    window.location.href = '/#/?logout=true&from=frontend';
   };
 
   const navbarVariants = {
