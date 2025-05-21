@@ -260,7 +260,7 @@ function LoginPage() {
           animate={{ opacity: 1 }}
           transition={{ delay: 0.4, duration: 0.5 }}
         >
-          Masukkan kredensial Anda untuk mengakses dashboard
+          Masukkan kredensial admin untuk mengakses dashboard
         </motion.p>
         
         {error && (
