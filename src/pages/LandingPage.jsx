@@ -16,11 +16,40 @@ import {
   BeakerIcon,
   AcademicCapIcon
 } from '@heroicons/react/24/outline';
+import axios from 'axios';
 
 function LandingPage() {
   const { theme, animations } = useTheme();
   const [animateParticles, setAnimateParticles] = useState(true);
   const [currentSlide, setCurrentSlide] = useState(0);
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const [token, setToken] = useState('');
+  
+  // Environment variables
+  const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000';
+  const DASHBOARD_URL = import.meta.env.VITE_DASHBOARD_URL || 'http://localhost:3000';
+  
+  // Memeriksa status autentikasi
+  useEffect(() => {
+    const checkAuth = async () => {
+      const storedToken = localStorage.getItem('token');
+      if (storedToken) {
+        try {
+          await axios.get(`${API_URL}/api/user/profile`, {
+            headers: { Authorization: `Bearer ${storedToken}` },
+          });
+          setIsAuthenticated(true);
+          setToken(storedToken);
+        } catch (error) {
+          console.error('Auth check failed:', error);
+          setIsAuthenticated(false);
+          setToken('');
+        }
+      }
+    };
+    
+    checkAuth();
+  }, [API_URL]);
   
   // Efek untuk animasi slide otomatis
   useEffect(() => {
@@ -242,30 +271,49 @@ function LandingPage() {
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.5, delay: 1 }}
             >
-              <Link to="/register">
-                <motion.button
-                  className="px-8 py-4 rounded-full text-white font-bold shadow-lg hover:shadow-xl transition duration-300 flex items-center justify-center w-full sm:w-auto"
-                  style={{
-                    background: `linear-gradient(to right, ${theme.accent}, ${theme.primary})`,
-                    boxShadow: '0 10px 25px -5px rgba(59, 130, 246, 0.5)'
-                  }}
-                  whileHover={{ scale: 1.05, boxShadow: "0 15px 30px -5px rgba(59, 130, 246, 0.7)" }}
-                  whileTap={{ scale: 0.95 }}
-                >
-                  Mulai Sekarang
-                  <ArrowRightIcon className="w-5 h-5 ml-2" />
-                </motion.button>
-              </Link>
-              <Link to="/login">
-                <motion.button
-                  className="px-8 py-4 rounded-full text-white font-bold transition duration-300 flex items-center justify-center w-full sm:w-auto"
-                  style={{ ...theme.glassEffect }}
-                  whileHover={{ scale: 1.05 }}
-                  whileTap={{ scale: 0.95 }}
-                >
-                  Login
-                </motion.button>
-              </Link>
+              {isAuthenticated ? (
+                <a href={`${DASHBOARD_URL}?token=${token}`}>
+                  <motion.button
+                    className="px-8 py-4 rounded-full text-white font-bold shadow-lg hover:shadow-xl transition duration-300 flex items-center justify-center w-full sm:w-auto"
+                    style={{
+                      background: `linear-gradient(to right, ${theme.accent}, ${theme.primary})`,
+                      boxShadow: '0 10px 25px -5px rgba(59, 130, 246, 0.5)'
+                    }}
+                    whileHover={{ scale: 1.05, boxShadow: "0 15px 30px -5px rgba(59, 130, 246, 0.7)" }}
+                    whileTap={{ scale: 0.95 }}
+                  >
+                    Mulai Sekarang
+                    <ArrowRightIcon className="w-5 h-5 ml-2" />
+                  </motion.button>
+                </a>
+              ) : (
+                <>
+                  <Link to="/register">
+                    <motion.button
+                      className="px-8 py-4 rounded-full text-white font-bold shadow-lg hover:shadow-xl transition duration-300 flex items-center justify-center w-full sm:w-auto"
+                      style={{
+                        background: `linear-gradient(to right, ${theme.accent}, ${theme.primary})`,
+                        boxShadow: '0 10px 25px -5px rgba(59, 130, 246, 0.5)'
+                      }}
+                      whileHover={{ scale: 1.05, boxShadow: "0 15px 30px -5px rgba(59, 130, 246, 0.7)" }}
+                      whileTap={{ scale: 0.95 }}
+                    >
+                      Mulai Sekarang
+                      <ArrowRightIcon className="w-5 h-5 ml-2" />
+                    </motion.button>
+                  </Link>
+                  <Link to="/login">
+                    <motion.button
+                      className="px-8 py-4 rounded-full text-white font-bold transition duration-300 flex items-center justify-center w-full sm:w-auto"
+                      style={{ ...theme.glassEffect }}
+                      whileHover={{ scale: 1.05 }}
+                      whileTap={{ scale: 0.95 }}
+                    >
+                      Login
+                    </motion.button>
+                  </Link>
+                </>
+              )}
             </motion.div>
             
             <motion.div
@@ -566,7 +614,9 @@ function LandingPage() {
                 transition={{ delay: 0.4, duration: 0.5 }}
                 viewport={{ once: true }}
               >
-                Daftar sekarang dan dapatkan akses ke platform deteksi retinopati diabetik berbasis AI
+                {isAuthenticated 
+                  ? "Akses dashboard untuk menggunakan platform deteksi retinopati diabetik berbasis AI" 
+                  : "Daftar sekarang dan dapatkan akses ke platform deteksi retinopati diabetik berbasis AI"}
               </motion.p>
               
               <motion.div
@@ -575,15 +625,27 @@ function LandingPage() {
                 transition={{ delay: 0.6, duration: 0.5 }}
                 viewport={{ once: true }}
               >
-                <Link to="/register">
-                  <motion.button
-                    className="px-8 py-4 bg-white text-blue-600 rounded-full font-bold shadow-lg hover:shadow-xl transition duration-300 text-lg"
-                    whileHover={{ scale: 1.05 }}
-                    whileTap={{ scale: 0.95 }}
-                  >
-                    Daftar Gratis
-                  </motion.button>
-                </Link>
+                {isAuthenticated ? (
+                  <a href={`${DASHBOARD_URL}?token=${token}`}>
+                    <motion.button
+                      className="px-8 py-4 bg-white text-blue-600 rounded-full font-bold shadow-lg hover:shadow-xl transition duration-300 text-lg"
+                      whileHover={{ scale: 1.05 }}
+                      whileTap={{ scale: 0.95 }}
+                    >
+                      Buka Dashboard
+                    </motion.button>
+                  </a>
+                ) : (
+                  <Link to="/register">
+                    <motion.button
+                      className="px-8 py-4 bg-white text-blue-600 rounded-full font-bold shadow-lg hover:shadow-xl transition duration-300 text-lg"
+                      whileHover={{ scale: 1.05 }}
+                      whileTap={{ scale: 0.95 }}
+                    >
+                      Daftar Gratis
+                    </motion.button>
+                  </Link>
+                )}
               </motion.div>
             </div>
           </motion.div>
@@ -677,12 +739,12 @@ function LandingPage() {
                 <div className="h-12 w-12 rounded-full flex items-center justify-center text-xl font-bold"
                      style={{ background: `${theme.secondary}20`, color: theme.secondary }}>
                   SK
-            </div>
+                </div>
                 <div className="ml-4">
                   <h4 className="font-semibold">Siti Kurniawati</h4>
                   <p className="text-gray-500 text-sm">Perawat RS Medika</p>
-            </div>
-          </div>
+                </div>
+              </div>
               <p className="text-gray-600">
                 "Sangat mudah digunakan dan memberikan hasil yang akurat. Kami menggunakan 
                 RetinaScan untuk screening pasien diabetes di rumah sakit kami."

@@ -1,9 +1,39 @@
 import { motion } from 'framer-motion';
 import { useTheme } from '../../context/ThemeContext';
+import { useState, useEffect } from 'react';
+import axios from 'axios';
 
 function Footer() {
   const currentYear = new Date().getFullYear();
   const { theme } = useTheme();
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const [token, setToken] = useState('');
+  
+  // Environment variables
+  const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000';
+  const DASHBOARD_URL = import.meta.env.VITE_DASHBOARD_URL || 'http://localhost:3000';
+  
+  // Memeriksa status autentikasi
+  useEffect(() => {
+    const checkAuth = async () => {
+      const storedToken = localStorage.getItem('token');
+      if (storedToken) {
+        try {
+          await axios.get(`${API_URL}/api/user/profile`, {
+            headers: { Authorization: `Bearer ${storedToken}` },
+          });
+          setIsAuthenticated(true);
+          setToken(storedToken);
+        } catch (error) {
+          console.error('Auth check failed:', error);
+          setIsAuthenticated(false);
+          setToken('');
+        }
+      }
+    };
+    
+    checkAuth();
+  }, [API_URL]);
   
   const footerVariants = {
     hidden: { opacity: 0, y: 20 },
@@ -59,12 +89,21 @@ function Footer() {
               <motion.div whileHover="hover" variants={linkHoverVariants}>
                 <a href="/" className="block text-blue-200 hover:text-white transition">Beranda</a>
               </motion.div>
-              <motion.div whileHover="hover" variants={linkHoverVariants}>
-                <a href="/login" className="block text-blue-200 hover:text-white transition">Login</a>
-              </motion.div>
-              <motion.div whileHover="hover" variants={linkHoverVariants}>
-                <a href="/register" className="block text-blue-200 hover:text-white transition">Register</a>
-              </motion.div>
+              {!isAuthenticated && (
+                <>
+                  <motion.div whileHover="hover" variants={linkHoverVariants}>
+                    <a href="/login" className="block text-blue-200 hover:text-white transition">Login</a>
+                  </motion.div>
+                  <motion.div whileHover="hover" variants={linkHoverVariants}>
+                    <a href="/register" className="block text-blue-200 hover:text-white transition">Register</a>
+                  </motion.div>
+                </>
+              )}
+              {isAuthenticated && (
+                <motion.div whileHover="hover" variants={linkHoverVariants}>
+                  <a href={`${DASHBOARD_URL}?token=${token}`} className="block text-blue-200 hover:text-white transition">Dashboard</a>
+                </motion.div>
+              )}
             </div>
           </div>
           
