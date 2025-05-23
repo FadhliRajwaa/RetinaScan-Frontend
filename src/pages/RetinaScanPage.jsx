@@ -163,9 +163,17 @@ const RetinaScanPage = () => {
 
     setIsLoading(true);
     setError('');
+    
+    // Informasi untuk user tentang cold start
+    const coldStartTimeout = setTimeout(() => {
+      setError('Pemrosesan membutuhkan waktu lebih lama dari biasanya. Ini mungkin karena cold start pada server. Mohon tunggu...');
+    }, 10000); // Tampilkan pesan setelah 10 detik
 
     const formData = new FormData();
     formData.append('image', selectedFile);
+    
+    // Tambahkan patientId jika tersedia
+    formData.append('patientId', '65f2a3b1e4b0a1c2d3e4f5a6'); // ID default untuk demo
 
     try {
       const token = localStorage.getItem('token');
@@ -174,36 +182,75 @@ const RetinaScanPage = () => {
         return;
       }
 
-      const response = await axios.post(`${API_URL}/api/analysis/upload`, formData, {
-        headers: {
-          'Content-Type': 'multipart/form-data',
-          Authorization: `Bearer ${token}`
-        }
-      });
+      // Implementasi retry logic untuk mengatasi cold start
+      let retries = 3;
+      let success = false;
+      let lastError = null;
+      
+      while (retries > 0 && !success) {
+        try {
+          console.log(`Mencoba upload gambar (percobaan ke-${4-retries}/3)...`);
+          
+          const response = await axios.post(`${API_URL}/api/analysis/upload`, formData, {
+            headers: {
+              'Content-Type': 'multipart/form-data',
+              Authorization: `Bearer ${token}`
+            },
+            timeout: 180000 // 3 menit timeout untuk mengakomodasi cold start
+          });
 
-      // Sekarang response langsung berisi imageData (base64)
-      setResult(response.data.prediction);
+          // Berhasil mendapatkan respons
+          clearTimeout(coldStartTimeout);
+          setResult(response.data.prediction);
+          
+          // Refresh history after successful upload
+          const historyResponse = await axios.get(`${API_URL}/api/analysis/history`, {
+            headers: { Authorization: `Bearer ${token}` }
+          });
+          setAnalysisHistory(historyResponse.data);
+          
+          success = true;
+        } catch (error) {
+          lastError = error;
+          
+          // Deteksi cold start (502 Bad Gateway)
+          if (error.response && error.response.status === 502) {
+            setError('Server sedang startup (cold start). Mencoba kembali dalam 30 detik...');
+            await new Promise(resolve => setTimeout(resolve, 30000)); // Wait 30 seconds
+          } else {
+            setError(`Percobaan ke-${4-retries} gagal. Mencoba kembali dalam 5 detik...`);
+            await new Promise(resolve => setTimeout(resolve, 5000)); // Wait 5 seconds
+          }
+          
+          retries--;
+        }
+      }
       
-      // Refresh history after successful upload
-      const historyResponse = await axios.get(`${API_URL}/api/analysis/history`, {
-        headers: { Authorization: `Bearer ${token}` }
-      });
-      setAnalysisHistory(historyResponse.data);
-      
-      // Tetap di tab Scan, jangan otomatis pindah ke hasil
+      // Jika semua percobaan gagal
+      if (!success) {
+        throw lastError || new Error('Gagal setelah beberapa percobaan');
+      }
     } catch (error) {
+      clearTimeout(coldStartTimeout);
       console.error('Error uploading:', error);
+      
       if (error.response) {
-        setError(error.response.data.message || 'Terjadi kesalahan saat mengupload file.');
         if (error.response.status === 401) {
           localStorage.removeItem('token');
           navigate('/login');
+        } else if (error.response.status === 504 || error.response.status === 502) {
+          setError('Server mungkin sedang dalam cold start. Silakan coba lagi dalam 2-3 menit.');
+        } else {
+          setError(error.response.data.message || 'Terjadi kesalahan saat mengupload file.');
         }
+      } else if (error.code === 'ECONNABORTED') {
+        setError('Waktu permintaan habis. Server mungkin sedang dalam cold start. Silakan coba lagi dalam 2-3 menit.');
       } else {
         setError('Terjadi kesalahan jaringan. Silakan coba lagi.');
       }
     } finally {
       setIsLoading(false);
+      clearTimeout(coldStartTimeout);
     }
   };
 
