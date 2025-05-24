@@ -1,7 +1,8 @@
 import { Link } from 'react-router-dom';
-import { motion, AnimatePresence } from 'framer-motion';
+import { motion, useScroll, useTransform } from 'framer-motion';
 import { useTheme } from '../context/ThemeContext';
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
+import { useInView } from 'react-intersection-observer';
 import { 
   ArrowRightIcon, 
   ShieldCheckIcon, 
@@ -14,7 +15,8 @@ import {
   DocumentTextIcon,
   ClockIcon,
   BeakerIcon,
-  AcademicCapIcon
+  AcademicCapIcon,
+  CheckCircleIcon
 } from '@heroicons/react/24/outline';
 import axios from 'axios';
 import { withPageTransition } from '../context/ThemeContext';
@@ -22,18 +24,40 @@ import { newTheme, enhancedAnimations, lottieConfig } from '../utils/newTheme';
 import LottieAnimation from '../components/LottieAnimation';
 import ParticlesBackground from '../components/ParticlesBackground';
 import AnimatedButton from '../components/AnimatedButton';
+import ScrollReveal from '../components/ScrollReveal';
 
 const LandingPage = () => {
   const { theme, animations } = useTheme();
-  const [animateParticles, setAnimateParticles] = useState(true);
-  const [currentSlide, setCurrentSlide] = useState(0);
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [token, setToken] = useState('');
   const [scrollY, setScrollY] = useState(0);
+  const heroRef = useRef(null);
   
   // Environment variables
   const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000';
   const DASHBOARD_URL = import.meta.env.VITE_DASHBOARD_URL || 'http://localhost:3000';
+  
+  // Scroll animation values
+  const { scrollYProgress } = useScroll();
+  const heroOpacity = useTransform(scrollYProgress, [0, 0.2], [1, 0]);
+  const heroScale = useTransform(scrollYProgress, [0, 0.2], [1, 0.95]);
+  const heroY = useTransform(scrollYProgress, [0, 0.2], [0, 50]);
+  
+  // Intersection Observer untuk animasi scroll
+  const [featuresRef, featuresInView] = useInView({
+    threshold: 0.1,
+    triggerOnce: true,
+  });
+  
+  const [statsRef, statsInView] = useInView({
+    threshold: 0.1,
+    triggerOnce: true,
+  });
+  
+  const [ctaRef, ctaInView] = useInView({
+    threshold: 0.1,
+    triggerOnce: true,
+  });
   
   // Memeriksa status autentikasi
   useEffect(() => {
@@ -57,14 +81,6 @@ const LandingPage = () => {
     checkAuth();
   }, [API_URL]);
   
-  // Efek untuk animasi slide otomatis
-  useEffect(() => {
-    const interval = setInterval(() => {
-      setCurrentSlide((prev) => (prev + 1) % 3);
-    }, 5000);
-    return () => clearInterval(interval);
-  }, []);
-  
   // Effect untuk mendeteksi scroll
   useEffect(() => {
     const handleScroll = () => {
@@ -75,22 +91,16 @@ const LandingPage = () => {
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
   
-  const fadeInUp = {
-    hidden: { opacity: 0, y: 20 },
-    visible: (custom) => ({
-      opacity: 1,
-      y: 0,
-      transition: { 
-        type: 'spring',
-        damping: 15,
-        stiffness: 100,
-        delay: custom * 0.2,
-        duration: 0.8
-      }
-    })
+  // Scroll ke section
+  const scrollToFeatures = () => {
+    const featuresSection = document.getElementById('features');
+    if (featuresSection) {
+      featuresSection.scrollIntoView({ behavior: 'smooth' });
+    }
   };
   
-  const staggerContainer = {
+  // Animasi untuk container dengan stagger children
+  const containerVariants = {
     hidden: { opacity: 0 },
     visible: {
       opacity: 1,
@@ -101,751 +111,463 @@ const LandingPage = () => {
     }
   };
   
-  // Animasi partikel
-  const particleVariants = {
-    animate: {
-      y: [0, -10, 0],
-      opacity: [0.3, 1, 0.3],
-      scale: [1, 1.2, 1],
-      transition: {
-        duration: 3,
-        repeat: Infinity,
-        repeatType: "reverse"
-      }
-    }
-  };
-  
-  // Animasi untuk floating elements
-  const floatVariants = {
-    animate: (custom) => ({
-      y: [0, -10, 0],
-      transition: {
-        duration: 4,
-        delay: custom * 0.5,
-        repeat: Infinity,
-        repeatType: "reverse"
-      }
-    })
-  };
-  
-  // Animasi untuk slide
-  const slideVariants = {
-    enter: (direction) => ({
-      x: direction > 0 ? 1000 : -1000,
-      opacity: 0
-    }),
-    center: {
-      x: 0,
-      opacity: 1,
-      transition: {
-        duration: 0.5
-      }
-    },
-    exit: (direction) => ({
-      x: direction < 0 ? 1000 : -1000,
-      opacity: 0,
-      transition: {
-        duration: 0.5
-      }
-    })
-  };
-
-  // Variasi animasi untuk elemen yang muncul saat di-scroll
-  const scrollRevealVariants = {
-    hidden: { opacity: 0, y: 50 },
+  // Animasi untuk items dalam container
+  const itemVariants = {
+    hidden: { opacity: 0, y: 20 },
     visible: {
       opacity: 1,
       y: 0,
-      transition: {
-        duration: 0.8,
-        ease: [0.22, 1, 0.36, 1]
+      transition: { 
+        type: 'spring',
+        damping: 15,
+        stiffness: 100
       }
     }
   };
+  
+  // Data fitur
+  const features = [
+    {
+      title: 'Deteksi Cepat & Akurat',
+      description: 'Analisis gambar retina dalam hitungan detik dengan akurasi tinggi menggunakan AI canggih.',
+      icon: <BoltIcon className="h-8 w-8" />,
+      color: 'from-blue-500 to-indigo-600',
+      animation: 'fade-up'
+    },
+    {
+      title: 'Keamanan Data Terjamin',
+      description: 'Data medis Anda dienkripsi dan dilindungi dengan standar keamanan tertinggi.',
+      icon: <ShieldCheckIcon className="h-8 w-8" />,
+      color: 'from-emerald-500 to-teal-600',
+      animation: 'fade-up'
+    },
+    {
+      title: 'Laporan Komprehensif',
+      description: 'Dapatkan laporan detail dengan visualisasi dan rekomendasi tindak lanjut.',
+      icon: <DocumentTextIcon className="h-8 w-8" />,
+      color: 'from-amber-500 to-orange-600',
+      animation: 'fade-up'
+    },
+    {
+      title: 'Terintegrasi dengan EMR',
+      description: 'Mudah diintegrasikan dengan sistem rekam medis elektronik yang sudah ada.',
+      icon: <CogIcon className="h-8 w-8" />,
+      color: 'from-purple-500 to-pink-600',
+      animation: 'fade-up'
+    },
+    {
+      title: 'Analisis Statistik',
+      description: 'Pantau tren dan perkembangan kesehatan retina pasien dari waktu ke waktu.',
+      icon: <ChartBarIcon className="h-8 w-8" />,
+      color: 'from-red-500 to-rose-600',
+      animation: 'fade-up'
+    },
+    {
+      title: 'Pembelajaran Berkelanjutan',
+      description: 'Sistem AI yang terus belajar dan meningkatkan akurasi dari waktu ke waktu.',
+      icon: <AcademicCapIcon className="h-8 w-8" />,
+      color: 'from-cyan-500 to-blue-600',
+      animation: 'fade-up'
+    }
+  ];
+  
+  // Data statistik
+  const stats = [
+    { value: '98%', label: 'Akurasi Deteksi', animation: 'fade-up', delay: 0 },
+    { value: '2.5 detik', label: 'Waktu Analisis', animation: 'fade-up', delay: 0.1 },
+    { value: '10,000+', label: 'Pasien Terlayani', animation: 'fade-up', delay: 0.2 },
+    { value: '50+', label: 'Rumah Sakit Mitra', animation: 'fade-up', delay: 0.3 }
+  ];
 
   return (
-    <div style={{ overflow: 'hidden' }}>
+    <div className="overflow-x-hidden">
       {/* Background Particles */}
-      <ParticlesBackground color="rgba(79, 70, 229, 0.3)" count={100} speed={0.5} />
-
+      <ParticlesBackground 
+        color="rgba(79, 70, 229, 0.2)" 
+        count={50} 
+        speed={0.3} 
+        type="wave" 
+      />
+      
       {/* Hero Section */}
-      <section
-        style={{
-          minHeight: '100vh',
-          display: 'flex',
-          flexDirection: 'column',
-          justifyContent: 'center',
-          position: 'relative',
-          padding: '2rem',
-          overflow: 'hidden',
+      <motion.section
+        ref={heroRef}
+        style={{ 
+          opacity: heroOpacity,
+          scale: heroScale,
+          y: heroY
         }}
-      >
-        {/* Decorative Circles */}
-        <motion.div
-          style={{
-            position: 'absolute',
-            width: '40rem',
-            height: '40rem',
-            borderRadius: '50%',
-            background: 'radial-gradient(circle, rgba(79, 70, 229, 0.1) 0%, rgba(79, 70, 229, 0) 70%)',
-            top: '-20%',
-            right: '-10%',
-            zIndex: -1,
-          }}
-          animate={{
-            scale: [1, 1.05, 1],
-            rotate: [0, 5, 0],
-            opacity: [0.5, 0.7, 0.5],
-          }}
-          transition={{
-            duration: 20,
-            repeat: Infinity,
-            ease: 'easeInOut',
-          }}
-        />
-        
-        <motion.div
-          style={{
-            position: 'absolute',
-            width: '30rem',
-            height: '30rem',
-            borderRadius: '50%',
-            background: 'radial-gradient(circle, rgba(6, 182, 212, 0.1) 0%, rgba(6, 182, 212, 0) 70%)',
-            bottom: '-10%',
-            left: '-5%',
-            zIndex: -1,
-          }}
-          animate={{
-            scale: [1, 1.1, 1],
-            rotate: [0, -5, 0],
-            opacity: [0.5, 0.7, 0.5],
-          }}
-          transition={{
-            duration: 15,
-            repeat: Infinity,
-            ease: 'easeInOut',
-            delay: 2,
-          }}
-        />
-
-        <div
-          style={{
-            maxWidth: '1200px',
-            margin: '0 auto',
-            width: '100%',
-            display: 'flex',
-            flexDirection: 'column',
-            alignItems: 'center',
-            textAlign: 'center',
-            zIndex: 1,
-          }}
-        >
-          {/* Hero Content */}
-          <motion.div
-            initial="hidden"
-            animate="visible"
-            variants={enhancedAnimations.container}
-          >
-            {/* Badge */}
-            <motion.div
-              variants={enhancedAnimations.item}
-              style={{
-                display: 'inline-flex',
-                alignItems: 'center',
-                background: newTheme.glass.light.background,
-                backdropFilter: newTheme.glass.light.backdropFilter,
-                border: newTheme.glass.light.border,
-                borderRadius: '9999px',
-                padding: '0.5rem 1rem',
-                marginBottom: '1.5rem',
-                boxShadow: newTheme.shadows.sm,
-              }}
-            >
-              <span
-                style={{
-                  width: '0.5rem',
-                  height: '0.5rem',
-                  borderRadius: '50%',
-                  background: newTheme.primary,
-                  marginRight: '0.5rem',
-                }}
-              />
-              <span
-                style={{
-                  fontSize: '0.875rem',
-                  fontWeight: '500',
-                  color: newTheme.text.accent,
-                }}
-              >
-                Teknologi Terkini untuk Kesehatan Mata
-              </span>
-            </motion.div>
-
-            {/* Headline */}
-            <motion.h1
-              variants={enhancedAnimations.item}
-              style={{
-                fontSize: '3.5rem',
-                fontWeight: '800',
-                lineHeight: '1.1',
-                marginBottom: '1.5rem',
-                background: newTheme.gradients.retina,
-                WebkitBackgroundClip: 'text',
-                WebkitTextFillColor: 'transparent',
-                backgroundClip: 'text',
-                textFillColor: 'transparent',
-              }}
-            >
-              Deteksi Dini Retinopati Diabetik dengan AI
-            </motion.h1>
-
-            {/* Subheadline */}
-            <motion.p
-              variants={enhancedAnimations.item}
-              style={{
-                fontSize: '1.25rem',
-                lineHeight: '1.7',
-                color: newTheme.text.secondary,
-                maxWidth: '800px',
-                margin: '0 auto 2rem',
-              }}
-            >
-              Solusi inovatif berbasis kecerdasan buatan untuk mendeteksi retinopati diabetik pada tahap awal, 
-              membantu mencegah kebutaan dan meningkatkan kualitas hidup pasien diabetes.
-            </motion.p>
-
-            {/* CTA Buttons */}
-            <motion.div
-              variants={enhancedAnimations.item}
-              style={{
-                display: 'flex',
-                flexWrap: 'wrap',
-                gap: '1rem',
-                justifyContent: 'center',
-                marginBottom: '3rem',
-              }}
-            >
-              {isAuthenticated ? (
-                <a href={DASHBOARD_URL}>
-                  <AnimatedButton 
-                    variant="primary" 
-                    size="lg"
-                  >
-                    Buka Dashboard
-                  </AnimatedButton>
-                </a>
-              ) : (
-                <>
-                  <Link to="/login">
-                    <AnimatedButton 
-                      variant="primary" 
-                      size="lg"
-                    >
-                      Mulai Sekarang
-                    </AnimatedButton>
-                  </Link>
-                  <Link to="/register">
-                    <AnimatedButton 
-                      variant="outline" 
-                      size="lg"
-                    >
-                      Daftar Akun
-                    </AnimatedButton>
-                  </Link>
-                </>
-              )}
-            </motion.div>
-          </motion.div>
-
-          {/* Hero Animation */}
-          <motion.div
-            initial={{ opacity: 0, scale: 0.8 }}
-            animate={{ opacity: 1, scale: 1 }}
-            transition={{ duration: 0.8, delay: 0.5 }}
-            style={{
-              width: '100%',
-              maxWidth: '600px',
-              height: '400px',
-              margin: '0 auto',
-            }}
-          >
-            <LottieAnimation
-              animationData={lottieConfig.animations.eyeScan}
-              loop={true}
-              autoplay={true}
-            />
-          </motion.div>
-        </div>
-
-        {/* Scroll Indicator */}
-        <motion.div
-          style={{
-            position: 'absolute',
-            bottom: '2rem',
-            left: '50%',
-            transform: 'translateX(-50%)',
-            display: 'flex',
-            flexDirection: 'column',
-            alignItems: 'center',
-            cursor: 'pointer',
-          }}
-          animate={{
-            y: [0, 10, 0],
-          }}
-          transition={{
-            duration: 1.5,
-            repeat: Infinity,
-            ease: 'easeInOut',
-          }}
-          onClick={() => window.scrollTo({
-            top: window.innerHeight,
-            behavior: 'smooth',
-          })}
-        >
-          <span style={{ color: newTheme.text.secondary, marginBottom: '0.5rem', fontSize: '0.875rem' }}>
-            Scroll untuk melihat lebih banyak
-          </span>
-          <svg
-            width="24"
-            height="24"
-            viewBox="0 0 24 24"
-            fill="none"
-            stroke={newTheme.primary}
-            strokeWidth="2"
-            strokeLinecap="round"
-            strokeLinejoin="round"
-          >
-            <path d="M7 13l5 5 5-5M7 6l5 5 5-5" />
-          </svg>
-        </motion.div>
-      </section>
-
-      {/* Features Section */}
-      <section
-        style={{
-          padding: '6rem 2rem',
-          background: 'linear-gradient(180deg, rgba(255,255,255,0) 0%, rgba(239,246,255,0.5) 100%)',
-        }}
-      >
-        <div
-          style={{
-            maxWidth: '1200px',
-            margin: '0 auto',
-          }}
-        >
-          {/* Section Header */}
-          <motion.div
-            initial="hidden"
-            whileInView="visible"
-            viewport={{ once: true, amount: 0.2 }}
-            variants={scrollRevealVariants}
-            style={{
-              textAlign: 'center',
-              marginBottom: '4rem',
-            }}
-          >
-            <h2
-              style={{
-                fontSize: '2.5rem',
-                fontWeight: '700',
-                marginBottom: '1rem',
-                color: newTheme.text.primary,
-              }}
-            >
-              Fitur Unggulan
-            </h2>
-            <p
-              style={{
-                fontSize: '1.125rem',
-                color: newTheme.text.secondary,
-                maxWidth: '700px',
-                margin: '0 auto',
-              }}
-            >
-              Sistem kami menggabungkan teknologi AI terkini dengan pengalaman pengguna yang intuitif untuk memberikan solusi deteksi retinopati diabetik yang akurat dan mudah digunakan.
-            </p>
-          </motion.div>
-
-          {/* Features Grid */}
-          <div
-            style={{
-              display: 'grid',
-              gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))',
-              gap: '2rem',
-            }}
-          >
-            {/* Feature 1 */}
-            <motion.div
-              initial="hidden"
-              whileInView="visible"
-              viewport={{ once: true, amount: 0.2 }}
-              variants={scrollRevealVariants}
-              style={{
-                background: 'white',
-                borderRadius: '1rem',
-                padding: '2rem',
-                boxShadow: newTheme.shadows.md,
-                display: 'flex',
-                flexDirection: 'column',
-                alignItems: 'flex-start',
-              }}
-            >
-              <div
-                style={{
-                  width: '3rem',
-                  height: '3rem',
-                  borderRadius: '0.75rem',
-                  background: 'rgba(79, 70, 229, 0.1)',
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  marginBottom: '1.5rem',
-                }}
-              >
-                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke={newTheme.primary} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                  <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
-                  <circle cx="12" cy="12" r="3"></circle>
-                </svg>
-              </div>
-              <h3
-                style={{
-                  fontSize: '1.25rem',
-                  fontWeight: '600',
-                  marginBottom: '0.75rem',
-                  color: newTheme.text.primary,
-                }}
-              >
-                Deteksi Cepat & Akurat
-              </h3>
-              <p
-                style={{
-                  color: newTheme.text.secondary,
-                  lineHeight: '1.6',
-                }}
-              >
-                Algoritma AI kami dapat mendeteksi tanda-tanda retinopati diabetik dengan akurasi tinggi dalam hitungan detik, membantu diagnosis dini dan penanganan yang tepat.
-              </p>
-            </motion.div>
-
-            {/* Feature 2 */}
-            <motion.div
-              initial="hidden"
-              whileInView="visible"
-              viewport={{ once: true, amount: 0.2 }}
-              variants={scrollRevealVariants}
-              style={{
-                background: 'white',
-                borderRadius: '1rem',
-                padding: '2rem',
-                boxShadow: newTheme.shadows.md,
-                display: 'flex',
-                flexDirection: 'column',
-                alignItems: 'flex-start',
-                transition: 'transform 0.3s ease, box-shadow 0.3s ease',
-              }}
-            >
-              <div
-                style={{
-                  width: '3rem',
-                  height: '3rem',
-                  borderRadius: '0.75rem',
-                  background: 'rgba(6, 182, 212, 0.1)',
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  marginBottom: '1.5rem',
-                }}
-              >
-                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke={newTheme.secondary} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                  <rect x="2" y="3" width="20" height="14" rx="2" ry="2"></rect>
-                  <line x1="8" y1="21" x2="16" y2="21"></line>
-                  <line x1="12" y1="17" x2="12" y2="21"></line>
-                </svg>
-              </div>
-              <h3
-                style={{
-                  fontSize: '1.25rem',
-                  fontWeight: '600',
-                  marginBottom: '0.75rem',
-                  color: newTheme.text.primary,
-                }}
-              >
-                Antarmuka Pengguna Intuitif
-              </h3>
-              <p
-                style={{
-                  color: newTheme.text.secondary,
-                  lineHeight: '1.6',
-                }}
-              >
-                Platform yang mudah digunakan untuk dokter dan tenaga medis, dengan dashboard yang informatif dan alur kerja yang efisien untuk mengelola data pasien.
-              </p>
-            </motion.div>
-
-            {/* Feature 3 */}
-            <motion.div
-              initial="hidden"
-              whileInView="visible"
-              viewport={{ once: true, amount: 0.2 }}
-              variants={scrollRevealVariants}
-              style={{
-                background: 'white',
-                borderRadius: '1rem',
-                padding: '2rem',
-                boxShadow: newTheme.shadows.md,
-                display: 'flex',
-                flexDirection: 'column',
-                alignItems: 'flex-start',
-              }}
-            >
-              <div
-                style={{
-                  width: '3rem',
-                  height: '3rem',
-                  borderRadius: '0.75rem',
-                  background: 'rgba(139, 92, 246, 0.1)',
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  marginBottom: '1.5rem',
-                }}
-              >
-                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke={newTheme.accent} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                  <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path>
-                </svg>
-              </div>
-              <h3
-                style={{
-                  fontSize: '1.25rem',
-                  fontWeight: '600',
-                  marginBottom: '0.75rem',
-                  color: newTheme.text.primary,
-                }}
-              >
-                Keamanan Data Terjamin
-              </h3>
-              <p
-                style={{
-                  color: newTheme.text.secondary,
-                  lineHeight: '1.6',
-                }}
-              >
-                Kami memprioritaskan keamanan data pasien dengan enkripsi end-to-end dan kepatuhan terhadap standar privasi kesehatan internasional.
-              </p>
-            </motion.div>
-          </div>
-        </div>
-      </section>
-
-      {/* CTA Section */}
-      <section
-        style={{
-          padding: '6rem 2rem',
-          background: `linear-gradient(135deg, rgba(79, 70, 229, 0.05) 0%, rgba(139, 92, 246, 0.05) 100%)`,
-          position: 'relative',
-          overflow: 'hidden',
-        }}
+        className="relative min-h-screen flex flex-col justify-center items-center px-4 sm:px-6 lg:px-8 pt-16 pb-24"
       >
         {/* Decorative Elements */}
-        <motion.div
-          style={{
-            position: 'absolute',
-            top: '20%',
-            left: '5%',
-            width: '15rem',
-            height: '15rem',
-            borderRadius: '50%',
-            background: 'radial-gradient(circle, rgba(79, 70, 229, 0.1) 0%, rgba(79, 70, 229, 0) 70%)',
-            zIndex: 0,
-          }}
-          animate={{
-            scale: [1, 1.2, 1],
-            opacity: [0.3, 0.5, 0.3],
-          }}
-          transition={{
-            duration: 12,
-            repeat: Infinity,
-            ease: 'easeInOut',
-          }}
-        />
+        <div className="absolute inset-0 overflow-hidden pointer-events-none">
+          <div className="absolute top-1/4 left-0 w-64 h-64 bg-gradient-to-r from-blue-400 to-indigo-500 rounded-full mix-blend-multiply filter blur-3xl opacity-20 animate-blob"></div>
+          <div className="absolute top-1/3 right-0 w-80 h-80 bg-gradient-to-r from-purple-400 to-pink-500 rounded-full mix-blend-multiply filter blur-3xl opacity-20 animate-blob animation-delay-2000"></div>
+          <div className="absolute bottom-0 left-1/4 w-72 h-72 bg-gradient-to-r from-red-400 to-yellow-500 rounded-full mix-blend-multiply filter blur-3xl opacity-20 animate-blob animation-delay-4000"></div>
+        </div>
         
-        <motion.div
-          style={{
-            position: 'absolute',
-            bottom: '10%',
-            right: '10%',
-            width: '20rem',
-            height: '20rem',
-            borderRadius: '50%',
-            background: 'radial-gradient(circle, rgba(139, 92, 246, 0.1) 0%, rgba(139, 92, 246, 0) 70%)',
-            zIndex: 0,
-          }}
-          animate={{
-            scale: [1, 1.3, 1],
-            opacity: [0.2, 0.4, 0.2],
-          }}
-          transition={{
-            duration: 15,
-            repeat: Infinity,
-            ease: 'easeInOut',
-            delay: 1,
-          }}
-        />
-
-        <div
-          style={{
-            maxWidth: '1000px',
-            margin: '0 auto',
-            position: 'relative',
-            zIndex: 1,
-          }}
-        >
-          <motion.div
-            initial="hidden"
-            whileInView="visible"
-            viewport={{ once: true, amount: 0.2 }}
-            variants={scrollRevealVariants}
-            style={{
-              background: 'white',
-              borderRadius: '1.5rem',
-              padding: '3rem',
-              boxShadow: newTheme.shadows.xl,
-              textAlign: 'center',
-              overflow: 'hidden',
-              position: 'relative',
-            }}
-          >
-            {/* Glass Effect Overlay */}
-            <div
-              style={{
-                position: 'absolute',
-                top: 0,
-                left: 0,
-                right: 0,
-                height: '6px',
-                background: newTheme.gradients.retina,
-                borderTopLeftRadius: '1.5rem',
-                borderTopRightRadius: '1.5rem',
-              }}
-            />
+        <div className="container mx-auto max-w-7xl relative z-10">
+          <div className="flex flex-col lg:flex-row items-center justify-between gap-12">
+            {/* Hero Content */}
+            <motion.div 
+              className="lg:w-1/2 text-center lg:text-left"
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.8, ease: [0.22, 1, 0.36, 1] }}
+            >
+              <h1 className="text-4xl md:text-5xl lg:text-6xl font-extrabold mb-6 bg-clip-text text-transparent bg-gradient-to-r from-indigo-600 to-purple-600 dark:from-indigo-400 dark:to-purple-400">
+                Deteksi Dini Retinopati Diabetik dengan AI
+              </h1>
+              
+              <p className="text-lg md:text-xl text-gray-700 dark:text-gray-300 mb-8 max-w-2xl mx-auto lg:mx-0">
+                Teknologi AI canggih untuk mendeteksi penyakit retina dengan cepat dan akurat. Lindungi penglihatan Anda dengan diagnosis dini.
+              </p>
+              
+              <div className="flex flex-col sm:flex-row gap-4 justify-center lg:justify-start">
+                {isAuthenticated ? (
+                  <Link to={`${DASHBOARD_URL}?token=${token}`}>
+                    <AnimatedButton variant="primary" size="lg">
+                      <span className="flex items-center">
+                        Buka Dashboard
+                        <ArrowRightIcon className="ml-2 h-5 w-5" />
+                      </span>
+                    </AnimatedButton>
+                  </Link>
+                ) : (
+                  <>
+                    <Link to="/register">
+                      <AnimatedButton variant="primary" size="lg">
+                        <span className="flex items-center">
+                          Mulai Sekarang
+                          <ArrowRightIcon className="ml-2 h-5 w-5" />
+                        </span>
+                      </AnimatedButton>
+                    </Link>
+                    <Link to="/login">
+                      <AnimatedButton variant="outline" size="lg">
+                        Login
+                      </AnimatedButton>
+                    </Link>
+                  </>
+                )}
+              </div>
+            </motion.div>
             
-            <h2
-              style={{
-                fontSize: '2.5rem',
-                fontWeight: '700',
-                marginBottom: '1.5rem',
-                color: newTheme.text.primary,
-              }}
+            {/* Hero Animation */}
+            <motion.div 
+              className="lg:w-1/2 h-64 sm:h-80 md:h-96 lg:h-[500px]"
+              initial={{ opacity: 0, scale: 0.9 }}
+              animate={{ opacity: 1, scale: 1 }}
+              transition={{ duration: 0.8, delay: 0.2, ease: [0.22, 1, 0.36, 1] }}
             >
-              Siap Bergabung dengan Kami?
-            </h2>
-            <p
-              style={{
-                fontSize: '1.125rem',
-                color: newTheme.text.secondary,
-                maxWidth: '700px',
-                margin: '0 auto 2rem',
-                lineHeight: '1.7',
-              }}
+              <LottieAnimation
+                animationData={lottieConfig.animations.hero}
+                loop={true}
+              />
+            </motion.div>
+          </div>
+          
+          {/* Scroll Down Indicator */}
+          <motion.div 
+            className="absolute bottom-8 left-1/2 transform -translate-x-1/2 cursor-pointer"
+            initial={{ opacity: 0, y: -10 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 1, duration: 0.5 }}
+            onClick={scrollToFeatures}
+          >
+            <motion.div
+              animate={{ y: [0, 10, 0] }}
+              transition={{ repeat: Infinity, duration: 2 }}
+              className="flex flex-col items-center"
             >
-              Mulai gunakan platform RetinaScan sekarang untuk membantu mendeteksi retinopati diabetik lebih awal dan mencegah komplikasi serius pada pasien diabetes Anda.
-            </p>
-            <div
-              style={{
-                display: 'flex',
-                gap: '1rem',
-                justifyContent: 'center',
-                flexWrap: 'wrap',
-              }}
-            >
-              {isAuthenticated ? (
-                <a href={DASHBOARD_URL}>
-                  <AnimatedButton 
-                    variant="primary" 
-                    size="lg"
-                  >
-                    Buka Dashboard
-                  </AnimatedButton>
-                </a>
-              ) : (
-                <>
-                  <Link to="/register">
-                    <AnimatedButton 
-                      variant="primary" 
-                      size="lg"
-                    >
-                      Daftar Sekarang
-                    </AnimatedButton>
-                  </Link>
-                  <Link to="/login">
-                    <AnimatedButton 
-                      variant="secondary" 
-                      size="lg"
-                    >
-                      Masuk ke Akun
-                    </AnimatedButton>
-                  </Link>
-                </>
-              )}
-            </div>
+              <span className="text-sm text-gray-500 dark:text-gray-400 mb-2">Scroll Down</span>
+              <ArrowDownIcon className="h-6 w-6 text-indigo-600 dark:text-indigo-400" />
+            </motion.div>
           </motion.div>
         </div>
-      </section>
-
-      {/* Footer */}
-      <footer
-        style={{
-          padding: '3rem 2rem',
-          background: 'white',
-          borderTop: '1px solid rgba(229, 231, 235, 0.5)',
-        }}
+      </motion.section>
+      
+      {/* Features Section */}
+      <section 
+        id="features" 
+        ref={featuresRef}
+        className="py-20 px-4 sm:px-6 lg:px-8 bg-gradient-to-b from-white to-indigo-50 dark:from-gray-900 dark:to-indigo-950"
       >
-        <div
-          style={{
-            maxWidth: '1200px',
-            margin: '0 auto',
-            display: 'flex',
-            flexDirection: 'column',
-            alignItems: 'center',
-          }}
-        >
-          <div
-            style={{
-              display: 'flex',
-              alignItems: 'center',
-              marginBottom: '2rem',
-            }}
-          >
-            <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke={newTheme.primary} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-              <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
-              <circle cx="12" cy="12" r="3"></circle>
-            </svg>
-            <span
-              style={{
-                fontSize: '1.5rem',
-                fontWeight: '700',
-                marginLeft: '0.75rem',
-                background: newTheme.gradients.primary,
-                WebkitBackgroundClip: 'text',
-                WebkitTextFillColor: 'transparent',
-                backgroundClip: 'text',
-                textFillColor: 'transparent',
-              }}
-            >
-              RetinaScan
-            </span>
+        <div className="container mx-auto max-w-7xl">
+          <ScrollReveal animation="fade-up">
+            <div className="text-center mb-16">
+              <h2 className="text-3xl md:text-4xl font-bold mb-4 text-gray-900 dark:text-white">
+                Fitur Unggulan
+              </h2>
+              <p className="text-xl text-gray-600 dark:text-gray-400 max-w-3xl mx-auto">
+                Teknologi terdepan untuk deteksi dini dan pencegahan penyakit retina
+              </p>
+            </div>
+          </ScrollReveal>
+          
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+            {features.map((feature, index) => (
+              <ScrollReveal 
+                key={index} 
+                animation={feature.animation}
+                delay={index * 0.1}
+              >
+                <div className="bg-white dark:bg-gray-800 rounded-xl overflow-hidden shadow-lg hover:shadow-xl transition-shadow duration-300 h-full">
+                  <div className={`h-2 bg-gradient-to-r ${feature.color}`}></div>
+                  <div className="p-6">
+                    <div className={`w-12 h-12 rounded-lg mb-4 flex items-center justify-center bg-gradient-to-br ${feature.color} text-white`}>
+                      {feature.icon}
+                    </div>
+                    <h3 className="text-xl font-semibold mb-2 text-gray-900 dark:text-white">
+                      {feature.title}
+                    </h3>
+                    <p className="text-gray-600 dark:text-gray-400">
+                      {feature.description}
+                    </p>
+                  </div>
+                </div>
+              </ScrollReveal>
+            ))}
           </div>
-          <p
-            style={{
-              color: newTheme.text.secondary,
-              textAlign: 'center',
-              fontSize: '0.875rem',
-            }}
-          >
-            &copy; {new Date().getFullYear()} RetinaScan. All rights reserved.
-          </p>
         </div>
-      </footer>
+      </section>
+      
+      {/* How It Works Section */}
+      <section className="py-20 px-4 sm:px-6 lg:px-8 relative overflow-hidden">
+        <ParticlesBackground 
+          color="rgba(79, 70, 229, 0.1)" 
+          count={30} 
+          speed={0.2} 
+          type="pulse" 
+        />
+        
+        <div className="container mx-auto max-w-7xl relative z-10">
+          <ScrollReveal animation="fade-up">
+            <div className="text-center mb-16">
+              <h2 className="text-3xl md:text-4xl font-bold mb-4 text-gray-900 dark:text-white">
+                Bagaimana RetinaScan Bekerja
+              </h2>
+              <p className="text-xl text-gray-600 dark:text-gray-400 max-w-3xl mx-auto">
+                Proses sederhana dengan hasil yang akurat
+              </p>
+            </div>
+          </ScrollReveal>
+          
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+            <ScrollReveal animation="fade-right" delay={0.1}>
+              <div className="bg-white dark:bg-gray-800 rounded-xl p-6 shadow-lg backdrop-blur-sm bg-opacity-80 dark:bg-opacity-80">
+                <div className="w-12 h-12 rounded-full bg-indigo-100 dark:bg-indigo-900 flex items-center justify-center mb-4">
+                  <span className="text-xl font-bold text-indigo-600 dark:text-indigo-400">1</span>
+                </div>
+                <h3 className="text-xl font-semibold mb-2 text-gray-900 dark:text-white">
+                  Unggah Gambar Retina
+                </h3>
+                <p className="text-gray-600 dark:text-gray-400">
+                  Unggah gambar fundus retina dari perangkat pencitraan Anda ke platform kami yang aman.
+                </p>
+              </div>
+            </ScrollReveal>
+            
+            <ScrollReveal animation="fade-up" delay={0.2}>
+              <div className="bg-white dark:bg-gray-800 rounded-xl p-6 shadow-lg backdrop-blur-sm bg-opacity-80 dark:bg-opacity-80">
+                <div className="w-12 h-12 rounded-full bg-indigo-100 dark:bg-indigo-900 flex items-center justify-center mb-4">
+                  <span className="text-xl font-bold text-indigo-600 dark:text-indigo-400">2</span>
+                </div>
+                <h3 className="text-xl font-semibold mb-2 text-gray-900 dark:text-white">
+                  Analisis AI Otomatis
+                </h3>
+                <p className="text-gray-600 dark:text-gray-400">
+                  Algoritma AI kami menganalisis gambar, mendeteksi kelainan dan tanda-tanda penyakit retina.
+                </p>
+              </div>
+            </ScrollReveal>
+            
+            <ScrollReveal animation="fade-left" delay={0.3}>
+              <div className="bg-white dark:bg-gray-800 rounded-xl p-6 shadow-lg backdrop-blur-sm bg-opacity-80 dark:bg-opacity-80">
+                <div className="w-12 h-12 rounded-full bg-indigo-100 dark:bg-indigo-900 flex items-center justify-center mb-4">
+                  <span className="text-xl font-bold text-indigo-600 dark:text-indigo-400">3</span>
+                </div>
+                <h3 className="text-xl font-semibold mb-2 text-gray-900 dark:text-white">
+                  Laporan Hasil Lengkap
+                </h3>
+                <p className="text-gray-600 dark:text-gray-400">
+                  Dapatkan laporan terperinci dengan visualisasi dan rekomendasi tindak lanjut dalam hitungan detik.
+                </p>
+              </div>
+            </ScrollReveal>
+          </div>
+          
+          <ScrollReveal animation="fade-up" delay={0.4}>
+            <div className="mt-16 text-center">
+              <Link to={isAuthenticated ? `${DASHBOARD_URL}?token=${token}` : "/register"}>
+                <AnimatedButton variant="primary" size="lg">
+                  <span className="flex items-center">
+                    {isAuthenticated ? 'Buka Dashboard' : 'Coba Sekarang'}
+                    <ArrowRightIcon className="ml-2 h-5 w-5" />
+                  </span>
+                </AnimatedButton>
+              </Link>
+            </div>
+          </ScrollReveal>
+        </div>
+      </section>
+      
+      {/* Stats Section */}
+      <section 
+        ref={statsRef}
+        className="py-20 px-4 sm:px-6 lg:px-8 bg-indigo-700 dark:bg-indigo-900 text-white"
+      >
+        <div className="container mx-auto max-w-7xl">
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-8">
+            {stats.map((stat, index) => (
+              <ScrollReveal 
+                key={index} 
+                animation={stat.animation}
+                delay={stat.delay}
+              >
+                <div className="text-center">
+                  <div className="text-4xl md:text-5xl font-bold mb-2">{stat.value}</div>
+                  <div className="text-indigo-200">{stat.label}</div>
+                </div>
+              </ScrollReveal>
+            ))}
+          </div>
+        </div>
+      </section>
+      
+      {/* Testimonials Section */}
+      <section className="py-20 px-4 sm:px-6 lg:px-8 bg-white dark:bg-gray-900">
+        <div className="container mx-auto max-w-7xl">
+          <ScrollReveal animation="fade-up">
+            <div className="text-center mb-16">
+              <h2 className="text-3xl md:text-4xl font-bold mb-4 text-gray-900 dark:text-white">
+                Dipercaya oleh Profesional Medis
+              </h2>
+              <p className="text-xl text-gray-600 dark:text-gray-400 max-w-3xl mx-auto">
+                Lihat apa kata para dokter dan tenaga medis tentang RetinaScan
+              </p>
+            </div>
+          </ScrollReveal>
+          
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+            <ScrollReveal animation="fade-up" delay={0.1}>
+              <div className="bg-gray-50 dark:bg-gray-800 p-6 rounded-xl shadow-md">
+                <div className="flex items-center mb-4">
+                  <div className="w-12 h-12 rounded-full bg-indigo-100 dark:bg-indigo-900 flex items-center justify-center mr-4">
+                    <UserGroupIcon className="h-6 w-6 text-indigo-600 dark:text-indigo-400" />
+                  </div>
+                  <div>
+                    <h4 className="font-semibold text-gray-900 dark:text-white">dr. Surya Wijaya</h4>
+                    <p className="text-sm text-gray-500 dark:text-gray-400">Spesialis Mata, RS Premier</p>
+                  </div>
+                </div>
+                <p className="text-gray-600 dark:text-gray-300">
+                  "RetinaScan telah membantu kami mendeteksi kasus retinopati diabetik lebih awal, sehingga pasien bisa mendapatkan penanganan sebelum kondisi memburuk."
+                </p>
+              </div>
+            </ScrollReveal>
+            
+            <ScrollReveal animation="fade-up" delay={0.2}>
+              <div className="bg-gray-50 dark:bg-gray-800 p-6 rounded-xl shadow-md">
+                <div className="flex items-center mb-4">
+                  <div className="w-12 h-12 rounded-full bg-indigo-100 dark:bg-indigo-900 flex items-center justify-center mr-4">
+                    <UserGroupIcon className="h-6 w-6 text-indigo-600 dark:text-indigo-400" />
+                  </div>
+                  <div>
+                    <h4 className="font-semibold text-gray-900 dark:text-white">dr. Anita Pratiwi</h4>
+                    <p className="text-sm text-gray-500 dark:text-gray-400">Dokter Umum, Klinik Sehat</p>
+                  </div>
+                </div>
+                <p className="text-gray-600 dark:text-gray-300">
+                  "Akurasi yang tinggi dan kemudahan penggunaan membuat RetinaScan menjadi alat yang sangat berharga dalam praktik sehari-hari kami."
+                </p>
+              </div>
+            </ScrollReveal>
+            
+            <ScrollReveal animation="fade-up" delay={0.3}>
+              <div className="bg-gray-50 dark:bg-gray-800 p-6 rounded-xl shadow-md">
+                <div className="flex items-center mb-4">
+                  <div className="w-12 h-12 rounded-full bg-indigo-100 dark:bg-indigo-900 flex items-center justify-center mr-4">
+                    <UserGroupIcon className="h-6 w-6 text-indigo-600 dark:text-indigo-400" />
+                  </div>
+                  <div>
+                    <h4 className="font-semibold text-gray-900 dark:text-white">Prof. Dr. Budi Santoso</h4>
+                    <p className="text-sm text-gray-500 dark:text-gray-400">Direktur RS Mata Indonesia</p>
+                  </div>
+                </div>
+                <p className="text-gray-600 dark:text-gray-300">
+                  "Teknologi AI RetinaScan telah membantu kami meningkatkan efisiensi dan mengurangi waktu tunggu pasien, sementara tetap mempertahankan standar diagnosis yang tinggi."
+                </p>
+              </div>
+            </ScrollReveal>
+          </div>
+        </div>
+      </section>
+      
+      {/* CTA Section */}
+      <section 
+        ref={ctaRef}
+        className="py-20 px-4 sm:px-6 lg:px-8 bg-gradient-to-r from-indigo-600 to-purple-600 dark:from-indigo-800 dark:to-purple-800 text-white relative overflow-hidden"
+      >
+        {/* Decorative Elements */}
+        <div className="absolute inset-0 overflow-hidden pointer-events-none">
+          <div className="absolute top-0 left-0 w-64 h-64 bg-white rounded-full mix-blend-overlay filter blur-3xl opacity-10"></div>
+          <div className="absolute bottom-0 right-0 w-80 h-80 bg-white rounded-full mix-blend-overlay filter blur-3xl opacity-10"></div>
+        </div>
+        
+        <div className="container mx-auto max-w-4xl relative z-10">
+          <ScrollReveal animation="fade-up">
+            <div className="text-center">
+              <h2 className="text-3xl md:text-4xl font-bold mb-4">
+                Mulai Deteksi Dini Sekarang
+              </h2>
+              <p className="text-xl text-indigo-100 mb-8 max-w-2xl mx-auto">
+                Lindungi penglihatan Anda dan pasien Anda dengan teknologi AI canggih untuk deteksi dini penyakit retina.
+              </p>
+              
+              <div className="flex flex-col sm:flex-row gap-4 justify-center">
+                {isAuthenticated ? (
+                  <Link to={`${DASHBOARD_URL}?token=${token}`}>
+                    <AnimatedButton variant="light" size="lg">
+                      <span className="flex items-center">
+                        Buka Dashboard
+                        <ArrowRightIcon className="ml-2 h-5 w-5" />
+                      </span>
+                    </AnimatedButton>
+                  </Link>
+                ) : (
+                  <>
+                    <Link to="/register">
+                      <AnimatedButton variant="light" size="lg">
+                        <span className="flex items-center">
+                          Daftar Sekarang
+                          <ArrowRightIcon className="ml-2 h-5 w-5" />
+                        </span>
+                      </AnimatedButton>
+                    </Link>
+                    <Link to="/login">
+                      <AnimatedButton variant="outline-light" size="lg">
+                        Login
+                      </AnimatedButton>
+                    </Link>
+                  </>
+                )}
+              </div>
+              
+              <div className="mt-8 flex items-center justify-center space-x-2">
+                <CheckCircleIcon className="h-5 w-5 text-indigo-200" />
+                <span className="text-indigo-100">Mulai dalam 5 menit</span>
+                <span className="mx-2 text-indigo-300">•</span>
+                <CheckCircleIcon className="h-5 w-5 text-indigo-200" />
+                <span className="text-indigo-100">Tanpa kontrak jangka panjang</span>
+                <span className="mx-2 text-indigo-300">•</span>
+                <CheckCircleIcon className="h-5 w-5 text-indigo-200" />
+                <span className="text-indigo-100">Dukungan 24/7</span>
+              </div>
+            </div>
+          </ScrollReveal>
+        </div>
+      </section>
     </div>
   );
 };

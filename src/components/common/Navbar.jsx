@@ -17,8 +17,14 @@ import {
   UserCircleIcon,
   ArrowLeftOnRectangleIcon,
   CheckCircleIcon,
-  ExclamationCircleIcon
+  ExclamationCircleIcon,
+  HomeIcon,
+  UserIcon,
+  LockClosedIcon,
+  EyeIcon,
+  ChartBarSquareIcon
 } from '@heroicons/react/24/outline';
+import { newTheme } from '../../utils/newTheme';
 
 // Komponen notifikasi untuk logout
 const LogoutNotification = ({ message, type = 'success', onClose }) => {
@@ -38,7 +44,11 @@ const LogoutNotification = ({ message, type = 'success', onClose }) => {
       initial={{ opacity: 0, y: -50 }}
       animate={{ opacity: 1, y: 0 }}
       exit={{ opacity: 0, y: -50 }}
-      className={`fixed top-4 left-1/2 transform -translate-x-1/2 z-50 ${bgColor} text-white px-6 py-3 rounded-lg shadow-lg flex items-center`}
+      className="fixed top-4 left-1/2 transform -translate-x-1/2 z-50 text-white px-6 py-3 rounded-lg shadow-lg flex items-center"
+      style={{ 
+        background: type === 'success' ? newTheme.gradients.success : newTheme.gradients.danger,
+        boxShadow: newTheme.shadows.xl
+      }}
     >
       <Icon className="h-5 w-5 mr-2" />
       {message}
@@ -224,9 +234,40 @@ function Navbar() {
     }
   };
 
-  const bgGradient = scrolled 
-    ? `linear-gradient(90deg, ${theme.primary}, ${theme.accent})`
-    : `linear-gradient(90deg, ${theme.primary}, ${theme.accent})`;
+  // Animasi untuk logo
+  const logoVariants = {
+    initial: { scale: 1 },
+    hover: { 
+      scale: 1.05,
+      transition: { duration: 0.2 }
+    }
+  };
+  
+  // Animasi untuk button
+  const buttonVariants = {
+    initial: { scale: 1 },
+    hover: { 
+      scale: 1.05,
+      transition: { duration: 0.2 }
+    },
+    tap: {
+      scale: 0.95,
+      transition: { duration: 0.1 }
+    }
+  };
+  
+  // Animasi untuk link
+  const linkVariants = {
+    initial: { 
+      color: scrolled ? newTheme.text.light : newTheme.text.light,
+      borderBottom: '2px solid transparent'
+    },
+    hover: { 
+      color: '#ffffff',
+      borderBottom: `2px solid ${newTheme.secondary}`,
+      transition: { duration: 0.2 }
+    }
+  };
 
   return (
     <>
@@ -247,193 +288,258 @@ function Navbar() {
         variants={navbarVariants}
         className="fixed top-0 left-0 right-0 z-40 transition-all duration-300"
         style={{
-          background: bgGradient,
+          background: scrolled ? 
+            'rgba(79, 70, 229, 0.9)' : 
+            'linear-gradient(to bottom, rgba(79, 70, 229, 0.9), rgba(79, 70, 229, 0))',
+          backdropFilter: scrolled ? 'blur(10px)' : 'none',
           color: 'white',
-          boxShadow: scrolled ? theme.mediumShadow : 'none',
+          boxShadow: scrolled ? newTheme.shadows.md : 'none',
           padding: scrolled ? '0.5rem 0' : '1rem 0',
         }}
       >
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="flex justify-between items-center">
-          <motion.div 
-            className="flex items-center"
-            variants={itemVariants}
-            custom={0}
-          >
-            <Link to="/" className="flex-shrink-0 flex items-center">
-              <motion.span 
-                className="text-2xl font-extrabold tracking-tight"
-                style={{
-                  background: 'linear-gradient(90deg, white, rgba(255,255,255,0.8))',
-                  WebkitBackgroundClip: 'text',
-                  WebkitTextFillColor: 'transparent',
-                }}
-                whileHover={{ scale: 1.05 }}
-                whileTap={{ scale: 0.95 }}
-              >
-                RetinaScan
-              </motion.span>
-            </Link>
-          </motion.div>
-          <div className="hidden sm:flex sm:items-center sm:space-x-6">
-            {isAuthenticated ? (
-              <>
-                <motion.a
-                  href={`${DASHBOARD_URL}?token=${token}`}
-                  className="px-4 py-2 text-sm font-bold rounded-lg transition-all duration-200"
-                  style={{ ...theme.glassEffect }}
-                  variants={itemVariants}
-                  custom={1}
-                  whileHover={{ scale: 1.05 }}
-                  whileTap={{ scale: 0.95 }}
-                >
-                  Dashboard
-                </motion.a>
-                <motion.div 
-                  className="flex items-center space-x-2 px-4 py-2 rounded-lg"
-                  style={{ ...theme.glassEffect }}
-                  variants={itemVariants}
-                  custom={2}
-                >
-                  <UserCircleIcon className="h-6 w-6" />
-                  <span className="text-sm font-medium">{userName}</span>
-                </motion.div>
-                <motion.button
-                  onClick={handleLogout}
-                  className="flex items-center px-4 py-2 text-sm font-medium rounded-lg transition-all duration-200"
-                  style={{ background: 'rgba(239, 68, 68, 0.2)', backdropFilter: 'blur(8px)' }}
-                  variants={itemVariants}
-                  custom={3}
-                  whileHover={{ scale: 1.05, backgroundColor: 'rgba(220, 38, 38, 0.3)' }}
-                  whileTap={{ scale: 0.95 }}
-                >
-                  <ArrowLeftOnRectangleIcon className="h-5 w-5 mr-2" />
-                  Logout
-                </motion.button>
-              </>
-            ) : (
-              <>
-                <motion.div
-                  variants={itemVariants}
-                  custom={1}
-                >
-                  <Link
-                    to="/login"
-                    className="px-4 py-2 text-sm font-medium rounded-lg transition-all duration-200"
-                    style={{ ...theme.glassEffect }}
-                  >
-                    Login
-                  </Link>
-                </motion.div>
-                <motion.div
-                  variants={itemVariants}
-                  custom={2}
-                >
-                  <Link
-                    to="/register"
-                    className="px-4 py-2 text-sm font-medium rounded-lg transition-all duration-200 ripple"
-                    style={{ 
-                      background: 'rgba(255, 255, 255, 0.2)',
-                      backdropFilter: 'blur(8px)',
-                      border: '1px solid rgba(255, 255, 255, 0.2)',
-                      boxShadow: theme.smallShadow 
-                    }}
-                  >
-                    Register
-                  </Link>
-                </motion.div>
-              </>
-            )}
-          </div>
-          {isMobile && (
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="flex items-center justify-between h-16">
+            {/* Logo */}
             <motion.div 
-              className="flex items-center sm:hidden"
-              variants={itemVariants}
-              custom={5}
+              className="flex-shrink-0 flex items-center"
+              variants={logoVariants}
+              initial="initial"
+              whileHover="hover"
             >
+              <Link to="/" className="flex items-center">
+                <EyeIcon className="h-8 w-8 text-white mr-2" />
+                <span className="font-bold text-xl text-white">RetinaScan</span>
+              </Link>
+            </motion.div>
+            
+            {/* Desktop Navigation */}
+            <div className="hidden sm:block">
+              <div className="ml-10 flex items-center space-x-4">
+                <motion.div
+                  custom={0}
+                  variants={itemVariants}
+                >
+                  <motion.div
+                    variants={linkVariants}
+                    initial="initial"
+                    whileHover="hover"
+                    className="px-3 py-2 text-sm font-medium rounded-md"
+                  >
+                    <Link to="/" className="flex items-center">
+                      <HomeIcon className="h-5 w-5 mr-1" />
+                      <span>Beranda</span>
+                    </Link>
+                  </motion.div>
+                </motion.div>
+                
+                {isAuthenticated ? (
+                  <>
+                    <motion.div
+                      custom={1}
+                      variants={itemVariants}
+                    >
+                      <motion.a
+                        href={`${DASHBOARD_URL}?token=${token}`}
+                        variants={linkVariants}
+                        initial="initial"
+                        whileHover="hover"
+                        className="px-3 py-2 text-sm font-medium rounded-md flex items-center"
+                      >
+                        <ChartBarSquareIcon className="h-5 w-5 mr-1" />
+                        <span>Dashboard</span>
+                      </motion.a>
+                    </motion.div>
+                    
+                    <motion.div
+                      custom={2}
+                      variants={itemVariants}
+                      className="ml-3 relative"
+                    >
+                      <div className="flex items-center space-x-3">
+                        <motion.div
+                          className="px-3 py-2 text-sm font-medium rounded-md flex items-center"
+                        >
+                          <UserCircleIcon className="h-5 w-5 mr-1" />
+                          <span>{userName}</span>
+                        </motion.div>
+                        
+                        <motion.button
+                          onClick={handleLogout}
+                          variants={buttonVariants}
+                          initial="initial"
+                          whileHover="hover"
+                          whileTap="tap"
+                          className="inline-flex items-center px-3 py-2 border border-transparent text-sm leading-4 font-medium rounded-md text-white bg-red-600 hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500"
+                        >
+                          <ArrowLeftOnRectangleIcon className="h-5 w-5 mr-1" />
+                          Logout
+                        </motion.button>
+                      </div>
+                    </motion.div>
+                  </>
+                ) : (
+                  <>
+                    <motion.div
+                      custom={1}
+                      variants={itemVariants}
+                    >
+                      <motion.div
+                        variants={linkVariants}
+                        initial="initial"
+                        whileHover="hover"
+                        className="px-3 py-2 text-sm font-medium rounded-md"
+                      >
+                        <Link to="/login" className="flex items-center">
+                          <LockClosedIcon className="h-5 w-5 mr-1" />
+                          <span>Login</span>
+                        </Link>
+                      </motion.div>
+                    </motion.div>
+                    
+                    <motion.div
+                      custom={2}
+                      variants={itemVariants}
+                    >
+                      <Link to="/register">
+                        <motion.button
+                          variants={buttonVariants}
+                          initial="initial"
+                          whileHover="hover"
+                          whileTap="tap"
+                          className="inline-flex items-center px-3 py-2 border border-transparent text-sm leading-4 font-medium rounded-md text-indigo-700 bg-white hover:bg-indigo-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
+                        >
+                          <UserIcon className="h-5 w-5 mr-1" />
+                          Register
+                        </motion.button>
+                      </Link>
+                    </motion.div>
+                  </>
+                )}
+              </div>
+            </div>
+            
+            {/* Mobile menu button */}
+            <div className="flex sm:hidden">
               <motion.button
                 onClick={() => setIsOpen(!isOpen)}
-                className="inline-flex items-center justify-center p-2 rounded-lg text-white transition-all duration-200"
-                style={{ ...theme.glassEffect }}
-                whileHover={{ scale: 1.1 }}
-                whileTap={{ scale: 0.9 }}
+                variants={buttonVariants}
+                initial="initial"
+                whileHover="hover"
+                whileTap="tap"
+                className="inline-flex items-center justify-center p-2 rounded-md text-white hover:text-white hover:bg-indigo-600 focus:outline-none focus:ring-2 focus:ring-inset focus:ring-white"
+                aria-expanded="false"
               >
-                {isOpen ? <XMarkIcon className="h-6 w-6" /> : <Bars3Icon className="h-6 w-6" />}
+                <span className="sr-only">Open main menu</span>
+                {isOpen ? (
+                  <XMarkIcon className="block h-6 w-6" aria-hidden="true" />
+                ) : (
+                  <Bars3Icon className="block h-6 w-6" aria-hidden="true" />
+                )}
               </motion.button>
+            </div>
+          </div>
+        </div>
+
+        {/* Mobile menu */}
+        <AnimatePresence>
+          {isOpen && (
+            <motion.div 
+              className="sm:hidden shadow-2xl"
+              style={{ 
+                background: 'rgba(79, 70, 229, 0.95)',
+                backdropFilter: 'blur(10px)',
+                borderRadius: '0 0 1rem 1rem' 
+              }}
+              variants={mobileMenuVariants}
+              initial="hidden"
+              animate="visible"
+              exit="exit"
+            >
+              <div className="pt-2 pb-3 space-y-1 px-4">
+                <motion.div
+                  variants={buttonVariants}
+                  whileHover="hover"
+                  whileTap="tap"
+                  className="block w-full text-left px-4 py-3 text-base font-medium rounded-lg"
+                  style={{ background: 'rgba(255, 255, 255, 0.1)' }}
+                >
+                  <Link to="/" className="flex items-center" onClick={() => setIsOpen(false)}>
+                    <HomeIcon className="h-5 w-5 mr-2" />
+                    <span>Beranda</span>
+                  </Link>
+                </motion.div>
+                
+                {isAuthenticated ? (
+                  <>
+                    <motion.a
+                      href={`${DASHBOARD_URL}?token=${token}`}
+                      onClick={() => setIsOpen(false)}
+                      variants={buttonVariants}
+                      whileHover="hover"
+                      whileTap="tap"
+                      className="block w-full text-left px-4 py-3 text-base font-medium rounded-lg flex items-center"
+                      style={{ background: 'rgba(255, 255, 255, 0.1)' }}
+                    >
+                      <ChartBarSquareIcon className="h-5 w-5 mr-2" />
+                      <span>Dashboard</span>
+                    </motion.a>
+                    
+                    <motion.div 
+                      className="flex items-center px-4 py-3 text-base font-medium"
+                    >
+                      <UserCircleIcon className="h-6 w-6 mr-2" />
+                      <span>{userName}</span>
+                    </motion.div>
+                    
+                    <motion.button
+                      onClick={() => {
+                        handleLogout();
+                        setIsOpen(false);
+                      }}
+                      variants={buttonVariants}
+                      whileHover="hover"
+                      whileTap="tap"
+                      className="flex items-center w-full text-left px-4 py-3 text-base font-medium rounded-lg"
+                      style={{ background: 'rgba(239, 68, 68, 0.3)' }}
+                    >
+                      <ArrowLeftOnRectangleIcon className="h-5 w-5 mr-2" />
+                      Logout
+                    </motion.button>
+                  </>
+                ) : (
+                  <>
+                    <motion.div
+                      variants={buttonVariants}
+                      whileHover="hover"
+                      whileTap="tap"
+                      className="block w-full text-left px-4 py-3 text-base font-medium rounded-lg"
+                      style={{ background: 'rgba(255, 255, 255, 0.1)' }}
+                    >
+                      <Link to="/login" className="flex items-center" onClick={() => setIsOpen(false)}>
+                        <LockClosedIcon className="h-5 w-5 mr-2" />
+                        <span>Login</span>
+                      </Link>
+                    </motion.div>
+                    
+                    <motion.div
+                      variants={buttonVariants}
+                      whileHover="hover"
+                      whileTap="tap"
+                      className="block w-full text-left px-4 py-3 text-base font-medium rounded-lg"
+                      style={{ background: 'rgba(255, 255, 255, 0.2)' }}
+                    >
+                      <Link to="/register" className="flex items-center" onClick={() => setIsOpen(false)}>
+                        <UserIcon className="h-5 w-5 mr-2" />
+                        <span>Register</span>
+                      </Link>
+                    </motion.div>
+                  </>
+                )}
+              </div>
             </motion.div>
           )}
-        </div>
-      </div>
-      
-      {isOpen && (
-        <motion.div 
-          className="sm:hidden shadow-2xl"
-          style={{ background: `linear-gradient(135deg, ${theme.primary}, ${theme.accent})`, borderRadius: '0 0 1rem 1rem' }}
-          variants={mobileMenuVariants}
-          initial="hidden"
-          animate="visible"
-          exit="exit"
-        >
-          <div className="pt-2 pb-3 space-y-1">
-            {isAuthenticated ? (
-              <>
-                <motion.a
-                  href={`${DASHBOARD_URL}?token=${token}`}
-                  onClick={() => setIsOpen(false)}
-                  className="block px-4 py-2 text-base font-medium rounded-lg m-2"
-                  style={{ background: 'rgba(255, 255, 255, 0.1)' }}
-                  whileHover={{ scale: 1.03, x: 5, backgroundColor: 'rgba(255, 255, 255, 0.2)' }}
-                >
-                  Dashboard
-                </motion.a>
-                <motion.div 
-                  className="flex items-center px-4 py-2 text-base font-medium m-2"
-                  whileHover={{ scale: 1.03, x: 5 }}
-                >
-                  <UserCircleIcon className="h-6 w-6 mr-2" />
-                  <span>{userName}</span>
-                </motion.div>
-                <motion.button
-                  onClick={() => {
-                    handleLogout();
-                    setIsOpen(false);
-                  }}
-                  className="flex items-center w-full text-left px-4 py-2 text-base font-medium rounded-lg m-2"
-                  style={{ background: 'rgba(239, 68, 68, 0.2)' }}
-                  whileHover={{ scale: 1.03, x: 5, backgroundColor: 'rgba(220, 38, 38, 0.3)' }}
-                >
-                  <ArrowLeftOnRectangleIcon className="h-5 w-5 mr-2" />
-                  Logout
-                </motion.button>
-              </>
-            ) : (
-              <>
-                <motion.div whileHover={{ scale: 1.03, x: 5 }}>
-                  <Link
-                    to="/login"
-                    onClick={() => setIsOpen(false)}
-                    className="block px-4 py-2 text-base font-medium rounded-lg m-2"
-                    style={{ background: 'rgba(255, 255, 255, 0.1)' }}
-                  >
-                    Login
-                  </Link>
-                </motion.div>
-                <motion.div whileHover={{ scale: 1.03, x: 5 }}>
-                  <Link
-                    to="/register"
-                    onClick={() => setIsOpen(false)}
-                    className="block px-4 py-2 text-base font-medium rounded-lg m-2"
-                    style={{ background: 'rgba(255, 255, 255, 0.1)' }}
-                  >
-                    Register
-                  </Link>
-                </motion.div>
-              </>
-            )}
-          </div>
-        </motion.div>
-      )}
-    </motion.nav>
+        </AnimatePresence>
+      </motion.nav>
     </>
   );
 }
