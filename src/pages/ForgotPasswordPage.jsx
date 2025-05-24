@@ -70,15 +70,22 @@ const ForgotPasswordPage = () => {
   return (
     <div className="min-h-screen flex items-center justify-center px-4 py-20 pt-36 relative overflow-hidden">
       {/* Background animasi Vanta.js */}
-      {isMounted && <VantaBackground waveHeight={15} waveSpeed={0.3} />}
+      {isMounted && (
+        <VantaBackground 
+          points={17} 
+          maxDistance={25} 
+          spacing={20}
+          mouseControls={true}
+        />
+      )}
       
       {/* Overlay gradient */}
-      <div className="absolute inset-0 bg-gradient-to-b from-black/40 via-transparent to-black/60 z-0"></div>
+      <div className="absolute inset-0 bg-gradient-to-b from-black/30 via-transparent to-black/40 z-0"></div>
       
       <div className="container mx-auto max-w-md relative z-10">
         {/* Decorative elements */}
-        <div className="absolute -top-20 -left-20 w-40 h-40 bg-gradient-to-br from-cyan-500/20 to-blue-500/20 rounded-full blur-3xl"></div>
-        <div className="absolute -bottom-20 -right-20 w-40 h-40 bg-gradient-to-br from-blue-500/20 to-purple-500/20 rounded-full blur-3xl"></div>
+        <div className="absolute -top-20 -left-20 w-40 h-40 bg-gradient-to-br from-[#03DAC6]/20 to-[#BB86FC]/20 rounded-full blur-3xl"></div>
+        <div className="absolute -bottom-20 -right-20 w-40 h-40 bg-gradient-to-br from-[#BB86FC]/20 to-[#03DAC6]/20 rounded-full blur-3xl"></div>
         
         <div className="w-full max-w-md px-4 relative z-10">
           {/* Logo dan judul */}
@@ -89,7 +96,7 @@ const ForgotPasswordPage = () => {
               transition={{ duration: 0.6, ease: "easeOut" }}
               className="mb-6 inline-block"
             >
-              <div className="w-20 h-20 mx-auto bg-gradient-to-br from-cyan-600 to-blue-600 rounded-2xl shadow-lg p-5">
+              <div className="w-20 h-20 mx-auto bg-gradient-to-br from-[#03DAC6] to-[#BB86FC] rounded-2xl shadow-lg p-5">
                 <EnvelopeIcon className="w-full h-full text-white" />
               </div>
             </motion.div>
@@ -116,7 +123,10 @@ const ForgotPasswordPage = () => {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.5, duration: 0.6 }}
-            className="bg-black/50 backdrop-blur-xl rounded-2xl shadow-xl overflow-hidden border border-white/10"
+            className="backdrop-blur-xl rounded-2xl shadow-xl overflow-hidden border border-white/10"
+            style={{
+              background: 'rgba(30, 30, 46, 0.5)'
+            }}
           >
             <div className="p-8">
               {success ? (
@@ -125,8 +135,8 @@ const ForgotPasswordPage = () => {
                   animate={{ opacity: 1, scale: 1 }}
                   className="text-center py-8"
                 >
-                  <div className="w-16 h-16 mx-auto bg-green-500/20 rounded-full flex items-center justify-center mb-4">
-                    <CheckCircleIcon className="h-10 w-10 text-green-400" />
+                  <div className="w-16 h-16 mx-auto bg-[#03DAC6]/20 rounded-full flex items-center justify-center mb-4">
+                    <CheckCircleIcon className="h-10 w-10 text-[#03DAC6]" />
                   </div>
                   <h3 className="text-xl font-bold text-white mb-2">Email Terkirim!</h3>
                   <p className="text-gray-300 mb-6">
@@ -136,7 +146,10 @@ const ForgotPasswordPage = () => {
                     <motion.button
                       whileHover={{ scale: 1.05 }}
                       whileTap={{ scale: 0.95 }}
-                      className="px-6 py-2 rounded-lg bg-gradient-to-r from-cyan-600 to-blue-600 text-white font-medium"
+                      className="px-6 py-2 rounded-lg text-white font-medium"
+                      style={{
+                        background: 'linear-gradient(to right, #03DAC6, #BB86FC)'
+                      }}
                     >
                       Kembali ke Login
                     </motion.button>
@@ -181,7 +194,10 @@ const ForgotPasswordPage = () => {
                     <button
                       type="submit"
                       disabled={isLoading}
-                      className="w-full py-3 bg-gradient-to-r from-cyan-600 to-blue-600 text-white rounded-lg shadow-md hover:shadow-cyan-500/20 transition-all flex items-center justify-center"
+                      className="w-full py-3 text-white rounded-lg shadow-md hover:shadow-[#03DAC6]/20 transition-all flex items-center justify-center"
+                      style={{
+                        background: 'linear-gradient(to right, #03DAC6, #BB86FC)'
+                      }}
                     >
                       {isLoading ? (
                         <div className="flex items-center justify-center">
@@ -200,28 +216,25 @@ const ForgotPasswordPage = () => {
                     </button>
                   </div>
                   
-                  {/* Login link */}
-                  <div className="mt-8 text-center">
-                    <Link 
-                      to="/login" 
-                      className="inline-flex items-center text-sm text-cyan-400 hover:text-cyan-300 transition-colors"
-                    >
+                  {/* Back to login */}
+                  <div className="mt-6 text-center">
+                    <Link to="/login" className="inline-flex items-center text-sm text-gray-400 hover:text-[#03DAC6] transition-colors">
                       <ArrowLeftIcon className="h-4 w-4 mr-1" />
                       Kembali ke Login
-                    </Link>
-                  </div>
-                  
-                  {/* Kembali ke beranda */}
-                  <div className="mt-4 text-center">
-                    <Link to="/" className="inline-flex items-center text-sm text-gray-400 hover:text-cyan-400 transition-colors">
-                      <HomeIcon className="h-4 w-4 mr-1" />
-                      Kembali ke Beranda
                     </Link>
                   </div>
                 </form>
               )}
             </div>
           </motion.div>
+          
+          {/* Kembali ke beranda */}
+          <div className="mt-6 text-center">
+            <Link to="/" className="inline-flex items-center text-sm text-gray-400 hover:text-[#BB86FC] transition-colors">
+              <HomeIcon className="h-4 w-4 mr-1" />
+              Kembali ke Beranda
+            </Link>
+          </div>
         </div>
       </div>
     </div>

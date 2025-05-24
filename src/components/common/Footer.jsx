@@ -57,25 +57,32 @@ function Footer() {
   }, [API_URL]);
 
   return (
-    <footer className="relative bg-gradient-to-br from-gray-50 to-gray-100 dark:from-gray-900 dark:to-gray-950 pt-16 pb-10 overflow-hidden border-t border-gray-200 dark:border-gray-800">
+    <footer className="relative pt-16 pb-8 overflow-hidden border-t border-gray-200 dark:border-gray-800/30"
+      style={{
+        background: theme === 'dark' 
+          ? 'linear-gradient(to bottom, rgba(30, 30, 46, 0.8), rgba(20, 20, 30, 0.95))' 
+          : 'linear-gradient(to bottom, rgba(255, 255, 255, 0.8), rgba(240, 240, 250, 0.95))',
+        backdropFilter: 'blur(10px)'
+      }}
+    >
       {/* Efek dekoratif */}
-      <div className="absolute top-0 inset-x-0 h-1 bg-gradient-to-r from-indigo-500 via-purple-500 to-pink-500 opacity-80"></div>
-      <div className="absolute -top-40 -right-40 w-80 h-80 rounded-full bg-indigo-100 dark:bg-indigo-900/20 blur-3xl opacity-30"></div>
-      <div className="absolute -bottom-40 -left-40 w-96 h-96 rounded-full bg-purple-100 dark:bg-purple-900/20 blur-3xl opacity-30"></div>
+      <div className="absolute top-0 inset-x-0 h-1 bg-gradient-to-r from-[#03DAC6] via-[#BB86FC] to-[#03DAC6] opacity-80"></div>
+      <div className="absolute -top-40 -right-40 w-80 h-80 rounded-full bg-[#03DAC6]/10 blur-3xl opacity-30"></div>
+      <div className="absolute -bottom-40 -left-40 w-96 h-96 rounded-full bg-[#BB86FC]/10 blur-3xl opacity-30"></div>
       
       <div className="container mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
         <div className="grid grid-cols-1 md:grid-cols-12 gap-10 mb-12">
           {/* Kolom 1: Tentang RetinaScan - Lebih lebar */}
           <div className="md:col-span-5">
-          <ScrollReveal>
+            <ScrollReveal>
               <div className="space-y-6">
                 <div className="flex items-center mb-4">
-                  <div className="bg-gradient-to-r from-indigo-600 to-purple-600 p-2 rounded-lg shadow-lg">
+                  <div className="bg-gradient-to-r from-[#03DAC6] to-[#BB86FC] p-2 rounded-lg shadow-lg">
                     <EyeIcon className="h-8 w-8 text-white" />
                   </div>
-                  <h3 className="text-2xl font-bold ml-3 bg-gradient-to-r from-indigo-600 to-purple-600 bg-clip-text text-transparent">
-                  RetinaScan
-                </h3>
+                  <h3 className="text-2xl font-bold ml-3 bg-gradient-to-r from-[#03DAC6] to-[#BB86FC] bg-clip-text text-transparent">
+                    RetinaScan
+                  </h3>
                 </div>
               
                 <p className="text-gray-600 dark:text-gray-300 text-base leading-relaxed">
@@ -90,7 +97,7 @@ function Footer() {
                   <SocialButton icon="linkedin" />
                 </div>
               </div>
-          </ScrollReveal>
+            </ScrollReveal>
           </div>
           
           {/* Kolom 2: Link Cepat */}
@@ -99,7 +106,7 @@ function Footer() {
               <div className="space-y-6">
                 <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-4 relative">
                   <span className="relative z-10">Link Cepat</span>
-                  <span className="absolute bottom-0 left-0 h-1 w-10 bg-indigo-500 rounded-full"></span>
+                  <span className="absolute bottom-0 left-0 h-1 w-10 bg-[#03DAC6] rounded-full"></span>
                 </h3>
                 
                 <ul className="space-y-3">
@@ -119,7 +126,7 @@ function Footer() {
                   )}
                 </ul>
               </div>
-          </ScrollReveal>
+            </ScrollReveal>
           </div>
           
           {/* Kolom 3: Layanan */}
@@ -128,7 +135,7 @@ function Footer() {
               <div className="space-y-6">
                 <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-4 relative">
                   <span className="relative z-10">Layanan</span>
-                  <span className="absolute bottom-0 left-0 h-1 w-10 bg-purple-500 rounded-full"></span>
+                  <span className="absolute bottom-0 left-0 h-1 w-10 bg-[#BB86FC] rounded-full"></span>
                 </h3>
                 
                 <ul className="space-y-3">
@@ -139,7 +146,7 @@ function Footer() {
                   <FooterLink to="#" label="Laporan Kesehatan" />
                 </ul>
               </div>
-          </ScrollReveal>
+            </ScrollReveal>
           </div>
           
           {/* Kolom 4: Kontak */}
@@ -148,37 +155,37 @@ function Footer() {
               <div className="space-y-6">
                 <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-4 relative">
                   <span className="relative z-10">Kontak</span>
-                  <span className="absolute bottom-0 left-0 h-1 w-10 bg-pink-500 rounded-full"></span>
+                  <span className="absolute bottom-0 left-0 h-1 w-10 bg-[#FFD700] rounded-full"></span>
                 </h3>
                 
                 <ul className="space-y-4">
                   <li className="flex items-start">
-                    <div className="bg-indigo-100 dark:bg-indigo-900/30 p-2 rounded-lg mr-3 flex-shrink-0">
-                      <MapPinIcon className="h-5 w-5 text-indigo-600 dark:text-indigo-400" />
+                    <div className="bg-[#03DAC6]/10 dark:bg-[#03DAC6]/20 p-2 rounded-lg mr-3 flex-shrink-0">
+                      <MapPinIcon className="h-5 w-5 text-[#03DAC6]" />
                     </div>
                     <span className="text-gray-600 dark:text-gray-300 text-sm">
                       Jl. Kesehatan No. 123, Jakarta Selatan, Indonesia
-                  </span>
+                    </span>
                   </li>
                   <li className="flex items-center">
-                    <div className="bg-indigo-100 dark:bg-indigo-900/30 p-2 rounded-lg mr-3 flex-shrink-0">
-                      <PhoneIcon className="h-5 w-5 text-indigo-600 dark:text-indigo-400" />
+                    <div className="bg-[#03DAC6]/10 dark:bg-[#03DAC6]/20 p-2 rounded-lg mr-3 flex-shrink-0">
+                      <PhoneIcon className="h-5 w-5 text-[#03DAC6]" />
                     </div>
                     <span className="text-gray-600 dark:text-gray-300 text-sm">
                       +62 21 1234 5678
                     </span>
                   </li>
                   <li className="flex items-center">
-                    <div className="bg-indigo-100 dark:bg-indigo-900/30 p-2 rounded-lg mr-3 flex-shrink-0">
-                      <EnvelopeIcon className="h-5 w-5 text-indigo-600 dark:text-indigo-400" />
+                    <div className="bg-[#03DAC6]/10 dark:bg-[#03DAC6]/20 p-2 rounded-lg mr-3 flex-shrink-0">
+                      <EnvelopeIcon className="h-5 w-5 text-[#03DAC6]" />
                     </div>
                     <span className="text-gray-600 dark:text-gray-300 text-sm">
                       info@retinascan.id
                     </span>
                   </li>
                   <li className="flex items-center">
-                    <div className="bg-indigo-100 dark:bg-indigo-900/30 p-2 rounded-lg mr-3 flex-shrink-0">
-                      <GlobeAltIcon className="h-5 w-5 text-indigo-600 dark:text-indigo-400" />
+                    <div className="bg-[#03DAC6]/10 dark:bg-[#03DAC6]/20 p-2 rounded-lg mr-3 flex-shrink-0">
+                      <GlobeAltIcon className="h-5 w-5 text-[#03DAC6]" />
                     </div>
                     <span className="text-gray-600 dark:text-gray-300 text-sm">
                       www.retinascan.id
@@ -188,13 +195,19 @@ function Footer() {
               </div>
             </ScrollReveal>
           </div>
-                </div>
+        </div>
                 
         {/* Newsletter */}
-        <div className="border-t border-gray-200 dark:border-gray-800 pt-10 pb-8 mb-8">
+        <div className="border-t border-gray-200 dark:border-gray-800/30 pt-10 pb-8 mb-8">
           <div className="max-w-3xl mx-auto">
             <ScrollReveal>
-              <div className="bg-gradient-to-r from-indigo-600/10 to-purple-600/10 dark:from-indigo-900/30 dark:to-purple-900/30 rounded-2xl p-8 shadow-lg">
+              <div className="rounded-2xl p-8 shadow-lg"
+                style={{
+                  background: 'linear-gradient(135deg, rgba(3, 218, 198, 0.1), rgba(187, 134, 252, 0.1))',
+                  backdropFilter: 'blur(10px)',
+                  border: '1px solid rgba(255, 255, 255, 0.1)'
+                }}
+              >
                 <div className="text-center mb-6">
                   <h3 className="text-xl font-bold text-gray-900 dark:text-white mb-2">
                     Dapatkan Berita Terbaru
@@ -208,40 +221,43 @@ function Footer() {
                   <input 
                     type="email" 
                     placeholder="Masukkan email Anda" 
-                    className="flex-1 px-4 py-3 rounded-lg border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-800 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-indigo-500 dark:focus:ring-indigo-400"
+                    className="flex-1 px-4 py-3 rounded-lg border border-gray-300 dark:border-gray-700/50 bg-white/80 dark:bg-gray-800/50 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-[#03DAC6] dark:focus:ring-[#BB86FC] backdrop-blur-sm"
                   />
                   <motion.button
                     whileHover={{ scale: 1.02 }}
                     whileTap={{ scale: 0.98 }}
-                    className="px-6 py-3 bg-gradient-to-r from-indigo-600 to-purple-600 text-white font-medium rounded-lg shadow-md hover:shadow-lg transition-all"
+                    className="px-6 py-3 text-white font-medium rounded-lg shadow-md hover:shadow-lg transition-all"
+                    style={{
+                      background: 'linear-gradient(to right, #03DAC6, #BB86FC)'
+                    }}
                   >
                     Berlangganan
                   </motion.button>
                 </form>
-                </div>
-          </ScrollReveal>
+              </div>
+            </ScrollReveal>
+          </div>
         </div>
-      </div>
       
         {/* Copyright & Links */}
-        <div className="flex flex-col md:flex-row justify-between items-center border-t border-gray-200 dark:border-gray-800 pt-8">
+        <div className="flex flex-col md:flex-row justify-between items-center border-t border-gray-200 dark:border-gray-800/30 pt-8">
           <div className="flex items-center mb-4 md:mb-0">
-            <HeartIcon className="h-4 w-4 text-red-500 mr-2" />
+            <HeartIcon className="h-4 w-4 text-[#BB86FC] mr-2" />
             <p className="text-gray-600 dark:text-gray-400 text-sm">
-              © {currentYear} RetinaScan. Dibuat dengan <span className="text-red-500">♥</span> di Indonesia.
+              © {currentYear} RetinaScan. Dibuat dengan <span className="text-[#BB86FC]">♥</span> di Indonesia.
             </p>
           </div>
             
           <div className="flex flex-wrap gap-6">
-            <Link to="/privacy" className="text-gray-600 dark:text-gray-400 text-sm hover:text-indigo-600 dark:hover:text-indigo-400 transition-colors flex items-center">
+            <Link to="/privacy" className="text-gray-600 dark:text-gray-400 text-sm hover:text-[#03DAC6] dark:hover:text-[#03DAC6] transition-colors flex items-center">
               <ShieldCheckIcon className="h-4 w-4 mr-1" />
               <span>Kebijakan Privasi</span>
             </Link>
-            <Link to="/terms" className="text-gray-600 dark:text-gray-400 text-sm hover:text-indigo-600 dark:hover:text-indigo-400 transition-colors flex items-center">
+            <Link to="/terms" className="text-gray-600 dark:text-gray-400 text-sm hover:text-[#03DAC6] dark:hover:text-[#03DAC6] transition-colors flex items-center">
               <DocumentTextIcon className="h-4 w-4 mr-1" />
               <span>Syarat & Ketentuan</span>
             </Link>
-            <Link to="/faq" className="text-gray-600 dark:text-gray-400 text-sm hover:text-indigo-600 dark:hover:text-indigo-400 transition-colors flex items-center">
+            <Link to="/faq" className="text-gray-600 dark:text-gray-400 text-sm hover:text-[#03DAC6] dark:hover:text-[#03DAC6] transition-colors flex items-center">
               <QuestionMarkCircleIcon className="h-4 w-4 mr-1" />
               <span>FAQ</span>
             </Link>
@@ -260,7 +276,7 @@ const FooterLink = ({ to, label, external = false, onClick }) => {
         <a 
           href={to}
           onClick={onClick}
-          className="text-gray-600 dark:text-gray-300 hover:text-indigo-600 dark:hover:text-indigo-400 transition-colors text-sm flex items-center group"
+          className="text-gray-600 dark:text-gray-300 hover:text-[#03DAC6] dark:hover:text-[#03DAC6] transition-colors text-sm flex items-center group"
           target="_blank"
           rel="noopener noreferrer"
         >
@@ -283,7 +299,7 @@ const FooterLink = ({ to, label, external = false, onClick }) => {
       <Link 
         to={to}
         onClick={onClick}
-        className="text-gray-600 dark:text-gray-300 hover:text-indigo-600 dark:hover:text-indigo-400 transition-colors text-sm flex items-center"
+        className="text-gray-600 dark:text-gray-300 hover:text-[#03DAC6] dark:hover:text-[#03DAC6] transition-colors text-sm flex items-center"
       >
         <motion.span
           initial={{ x: 0 }}
@@ -335,7 +351,10 @@ const SocialButton = ({ icon }) => {
       href="#"
       whileHover={{ scale: 1.1, y: -3 }}
       whileTap={{ scale: 0.95 }}
-      className="w-10 h-10 rounded-full bg-gradient-to-br from-indigo-600 to-purple-600 flex items-center justify-center shadow-md hover:shadow-lg text-white transition-all"
+      className="w-10 h-10 rounded-full flex items-center justify-center shadow-md hover:shadow-lg text-white transition-all"
+      style={{
+        background: 'linear-gradient(135deg, #03DAC6, #BB86FC)'
+      }}
     >
       {getIcon()}
     </motion.a>

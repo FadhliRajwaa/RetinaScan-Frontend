@@ -29,7 +29,7 @@ import {
 
 // Komponen notifikasi untuk logout
 const LogoutNotification = ({ message, type = 'success', onClose }) => {
-  const bgColor = type === 'success' ? 'bg-green-500' : 'bg-red-500';
+  const bgColor = type === 'success' ? 'bg-teal-500' : 'bg-red-500';
   const Icon = type === 'success' ? CheckCircleIcon : ExclamationCircleIcon;
   
   useEffect(() => {
@@ -47,7 +47,7 @@ const LogoutNotification = ({ message, type = 'success', onClose }) => {
       exit={{ opacity: 0, y: -50 }}
       className="fixed top-4 left-1/2 transform -translate-x-1/2 z-50 px-6 py-3 rounded-lg shadow-lg flex items-center"
       style={{ 
-        background: type === 'success' ? 'linear-gradient(to right, rgba(16, 185, 129, 0.9), rgba(5, 150, 105, 0.9))' : 'linear-gradient(to right, rgba(239, 68, 68, 0.9), rgba(220, 38, 38, 0.9))',
+        background: type === 'success' ? 'linear-gradient(to right, rgba(3, 218, 198, 0.9), rgba(13, 148, 136, 0.9))' : 'linear-gradient(to right, rgba(239, 68, 68, 0.9), rgba(220, 38, 38, 0.9))',
         backdropFilter: 'blur(8px)',
         border: '1px solid rgba(255, 255, 255, 0.1)',
         boxShadow: '0 10px 25px -5px rgba(0, 0, 0, 0.1), 0 8px 10px -6px rgba(0, 0, 0, 0.1)'
@@ -254,9 +254,14 @@ function Navbar() {
       <motion.nav 
         className={`fixed top-0 left-0 right-0 z-40 transition-all duration-500 ${
           scrolled 
-            ? 'bg-black/80 backdrop-blur-lg shadow-lg py-2' 
+            ? 'backdrop-blur-xl py-2' 
             : 'bg-transparent py-4'
         }`}
+        style={{
+          backgroundColor: scrolled ? (theme === 'dark' ? 'rgba(30, 30, 46, 0.8)' : 'rgba(255, 255, 255, 0.8)') : 'transparent',
+          boxShadow: scrolled ? '0 4px 20px rgba(0, 0, 0, 0.1)' : 'none',
+          borderBottom: scrolled ? '1px solid rgba(255, 255, 255, 0.1)' : 'none'
+        }}
         initial={{ y: -100 }}
         animate={{ y: 0 }}
         transition={{ duration: 0.5, ease: "easeOut" }}
@@ -271,13 +276,13 @@ function Navbar() {
                 className="flex items-center"
               >
                 <div className="relative w-10 h-10">
-                  <div className="absolute inset-0 bg-gradient-to-br from-cyan-600 to-blue-600 rounded-xl shadow-lg transform rotate-6 opacity-60"></div>
+                  <div className="absolute inset-0 bg-gradient-to-br from-[#03DAC6] to-[#BB86FC] rounded-xl shadow-lg transform rotate-6 opacity-80"></div>
                   <div className="absolute inset-0 flex items-center justify-center">
                     <EyeIcon className="h-6 w-6 text-white" />
                   </div>
                 </div>
                 <div className="flex flex-col ml-2">
-                  <span className="text-xl font-bold bg-gradient-to-r from-cyan-600 to-blue-600 bg-clip-text text-transparent">
+                  <span className="text-xl font-bold bg-gradient-to-r from-[#03DAC6] to-[#BB86FC] bg-clip-text text-transparent">
                     RetinaScan
                   </span>
                   <span className="text-xs text-gray-400 -mt-1">AI Vision</span>
@@ -294,13 +299,16 @@ function Navbar() {
                 whileHover={{ scale: 1.05 }}
                 whileTap={{ scale: 0.95 }}
                 onClick={toggleTheme}
-                className="p-2 rounded-full transition-colors bg-gray-800/50 text-gray-300"
+                className="p-2 rounded-full transition-colors bg-gray-800/30 backdrop-blur-md text-gray-300"
                 aria-label="Toggle theme"
+                style={{
+                  border: '1px solid rgba(255, 255, 255, 0.1)'
+                }}
               >
                 {theme === 'dark' ? (
                   <SunIcon className="h-5 w-5 text-amber-400" />
                 ) : (
-                  <MoonIcon className="h-5 w-5 text-blue-400" />
+                  <MoonIcon className="h-5 w-5 text-[#BB86FC]" />
                 )}
               </motion.button>
               
@@ -311,9 +319,13 @@ function Navbar() {
                     whileHover={{ scale: 1.05 }}
                     whileTap={{ scale: 0.95 }}
                     onClick={toggleUserMenu}
-                    className="flex items-center px-3 py-2 rounded-xl bg-gradient-to-r from-cyan-600/20 to-blue-600/20 text-gray-300 hover:bg-gradient-to-r hover:from-cyan-600/30 hover:to-blue-600/30 transition-all"
+                    className="flex items-center px-3 py-2 rounded-xl backdrop-blur-md text-gray-300 transition-all"
+                    style={{
+                      backgroundColor: 'rgba(3, 218, 198, 0.1)',
+                      border: '1px solid rgba(3, 218, 198, 0.3)'
+                    }}
                   >
-                    <div className="bg-gradient-to-br from-cyan-600 to-blue-600 rounded-full p-1 mr-2 shadow">
+                    <div className="bg-gradient-to-br from-[#03DAC6] to-[#BB86FC] rounded-full p-1 mr-2 shadow">
                       <UserCircleIcon className="h-5 w-5 text-white" />
                     </div>
                     <span className="font-medium mr-1">{userName}</span>
@@ -327,12 +339,13 @@ function Navbar() {
                         animate={{ opacity: 1, y: 0, scale: 1 }}
                         exit={{ opacity: 0, y: -10, scale: 0.95 }}
                         transition={{ duration: 0.2, ease: "easeOut" }}
-                        className="absolute right-0 mt-2 w-60 rounded-2xl shadow-xl py-2 bg-black/80 backdrop-blur-md border border-gray-700/50"
+                        className="absolute right-0 mt-2 w-60 rounded-2xl shadow-xl py-2 backdrop-blur-xl border border-[#03DAC6]/20"
                         style={{
+                          backgroundColor: theme === 'dark' ? 'rgba(30, 30, 46, 0.8)' : 'rgba(255, 255, 255, 0.8)',
                           boxShadow: '0 10px 25px -5px rgba(0, 0, 0, 0.3), 0 8px 10px -6px rgba(0, 0, 0, 0.2)'
                         }}
                       >
-                        <div className="px-4 py-3 border-b border-gray-700">
+                        <div className="px-4 py-3 border-b border-gray-700/30">
                           <p className="text-sm font-medium text-white">{userName}</p>
                           <p className="text-xs text-gray-400 mt-1 truncate">
                             {user?.email || 'user@example.com'}
@@ -340,7 +353,7 @@ function Navbar() {
                         </div>
                         <Link 
                           to={`${DASHBOARD_URL}/#/?token=${token}`} 
-                          className="block px-4 py-2 text-sm text-gray-300 hover:bg-gray-700 transition-colors"
+                          className="block px-4 py-2 text-sm text-gray-300 hover:bg-[#03DAC6]/10 transition-colors"
                         >
                           <div className="flex items-center">
                             <ChartBarSquareIcon className="h-4 w-4 mr-2" />
@@ -349,7 +362,7 @@ function Navbar() {
                         </Link>
                         <button 
                           onClick={handleLogout}
-                          className="block w-full text-left px-4 py-2 text-sm text-gray-300 hover:bg-gray-700 transition-colors"
+                          className="block w-full text-left px-4 py-2 text-sm text-gray-300 hover:bg-[#03DAC6]/10 transition-colors"
                         >
                           <div className="flex items-center">
                             <ArrowLeftOnRectangleIcon className="h-4 w-4 mr-2" />
@@ -366,7 +379,11 @@ function Navbar() {
                     <motion.button
                       whileHover={{ scale: 1.05 }}
                       whileTap={{ scale: 0.95 }}
-                      className="px-4 py-2 rounded-xl text-gray-300 border border-gray-700 hover:bg-gray-800 transition-all shadow-sm"
+                      className="px-4 py-2 rounded-xl text-gray-300 backdrop-blur-md transition-all shadow-sm"
+                      style={{
+                        border: '1px solid rgba(187, 134, 252, 0.3)',
+                        backgroundColor: 'rgba(187, 134, 252, 0.1)'
+                      }}
                     >
                       Login
                     </motion.button>
@@ -375,7 +392,10 @@ function Navbar() {
                     <motion.button
                       whileHover={{ scale: 1.05 }}
                       whileTap={{ scale: 0.95 }}
-                      className="px-4 py-2 rounded-xl bg-gradient-to-r from-cyan-600 to-blue-600 hover:from-cyan-700 hover:to-blue-700 text-white shadow-md hover:shadow-lg transition-all"
+                      className="px-4 py-2 rounded-xl text-white shadow-md hover:shadow-lg transition-all"
+                      style={{
+                        background: 'linear-gradient(to right, #03DAC6, #BB86FC)'
+                      }}
                     >
                       Register
                     </motion.button>
@@ -390,13 +410,17 @@ function Navbar() {
                 whileHover={{ scale: 1.05 }}
                 whileTap={{ scale: 0.95 }}
                 onClick={toggleTheme}
-                className="p-2 mr-2 rounded-full bg-gray-800/50 text-gray-300 transition-colors"
+                className="p-2 mr-2 rounded-full backdrop-blur-md text-gray-300 transition-colors"
                 aria-label="Toggle theme"
+                style={{
+                  backgroundColor: 'rgba(3, 218, 198, 0.1)',
+                  border: '1px solid rgba(3, 218, 198, 0.3)'
+                }}
               >
                 {theme === 'dark' ? (
                   <SunIcon className="h-5 w-5 text-amber-400" />
                 ) : (
-                  <MoonIcon className="h-5 w-5 text-blue-400" />
+                  <MoonIcon className="h-5 w-5 text-[#BB86FC]" />
                 )}
               </motion.button>
               
@@ -404,8 +428,12 @@ function Navbar() {
                 whileHover={{ scale: 1.05 }}
                 whileTap={{ scale: 0.95 }}
                 onClick={toggleMenu}
-                className="p-2 rounded-full bg-gray-800/50 text-gray-300 transition-colors"
+                className="p-2 rounded-full backdrop-blur-md text-gray-300 transition-colors"
                 aria-label="Toggle menu"
+                style={{
+                  backgroundColor: 'rgba(187, 134, 252, 0.1)',
+                  border: '1px solid rgba(187, 134, 252, 0.3)'
+                }}
               >
                 {isOpen ? (
                   <XMarkIcon className="h-6 w-6" />
@@ -425,13 +453,17 @@ function Navbar() {
               animate={{ opacity: 1, height: 'auto' }}
               exit={{ opacity: 0, height: 0 }}
               transition={{ duration: 0.3, ease: "easeInOut" }}
-              className="md:hidden bg-black/90 backdrop-blur-xl shadow-lg rounded-2xl mx-4 mt-2 overflow-hidden border border-gray-700/50"
+              className="md:hidden backdrop-blur-xl shadow-lg rounded-2xl mx-4 mt-2 overflow-hidden"
+              style={{
+                backgroundColor: theme === 'dark' ? 'rgba(30, 30, 46, 0.8)' : 'rgba(255, 255, 255, 0.8)',
+                border: '1px solid rgba(3, 218, 198, 0.2)'
+              }}
             >
               <div className="container mx-auto px-4 py-3 space-y-1">
                 <Link 
                   to="/"
                   onClick={toggleMenu}
-                  className="flex items-center p-3 rounded-xl text-gray-300 hover:bg-gray-800 transition-colors"
+                  className="flex items-center p-3 rounded-xl text-gray-300 hover:bg-[#03DAC6]/10 transition-colors"
                 >
                   <HomeIcon className="h-5 w-5 mr-3" />
                   <span>Beranda</span>
@@ -441,7 +473,7 @@ function Navbar() {
                   <>
                     <a 
                       href={`${DASHBOARD_URL}/#/?token=${token}`}
-                      className="flex items-center p-3 rounded-xl text-gray-300 hover:bg-gray-800 transition-colors"
+                      className="flex items-center p-3 rounded-xl text-gray-300 hover:bg-[#03DAC6]/10 transition-colors"
                     >
                       <ChartBarSquareIcon className="h-5 w-5 mr-3" />
                       <span>Dashboard</span>
@@ -451,7 +483,7 @@ function Navbar() {
                         handleLogout();
                         toggleMenu();
                       }}
-                      className="flex items-center w-full p-3 rounded-xl text-gray-300 hover:bg-gray-800 transition-colors"
+                      className="flex items-center w-full p-3 rounded-xl text-gray-300 hover:bg-[#03DAC6]/10 transition-colors"
                     >
                       <ArrowLeftOnRectangleIcon className="h-5 w-5 mr-3" />
                       <span>Logout</span>
@@ -462,7 +494,7 @@ function Navbar() {
                     <Link 
                       to="/login"
                       onClick={toggleMenu}
-                      className="flex items-center p-3 rounded-xl text-gray-300 hover:bg-gray-800 transition-colors"
+                      className="flex items-center p-3 rounded-xl text-gray-300 hover:bg-[#BB86FC]/10 transition-colors"
                     >
                       <UserIcon className="h-5 w-5 mr-3" />
                       <span>Login</span>
@@ -470,7 +502,10 @@ function Navbar() {
                     <Link 
                       to="/register"
                       onClick={toggleMenu}
-                      className="flex items-center p-3 rounded-xl bg-gradient-to-r from-cyan-600 to-blue-600 text-white"
+                      className="flex items-center p-3 rounded-xl text-white"
+                      style={{
+                        background: 'linear-gradient(to right, #03DAC6, #BB86FC)'
+                      }}
                     >
                       <UserIcon className="h-5 w-5 mr-3" />
                       <span>Register</span>
@@ -496,10 +531,10 @@ const NavLink = ({ to, label, icon }) => {
       <motion.div
         whileHover={{ scale: 1.05 }}
         whileTap={{ scale: 0.95 }}
-        className={`px-3 py-2 rounded-xl flex items-center transition-colors ${
+        className={`px-3 py-2 rounded-xl flex items-center transition-colors backdrop-blur-md ${
           isActive 
-            ? 'bg-gradient-to-r from-cyan-600/20 to-blue-600/20 text-cyan-400 font-medium' 
-            : 'text-gray-300 hover:bg-gray-800'
+            ? 'bg-[#03DAC6]/10 text-[#03DAC6] font-medium border border-[#03DAC6]/30' 
+            : 'text-gray-300 hover:bg-[#03DAC6]/5 border border-transparent'
         }`}
       >
         {icon && <span className="mr-1.5">{icon}</span>}

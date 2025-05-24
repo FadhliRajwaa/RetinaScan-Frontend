@@ -4,24 +4,26 @@ import * as THREE from 'three';
 import { useTheme } from '../context/ThemeContext';
 
 // Lazy load VANTA untuk menghindari masalah SSR
-let WAVES = null;
+let NET = null;
 
 /**
  * Komponen untuk menampilkan efek background menggunakan Vanta.js
  * 
  * @param {Object} props - Props komponen
  * @param {string} props.color - Warna efek (dalam format hex)
- * @param {number} props.waveHeight - Tinggi gelombang
- * @param {number} props.waveSpeed - Kecepatan gelombang
- * @param {number} props.zoom - Level zoom
+ * @param {string} props.highlightColor - Warna highlight untuk efek (dalam format hex)
+ * @param {number} props.points - Jumlah titik dalam jaringan
+ * @param {number} props.maxDistance - Jarak maksimum antara titik yang terhubung
+ * @param {number} props.spacing - Jarak antar titik
  * @param {boolean} props.mouseControls - Apakah efek bereaksi terhadap mouse
  * @returns {JSX.Element} Komponen VantaBackground
  */
 const VantaBackground = ({
   color,
-  waveHeight = 15,
-  waveSpeed = 1.0,
-  zoom = 1,
+  highlightColor,
+  points = 15,
+  maxDistance = 20.0,
+  spacing = 15.0,
   mouseControls = true,
 }) => {
   const vantaRef = useRef(null);
@@ -31,8 +33,11 @@ const VantaBackground = ({
   const { theme } = useTheme();
   
   // Warna berdasarkan tema
-  const themeColor = theme === 'dark' ? 0x000000 : 0x3b82f6; // Hitam untuk dark mode, biru untuk light mode
+  const themeColor = theme === 'dark' ? 0x1E1E2E : 0x03DAC6; // Biru gelap untuk dark mode, teal untuk light mode
+  const themeHighlightColor = theme === 'dark' ? 0xBB86FC : 0xBB86FC; // Ungu untuk highlight
+  
   const actualColor = color !== undefined ? color : themeColor;
+  const actualHighlightColor = highlightColor !== undefined ? highlightColor : themeHighlightColor;
   
   // Debug mode
   const debug = true; // Set ke true untuk melihat log debug
@@ -61,12 +66,12 @@ const VantaBackground = ({
     }
     
     const loadVanta = async () => {
-      if (!WAVES) {
+      if (!NET) {
         try {
           // Dynamically import Vanta
-          log('Loading Vanta.js WAVES effect');
-          WAVES = (await import('vanta/dist/vanta.waves.min')).default;
-          log('Vanta WAVES loaded:', WAVES);
+          log('Loading Vanta.js NET effect');
+          NET = (await import('vanta/dist/vanta.net.min')).default;
+          log('Vanta NET loaded:', NET);
           setVantaLoaded(true);
         } catch (error) {
           console.error('Error loading Vanta.js:', error);
@@ -90,12 +95,12 @@ const VantaBackground = ({
 
   // Inisialisasi efek Vanta.js
   useEffect(() => {
-    if (!vantaLoaded || !vantaRef.current || !WAVES || !threeReady) {
-      log('Skipping Vanta init, not ready yet:', { vantaLoaded, hasRef: !!vantaRef.current, hasWAVES: !!WAVES, threeReady });
+    if (!vantaLoaded || !vantaRef.current || !NET || !threeReady) {
+      log('Skipping Vanta init, not ready yet:', { vantaLoaded, hasRef: !!vantaRef.current, hasNET: !!NET, threeReady });
       return;
     }
 
-    log('Initializing Vanta WAVES with:', { color: actualColor, waveHeight, waveSpeed });
+    log('Initializing Vanta NET with:', { color: actualColor, highlightColor: actualHighlightColor, points, maxDistance });
 
     // Destroy previous effect if exists
     if (vantaEffectRef.current) {
@@ -104,29 +109,28 @@ const VantaBackground = ({
 
     try {
       // Create new effect
-      vantaEffectRef.current = WAVES({
+      vantaEffectRef.current = NET({
         el: vantaRef.current,
         THREE: THREE,
         mouseControls: mouseControls,
         touchControls: true,
         gyroControls: false,
-        waveHeight: waveHeight,
-        waveSpeed: waveSpeed,
-        zoom: zoom,
-        color: actualColor,
-        shininess: 50, // Meningkatkan shininess untuk efek yang lebih terlihat
-        minHeight: 200.00,
-        minWidth: 200.00,
         scale: 1.00,
         scaleMobile: 1.00,
-        amplitude: 1.0 // Meningkatkan amplitudo gelombang
+        color: actualColor,
+        backgroundColor: 0x1E1E2E,
+        points: points,
+        maxDistance: maxDistance,
+        spacing: spacing,
+        showDots: false,
+        highlightColor: actualHighlightColor
       });
       log('Vanta effect created successfully');
     } catch (error) {
       console.error('Error creating Vanta effect:', error);
     }
 
-  }, [vantaLoaded, actualColor, waveHeight, waveSpeed, zoom, mouseControls, theme, threeReady]);
+  }, [vantaLoaded, actualColor, actualHighlightColor, points, maxDistance, spacing, mouseControls, theme, threeReady]);
 
   return (
     <div 
@@ -139,9 +143,10 @@ const VantaBackground = ({
 
 VantaBackground.propTypes = {
   color: PropTypes.number,
-  waveHeight: PropTypes.number,
-  waveSpeed: PropTypes.number,
-  zoom: PropTypes.number,
+  highlightColor: PropTypes.number,
+  points: PropTypes.number,
+  maxDistance: PropTypes.number,
+  spacing: PropTypes.number,
   mouseControls: PropTypes.bool,
 };
 
