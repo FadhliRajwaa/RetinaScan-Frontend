@@ -67,17 +67,17 @@ function Footer() {
         <div className="grid grid-cols-1 md:grid-cols-12 gap-10 mb-12">
           {/* Kolom 1: Tentang RetinaScan - Lebih lebar */}
           <div className="md:col-span-5">
-            <ScrollReveal>
+          <ScrollReveal>
               <div className="space-y-6">
                 <div className="flex items-center mb-4">
                   <div className="bg-gradient-to-r from-indigo-600 to-purple-600 p-2 rounded-lg shadow-lg">
                     <EyeIcon className="h-8 w-8 text-white" />
                   </div>
                   <h3 className="text-2xl font-bold ml-3 bg-gradient-to-r from-indigo-600 to-purple-600 bg-clip-text text-transparent">
-                    RetinaScan
-                  </h3>
+                  RetinaScan
+                </h3>
                 </div>
-                
+              
                 <p className="text-gray-600 dark:text-gray-300 text-base leading-relaxed">
                   RetinaScan menghadirkan teknologi AI terdepan untuk deteksi dini retinopati diabetik, 
                   membantu mencegah kebutaan akibat diabetes dengan diagnosis yang cepat, akurat, dan terjangkau.
@@ -90,7 +90,7 @@ function Footer() {
                   <SocialButton icon="linkedin" />
                 </div>
               </div>
-            </ScrollReveal>
+          </ScrollReveal>
           </div>
           
           {/* Kolom 2: Link Cepat */}
@@ -119,7 +119,7 @@ function Footer() {
                   )}
                 </ul>
               </div>
-            </ScrollReveal>
+          </ScrollReveal>
           </div>
           
           {/* Kolom 3: Layanan */}
@@ -139,7 +139,7 @@ function Footer() {
                   <FooterLink to="#" label="Laporan Kesehatan" />
                 </ul>
               </div>
-            </ScrollReveal>
+          </ScrollReveal>
           </div>
           
           {/* Kolom 4: Kontak */}
@@ -158,7 +158,7 @@ function Footer() {
                     </div>
                     <span className="text-gray-600 dark:text-gray-300 text-sm">
                       Jl. Kesehatan No. 123, Jakarta Selatan, Indonesia
-                    </span>
+                  </span>
                   </li>
                   <li className="flex items-center">
                     <div className="bg-indigo-100 dark:bg-indigo-900/30 p-2 rounded-lg mr-3 flex-shrink-0">
@@ -188,8 +188,8 @@ function Footer() {
               </div>
             </ScrollReveal>
           </div>
-        </div>
-        
+                </div>
+                
         {/* Newsletter */}
         <div className="border-t border-gray-200 dark:border-gray-800 pt-10 pb-8 mb-8">
           <div className="max-w-3xl mx-auto">
@@ -218,11 +218,11 @@ function Footer() {
                     Berlangganan
                   </motion.button>
                 </form>
-              </div>
-            </ScrollReveal>
-          </div>
+                </div>
+          </ScrollReveal>
         </div>
-        
+      </div>
+      
         {/* Copyright & Links */}
         <div className="flex flex-col md:flex-row justify-between items-center border-t border-gray-200 dark:border-gray-800 pt-8">
           <div className="flex items-center mb-4 md:mb-0">
@@ -231,7 +231,7 @@ function Footer() {
               © {currentYear} RetinaScan. Dibuat dengan <span className="text-red-500">♥</span> di Indonesia.
             </p>
           </div>
-          
+            
           <div className="flex flex-wrap gap-6">
             <Link to="/privacy" className="text-gray-600 dark:text-gray-400 text-sm hover:text-indigo-600 dark:hover:text-indigo-400 transition-colors flex items-center">
               <ShieldCheckIcon className="h-4 w-4 mr-1" />

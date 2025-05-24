@@ -1,27 +1,29 @@
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useRef, useState, useMemo } from 'react';
 import PropTypes from 'prop-types';
 
 /**
- * Komponen untuk menampilkan efek partikel di latar belakang dengan performa yang sangat dioptimalkan,
- * animasi yang smooth, dan efek visual yang ringan untuk menghindari lag
+ * Komponen untuk menampilkan efek partikel di latar belakang dengan performa yang dioptimalkan
+ * dan efek visual modern yang ringan
  * 
  * @param {Object} props - Props komponen
- * @param {string} props.color - Warna partikel
- * @param {number} props.count - Jumlah partikel
+ * @param {string} props.color - Warna partikel atau gradient
+ * @param {number} props.count - Jumlah partikel 
  * @param {number} props.speed - Kecepatan animasi
  * @param {boolean} props.connected - Apakah partikel terhubung dengan garis
- * @param {string} props.type - Jenis animasi partikel ('default', 'wave', 'pulse', 'gravity', 'vortex', 'magnetic')
+ * @param {string} props.type - Jenis animasi ('default', 'wave', 'pulse', 'flow')
  * @param {boolean} props.interactive - Apakah partikel bereaksi terhadap gerakan mouse
+ * @param {boolean} props.glow - Efek cahaya pada partikel
  * @param {Object} props.style - Style tambahan untuk container
  * @returns {JSX.Element} Komponen ParticlesBackground
  */
 const ParticlesBackground = ({
-  color = 'rgba(79, 70, 229, 0.4)', // Default: Indigo dengan transparansi
-  count = 50, // Meningkatkan jumlah default dari 30 ke 50 untuk efek visual lebih baik
-  speed = 0.8, // Meningkatkan kecepatan default dari 0.3 ke 0.8 untuk animasi lebih terlihat
+  color = 'rgba(99, 102, 241, 0.6)',
+  count = 50, 
+  speed = 1.0,
   connected = true,
-  type = 'default',
-  interactive = true, // Default ke true untuk interaksi yang lebih menarik
+  type = 'flow',
+  interactive = true,
+  glow = true,
   style = {},
 }) => {
   const canvasRef = useRef(null);
@@ -29,10 +31,30 @@ const ParticlesBackground = ({
   const animationFrameId = useRef(null);
   const mousePosition = useRef({ x: null, y: null });
   const [isVisible, setIsVisible] = useState(true);
-  const mouseRadius = useRef(120); // Meningkatkan radius pengaruh mouse dari 100 ke 120
-  const mouseForce = useRef(3 * speed); // Meningkatkan kekuatan pengaruh mouse dari 2 ke 3
+  const [dimensions, setDimensions] = useState({ width: 0, height: 0 });
+  const mouseRadius = useRef(120);
+  const mouseForce = useRef(4 * speed);
   const lastMouseMoveTime = useRef(0);
   const mouseActive = useRef(false);
+  const devicePixelRatio = useRef(typeof window !== 'undefined' ? window.devicePixelRatio || 1 : 1);
+  const lastFrameTime = useRef(0);
+  
+  // Mengekstrak komponen warna dari string color untuk efek gradient dan variasi
+  const colorComponents = useMemo(() => {
+    let r = 99, g = 102, b = 241, a = 0.6; // Default: Indigo
+    
+    if (color.includes('rgb')) {
+      const rgbMatch = color.match(/rgba?\((\d+),\s*(\d+),\s*(\d+)(?:,\s*([\d.]+))?\)/i);
+      if (rgbMatch) {
+        r = parseInt(rgbMatch[1]);
+        g = parseInt(rgbMatch[2]);
+        b = parseInt(rgbMatch[3]);
+        a = rgbMatch[4] ? parseFloat(rgbMatch[4]) : 1;
+      }
+    }
+    
+    return { r, g, b, a };
+  }, [color]);
   
   // Optimasi: Hanya render partikel jika komponen terlihat di viewport
   useEffect(() => {
@@ -55,235 +77,219 @@ const ParticlesBackground = ({
     };
   }, []);
 
-  // Inisialisasi partikel dengan berbagai jenis - lebih dioptimalkan
-  const initParticles = (canvas, ctx) => {
-    const particles = [];
+  // Inisialisasi partikel dengan optimasi untuk ukuran layar
+  const initParticles = (canvas) => {
     const { width, height } = canvas;
+    const particles = [];
     
-    // Batasi jumlah partikel berdasarkan ukuran layar dan performa
-    // Kurangi pembatasan jumlah partikel untuk efek visual lebih baik
-    const adjustedCount = Math.min(count, Math.floor((width * height) / 15000));
-
-    // Ekstrak komponen warna untuk variasi
-    let baseColor = color;
-    let r, g, b;
+    // Adjust particle count based on screen size for better performance
+    const scaleFactor = Math.min(width, height) / 1000;
+    const adjustedCount = Math.min(Math.floor(count * scaleFactor), count);
+    const actualCount = Math.max(adjustedCount, 20);
     
-    if (color.includes('rgb')) {
-      const rgbMatch = color.match(/rgba?\((\d+),\s*(\d+),\s*(\d+)/i);
-      if (rgbMatch) {
-        r = parseInt(rgbMatch[1]);
-        g = parseInt(rgbMatch[2]);
-        b = parseInt(rgbMatch[3]);
-      }
-    }
+    const { r, g, b, a } = colorComponents;
 
-    for (let i = 0; i < adjustedCount; i++) {
-      const size = Math.random() * 3 + 1.5; // Meningkatkan ukuran partikel untuk visibilitas lebih baik
+    for (let i = 0; i < actualCount; i++) {
+      const size = Math.random() * 3 + 0.5; // Ukuran lebih kecil untuk performa lebih baik
       const x = Math.random() * width;
       const y = Math.random() * height;
       
-      // Variasi kecepatan dan arah berdasarkan jenis animasi - lebih terlihat
+      // Variasi kecepatan dan arah berdasarkan jenis animasi
       let directionX, directionY;
       
       switch (type) {
         case 'wave':
-          directionX = (Math.random() * 0.4 - 0.2) * speed; // Meningkatkan kecepatan
-          directionY = Math.sin(x / 100) * speed * 0.4; // Meningkatkan amplitudo
+          directionX = (Math.random() * 0.6 - 0.3) * speed;
+          directionY = Math.sin(x / 100) * speed * 0.3;
           break;
         case 'pulse':
-          directionX = (Math.random() * 1 - 0.5) * speed * 0.3; // Meningkatkan kecepatan
-          directionY = (Math.random() * 1 - 0.5) * speed * 0.3;
+          directionX = (Math.random() * 0.8 - 0.4) * speed * 0.3;
+          directionY = (Math.random() * 0.8 - 0.4) * speed * 0.3;
           break;
-        case 'gravity':
-          directionX = (Math.random() * 1 - 0.5) * speed * 0.4; // Meningkatkan kecepatan
-          directionY = Math.random() * speed * 0.1 + 0.05; // Meningkatkan efek gravitasi
-          break;
-        case 'vortex':
-          directionX = (Math.random() * 1 - 0.5) * speed * 0.3; // Meningkatkan kecepatan
-          directionY = (Math.random() * 1 - 0.5) * speed * 0.3;
-          break;
-        case 'magnetic':
-          directionX = (Math.random() * 1 - 0.5) * speed * 0.2; // Meningkatkan kecepatan
-          directionY = (Math.random() * 1 - 0.5) * speed * 0.2;
+        case 'flow':
+          directionX = Math.cos(Math.random() * Math.PI * 2) * speed * 0.2;
+          directionY = Math.sin(Math.random() * Math.PI * 2) * speed * 0.2;
           break;
         default:
-          directionX = (Math.random() * 1 - 0.5) * speed * 0.6; // Meningkatkan kecepatan
-          directionY = (Math.random() * 1 - 0.5) * speed * 0.6;
+          directionX = (Math.random() * 0.8 - 0.4) * speed * 0.5;
+          directionY = (Math.random() * 0.8 - 0.4) * speed * 0.5;
       }
       
-      const opacity = Math.random() * 0.7 + 0.3; // Meningkatkan opasitas untuk visibilitas lebih baik
-      const initialSize = size;
+      // Variasi opacity untuk efek kedalaman
+      const opacity = Math.random() * 0.6 + 0.4;
       
-      // Variasi warna yang lebih terlihat
-      let particleColor = baseColor;
-      if (r !== undefined && g !== undefined && b !== undefined) {
-        // Variasi warna untuk efek visual lebih menarik
-        const hueShift = Math.random() * 20 - 10; // Meningkatkan variasi warna
-        const rNew = Math.min(255, Math.max(0, r + hueShift));
-        const gNew = Math.min(255, Math.max(0, g + hueShift));
-        const bNew = Math.min(255, Math.max(0, b + hueShift));
-        particleColor = `rgba(${rNew}, ${gNew}, ${bNew}, ${opacity})`;
-      }
+      // Variasi warna untuk efek visual yang lebih menarik
+      const hueShift = Math.random() * 30 - 15;
+      const rNew = Math.min(255, Math.max(0, r + hueShift));
+      const gNew = Math.min(255, Math.max(0, g + hueShift));
+      const bNew = Math.min(255, Math.max(0, b + hueShift));
+      const particleColor = `rgba(${rNew}, ${gNew}, ${bNew}, ${opacity * a})`;
       
       particles.push({
         x,
         y,
         size,
-        initialSize,
+        initialSize: size,
         directionX,
         directionY,
         opacity,
-        color: particleColor, // Warna individual untuk setiap partikel
-        // Properti tambahan untuk animasi - lebih dinamis
+        color: particleColor,
+        // Properties for special effects
         pulseFactor: 0,
-        pulseDirection: 1,
-        originalX: x, // Untuk efek magnetic
-        originalY: y, // Untuk efek magnetic
-        vortexAngle: Math.random() * Math.PI * 2, // Untuk efek vortex
-        vortexRadius: Math.random() * 40 + 30, // Meningkatkan radius vortex
-        // Properti untuk interaktivitas mouse
+        pulseDirection: Math.random() > 0.5 ? 1 : -1,
+        originalX: x,
+        originalY: y,
+        angle: Math.random() * Math.PI * 2,
+        orbitRadius: Math.random() * 30 + 10,
+        orbitSpeed: (Math.random() * 0.01 + 0.005) * speed,
+        // Properties for mouse interactivity
         targetX: x,
         targetY: y,
         force: 0,
         forceDirectionX: 0,
         forceDirectionY: 0,
-        velocity: Math.random() * 1.5 + 0.5, // Meningkatkan velocity
-        dampening: 0.95, // Sesuaikan faktor perlambatan
-        // Properti untuk efek glow - lebih terlihat
-        glowIntensity: Math.random() * 0.4 + 0.2, // Meningkatkan intensitas glow
+        velocity: Math.random() * 1.5 + 0.5,
+        dampening: 0.95,
+        // Properties for glow effect
+        glowIntensity: Math.random() * 0.5 + 0.3,
+        glowSize: Math.random() * 1.2 + 0.8,
+        // Custom properties
+        phase: Math.random() * Math.PI * 2,
+        waveAmplitude: Math.random() * 1.2 + 0.3,
+        flowOffset: Math.random() * Math.PI * 2,
+        flowSpeed: (Math.random() * 0.3 + 0.1) * speed,
       });
     }
 
     return particles;
   };
-
-  // Menggambar partikel dengan optimasi untuk performa dan visibilitas
-  const drawParticles = (ctx, particles, width, height) => {
-    ctx.clearRect(0, 0, width, height);
-
-    // Batch rendering untuk performa lebih baik
+  
+  // Improved drawing with optimized batch rendering
+  const drawParticles = (ctx, particles) => {
+    ctx.clearRect(0, 0, dimensions.width, dimensions.height);
+    
+    // Draw connections first (if enabled) to ensure particles are on top
+    if (connected) {
+      connectParticles(ctx, particles);
+    }
+    
+    // Batch rendering for better performance
     particles.forEach((particle) => {
-      // Efek glow untuk partikel yang berinteraksi dengan mouse
-      if (interactive && particle.force > 0.2 && mouseActive.current) {
-        ctx.beginPath();
+      // Draw glow effect for particles if enabled
+      if (glow && (particle.force > 0.1 || type === 'pulse' || type === 'flow')) {
+        const glowSize = particle.size * (1.5 + particle.glowSize);
+        const intensity = particle.glowIntensity * 
+                          (mouseActive.current && particle.force > 0.1 ? 1.2 : 0.6);
         
-        // Ukuran glow lebih terlihat
-        const glowSize = particle.size * 2.5;
-        const glowIntensity = particle.glowIntensity;
-        
+        // Create gradient for glow
         const glow = ctx.createRadialGradient(
           particle.x, particle.y, 0,
           particle.x, particle.y, glowSize
         );
         
-        // Gunakan warna individu partikel untuk glow
-        const particleColor = particle.color || color;
-        glow.addColorStop(0, particleColor.replace(')', `, ${particle.opacity * glowIntensity})`));
-        glow.addColorStop(1, particleColor.replace(')', ', 0)'));
+        const { r, g, b } = parseColor(particle.color);
+        glow.addColorStop(0, `rgba(${r}, ${g}, ${b}, ${particle.opacity * intensity})`);
+        glow.addColorStop(1, `rgba(${r}, ${g}, ${b}, 0)`);
         
         ctx.fillStyle = glow;
+        ctx.beginPath();
         ctx.arc(particle.x, particle.y, glowSize, 0, Math.PI * 2);
         ctx.fill();
       }
       
-      // Gambar partikel utama - lebih terlihat
+      // Draw the particle
       ctx.beginPath();
       ctx.arc(particle.x, particle.y, particle.size, 0, Math.PI * 2);
-      
-      // Gunakan warna individu partikel
-      const particleColor = particle.color || color;
-      ctx.fillStyle = particleColor.replace(')', `, ${particle.opacity})`);
+      ctx.fillStyle = particle.color;
       ctx.fill();
     });
-
-    if (connected) {
-      connectParticles(ctx, particles, width, height);
-    }
   };
 
-  // Menghubungkan partikel dengan garis - lebih terlihat
-  const connectParticles = (ctx, particles, width, height) => {
-    // Optimasi: Sesuaikan maxDistance berdasarkan ukuran layar
-    const maxDistance = Math.min(width, height) * 0.07; // Meningkatkan jarak koneksi
+  // Helper function to parse color
+  const parseColor = (color) => {
+    const match = color.match(/rgba?\((\d+),\s*(\d+),\s*(\d+)(?:,\s*([\d.]+))?\)/i);
+    if (match) {
+      return {
+        r: parseInt(match[1]), 
+        g: parseInt(match[2]), 
+        b: parseInt(match[3]),
+        a: match[4] ? parseFloat(match[4]) : 1
+      };
+    }
+    return { r: 255, g: 255, b: 255, a: 1 };
+  };
+
+  // Optimized connection drawing for particles
+  const connectParticles = (ctx, particles) => {
+    // Adjust max distance based on screen size
+    const maxDistance = Math.min(dimensions.width, dimensions.height) * 0.07;
     
-    // Batasi jumlah koneksi untuk performa
-    const maxConnections = 2; // Meningkatkan jumlah koneksi maksimum untuk efek visual lebih baik
-    
-    // Optimasi: Gunakan quadtree atau grid untuk mengurangi jumlah perbandingan
-    // Implementasi sederhana: Bagi partikel ke dalam grid
+    // Spatial partitioning grid to reduce comparisons
     const gridSize = maxDistance;
     const grid = {};
     
-    // Tempatkan partikel ke dalam grid
+    // Place particles into grid
     particles.forEach((particle, index) => {
       const gridX = Math.floor(particle.x / gridSize);
       const gridY = Math.floor(particle.y / gridSize);
       const key = `${gridX},${gridY}`;
       
-      if (!grid[key]) {
-        grid[key] = [];
-      }
+      if (!grid[key]) grid[key] = [];
       grid[key].push(index);
     });
     
-    // Untuk setiap partikel, periksa hanya partikel di grid terdekat
+    // Check neighboring cells for connections
     particles.forEach((particle, i) => {
       const gridX = Math.floor(particle.x / gridSize);
       const gridY = Math.floor(particle.y / gridSize);
-      let connections = 0;
       
-      // Periksa grid sekitar
+      // Check neighboring cells
       for (let x = gridX - 1; x <= gridX + 1; x++) {
-        if (connections >= maxConnections) break; // Keluar lebih awal jika sudah mencapai batas koneksi
-        
         for (let y = gridY - 1; y <= gridY + 1; y++) {
-          if (connections >= maxConnections) break; // Keluar lebih awal jika sudah mencapai batas koneksi
-          
           const key = `${x},${y}`;
           if (!grid[key]) continue;
           
-          // Periksa partikel dalam grid ini
-          for (let j = 0; j < grid[key].length && connections < maxConnections; j++) {
-            const index = grid[key][j];
-            if (i === index) continue; // Skip diri sendiri
+          // Check particles in this cell
+          grid[key].forEach(j => {
+            if (i === j) return; // Skip self
             
-            const targetParticle = particles[index];
+            const targetParticle = particles[j];
             const dx = particle.x - targetParticle.x;
             const dy = particle.y - targetParticle.y;
             const distance = Math.sqrt(dx * dx + dy * dy);
             
             if (distance < maxDistance) {
-              // Hitung opacity berdasarkan jarak
-              const opacity = 1 - (distance / maxDistance);
+              const opacity = (1 - (distance / maxDistance)) * 0.3; // Reduced opacity for better performance
               
-              // Gambar garis koneksi - lebih terlihat
+              // Simplified connection style
+              const { r, g, b } = colorComponents;
               ctx.beginPath();
-              ctx.strokeStyle = `rgba(${r || 79}, ${g || 70}, ${b || 229}, ${opacity * 0.2})`; // Meningkatkan opasitas garis
-              ctx.lineWidth = Math.min(particle.size, targetParticle.size) * 0.3; // Meningkatkan ketebalan garis
-              
+              ctx.strokeStyle = `rgba(${r}, ${g}, ${b}, ${opacity})`;
+              ctx.lineWidth = 0.5; // Thinner lines for better performance
               ctx.moveTo(particle.x, particle.y);
               ctx.lineTo(targetParticle.x, targetParticle.y);
               ctx.stroke();
-              
-              connections++;
             }
-          }
+          });
         }
       }
     });
   };
 
-  // Update posisi dan properti partikel - lebih dinamis
+  // Update particle positions based on animation type
   const updateParticles = (particles, width, height, timestamp) => {
-    // Throttle mouse interaction calculations
     const now = timestamp;
-    const mouseInteractionActive = interactive && mouseActive.current && (now - lastMouseMoveTime.current < 150);
+    const mouseInteractionActive = interactive && mouseActive.current && (now - lastMouseMoveTime.current < 200);
+    
+    // Calculate delta time for smooth animation
+    const deltaTime = lastFrameTime.current ? Math.min((now - lastFrameTime.current) / 16, 2) : 1;
+    lastFrameTime.current = now;
     
     return particles.map(particle => {
-      // Buat salinan partikel untuk diupdate
+      // Clone particle for updates
       const updatedParticle = { ...particle };
       
-      // Interaksi mouse jika aktif
+      // Handle mouse interaction
       if (mouseInteractionActive && 
           mousePosition.current.x !== null && 
           mousePosition.current.y !== null) {
@@ -293,39 +299,49 @@ const ParticlesBackground = ({
         const distance = Math.sqrt(dx * dx + dy * dy);
         
         if (distance < mouseRadius.current) {
-          // Hitung kekuatan berdasarkan jarak dari mouse
+          // Calculate force based on distance from mouse
           const force = (mouseRadius.current - distance) / mouseRadius.current;
           
-          // Arah menjauh dari mouse
+          // Direction away from mouse (repulsion)
           updatedParticle.forceDirectionX = -dx / distance;
           updatedParticle.forceDirectionY = -dy / distance;
           
-          // Terapkan kekuatan
+          // Apply force
           updatedParticle.force = force * mouseForce.current;
           
-          // Update targetX dan targetY untuk efek "menghindar"
-          updatedParticle.targetX = updatedParticle.x + updatedParticle.forceDirectionX * updatedParticle.force;
-          updatedParticle.targetY = updatedParticle.y + updatedParticle.forceDirectionY * updatedParticle.force;
+          // Set target position for smooth movement
+          updatedParticle.targetX = updatedParticle.x + updatedParticle.forceDirectionX * updatedParticle.force * 3;
+          updatedParticle.targetY = updatedParticle.y + updatedParticle.forceDirectionY * updatedParticle.force * 3;
         } else {
-          // Kurangi force secara bertahap jika tidak dalam radius mouse
+          // Gradually reduce force
           updatedParticle.force *= 0.92;
         }
       } else {
-        // Kurangi force secara bertahap jika mouse tidak aktif
+        // Gradually reduce force when mouse inactive
         updatedParticle.force *= 0.92;
       }
       
-      // Update posisi berdasarkan jenis animasi - lebih dinamis
+      // Special animations based on type
+      const time = now / 1000; // Convert to seconds for easier math
+      
       switch (type) {
-        case 'wave':
-          // Efek gelombang yang lebih dinamis
-          updatedParticle.y += Math.sin((updatedParticle.x / 100) + (timestamp / 1000)) * speed * 0.3;
-          updatedParticle.x += updatedParticle.directionX;
-          break;
+        case 'wave': {
+          // Dynamic wave pattern
+          const phaseX = updatedParticle.phase + time * 0.4 * speed;
+          const phaseY = updatedParticle.phase + time * 0.2 * speed;
           
-        case 'pulse':
-          // Efek pulse yang lebih dinamis
-          updatedParticle.pulseFactor += 0.01 * updatedParticle.pulseDirection * speed;
+          updatedParticle.directionY = Math.sin(phaseX) * updatedParticle.waveAmplitude * 0.2 * speed;
+          updatedParticle.directionX = Math.cos(phaseY) * updatedParticle.waveAmplitude * 0.1 * speed;
+          
+          // Apply direction
+          updatedParticle.x += updatedParticle.directionX * deltaTime;
+          updatedParticle.y += updatedParticle.directionY * deltaTime;
+          break;
+        }
+          
+        case 'pulse': {
+          // Enhanced pulse effect (size and opacity)
+          updatedParticle.pulseFactor += 0.01 * updatedParticle.pulseDirection * speed * deltaTime;
           
           if (updatedParticle.pulseFactor > 0.5) {
             updatedParticle.pulseDirection = -1;
@@ -333,54 +349,47 @@ const ParticlesBackground = ({
             updatedParticle.pulseDirection = 1;
           }
           
+          // Pulse size based on factor
           updatedParticle.size = updatedParticle.initialSize * (1 + updatedParticle.pulseFactor * 0.4);
-          updatedParticle.x += updatedParticle.directionX;
-          updatedParticle.y += updatedParticle.directionY;
+          
+          // Update position
+          updatedParticle.x += updatedParticle.directionX * deltaTime;
+          updatedParticle.y += updatedParticle.directionY * deltaTime;
           break;
+        }
           
-        case 'gravity':
-          // Efek gravitasi yang lebih dinamis
-          updatedParticle.directionY += 0.01 * speed;
-          updatedParticle.x += updatedParticle.directionX;
-          updatedParticle.y += updatedParticle.directionY;
+        case 'flow': {
+          // Flowing fluid-like motion - simplified for better performance
+          const flowPhase = updatedParticle.flowOffset + time * updatedParticle.flowSpeed;
+          
+          // Create flowing vector field effect
+          const noiseX = Math.sin(flowPhase + updatedParticle.x / 150);
+          const noiseY = Math.cos(flowPhase + updatedParticle.y / 150);
+          
+          updatedParticle.directionX = noiseX * speed * 0.3;
+          updatedParticle.directionY = noiseY * speed * 0.3;
+          
+          // Update position
+          updatedParticle.x += updatedParticle.directionX * deltaTime;
+          updatedParticle.y += updatedParticle.directionY * deltaTime;
           break;
+        }
           
-        case 'vortex':
-          // Efek vortex yang lebih dinamis
-          updatedParticle.vortexAngle += 0.01 * speed;
-          const vx = Math.cos(updatedParticle.vortexAngle) * updatedParticle.vortexRadius;
-          const vy = Math.sin(updatedParticle.vortexAngle) * updatedParticle.vortexRadius;
-          
-          // Bergerak menuju posisi vortex
-          updatedParticle.x += (updatedParticle.originalX + vx - updatedParticle.x) * 0.01 * speed;
-          updatedParticle.y += (updatedParticle.originalY + vy - updatedParticle.y) * 0.01 * speed;
+        default: {
+          // Standard movement
+          updatedParticle.x += updatedParticle.directionX * deltaTime;
+          updatedParticle.y += updatedParticle.directionY * deltaTime;
           break;
-          
-        case 'magnetic':
-          // Efek magnetic yang lebih dinamis
-          const dx = updatedParticle.originalX - updatedParticle.x;
-          const dy = updatedParticle.originalY - updatedParticle.y;
-          
-          updatedParticle.x += dx * 0.01 * speed;
-          updatedParticle.y += dy * 0.01 * speed;
-          
-          updatedParticle.x += updatedParticle.directionX;
-          updatedParticle.y += updatedParticle.directionY;
-          break;
-          
-        default:
-          // Default movement - lebih dinamis
-          updatedParticle.x += updatedParticle.directionX;
-          updatedParticle.y += updatedParticle.directionY;
+        }
       }
       
-      // Jika ada force dari interaksi mouse, bergerak menuju target
+      // Apply mouse interaction force
       if (updatedParticle.force > 0.01) {
-        updatedParticle.x += (updatedParticle.targetX - updatedParticle.x) * updatedParticle.force * 0.05;
-        updatedParticle.y += (updatedParticle.targetY - updatedParticle.y) * updatedParticle.force * 0.05;
+        updatedParticle.x += (updatedParticle.targetX - updatedParticle.x) * updatedParticle.force * 0.08 * deltaTime;
+        updatedParticle.y += (updatedParticle.targetY - updatedParticle.y) * updatedParticle.force * 0.08 * deltaTime;
       }
       
-      // Pantulkan partikel jika mencapai batas canvas
+      // Bounce particles when they reach the edges
       if (updatedParticle.x < 0 || updatedParticle.x > width) {
         updatedParticle.directionX *= -1;
         updatedParticle.x = updatedParticle.x < 0 ? 0 : width;
@@ -395,39 +404,59 @@ const ParticlesBackground = ({
     });
   };
 
-  // Animasi utama dengan optimasi
+  // Main animation loop with requestAnimationFrame
   const animate = (timestamp) => {
-    if (!isVisible) {
+    if (!isVisible || !canvasRef.current) {
       animationFrameId.current = requestAnimationFrame(animate);
       return;
     }
     
-    const canvas = canvasRef.current;
-    if (!canvas) return;
+    const ctx = canvasRef.current.getContext('2d', { alpha: true });
     
-    const ctx = canvas.getContext('2d');
-    const particles = particlesRef.current;
+    particlesRef.current = updateParticles(
+      particlesRef.current, 
+      dimensions.width, 
+      dimensions.height, 
+      timestamp
+    );
     
-    particlesRef.current = updateParticles(particles, canvas.width, canvas.height, timestamp);
-    drawParticles(ctx, particlesRef.current, canvas.width, canvas.height);
+    drawParticles(ctx, particlesRef.current);
     
     animationFrameId.current = requestAnimationFrame(animate);
   };
 
-  // Handle resize window dengan throttling
+  // Handle window resize with throttling
   const handleResize = () => {
+    if (!canvasRef.current) return;
+    
+    // Update canvas size with device pixel ratio for sharp rendering
     const canvas = canvasRef.current;
-    if (!canvas) return;
+    const containerRect = canvas.getBoundingClientRect();
     
-    canvas.width = canvas.offsetWidth;
-    canvas.height = canvas.offsetHeight;
+    // Set display size
+    canvas.style.width = `${containerRect.width}px`;
+    canvas.style.height = `${containerRect.height}px`;
     
-    const ctx = canvas.getContext('2d');
-    particlesRef.current = initParticles(canvas, ctx);
+    // Set actual size scaled by pixel ratio
+    canvas.width = Math.floor(containerRect.width * devicePixelRatio.current);
+    canvas.height = Math.floor(containerRect.height * devicePixelRatio.current);
+    
+    // Scale canvas context
+    const ctx = canvas.getContext('2d', { alpha: true });
+    ctx.scale(devicePixelRatio.current, devicePixelRatio.current);
+    
+    // Update dimensions in state
+    setDimensions({
+      width: containerRect.width,
+      height: containerRect.height
+    });
+    
+    // Reinitialize particles
+    particlesRef.current = initParticles(canvas);
   };
 
-  // Throttle function untuk event handlers
-  const throttle = (callback, delay) => {
+  // Throttle function for event handlers
+  const throttle = (callback, delay = 100) => {
     let previousCall = 0;
     return function(...args) {
       const now = Date.now();
@@ -438,51 +467,44 @@ const ParticlesBackground = ({
     };
   };
 
-  // Handle mouse move dengan throttling untuk performa
+  // Handle mouse move with throttling
   const handleMouseMove = throttle((e) => {
-    const canvas = canvasRef.current;
-    if (!canvas) return;
+    if (!canvasRef.current) return;
     
-    const rect = canvas.getBoundingClientRect();
+    const rect = canvasRef.current.getBoundingClientRect();
     mousePosition.current = {
       x: e.clientX - rect.left,
       y: e.clientY - rect.top
     };
-    
+
     mouseActive.current = true;
     lastMouseMoveTime.current = Date.now();
-  }, 16); // ~60fps untuk interaktivitas lebih baik
+  }, 16); // 60fps throttling
 
   const handleMouseLeave = () => {
     mousePosition.current = { x: null, y: null };
     mouseActive.current = false;
   };
 
-  // Setup canvas dan animasi dengan cleanup yang lebih baik
+  // Setup and cleanup
   useEffect(() => {
     const canvas = canvasRef.current;
     if (!canvas) return;
     
-    // Set ukuran canvas
-    canvas.width = canvas.offsetWidth;
-    canvas.height = canvas.offsetHeight;
-    
-    const ctx = canvas.getContext('2d');
-    particlesRef.current = initParticles(canvas, ctx);
+    // Initial setup
+    handleResize();
     
     // Start animation
     animationFrameId.current = requestAnimationFrame(animate);
     
-    // Event listeners dengan throttling
+    // Event listeners
     const throttledResize = throttle(handleResize, 200);
     window.addEventListener('resize', throttledResize);
     
-    // Hanya tambahkan event listener jika interactive = true
+    // Touch and mouse event listeners
     if (interactive) {
       canvas.addEventListener('mousemove', handleMouseMove);
       canvas.addEventListener('mouseleave', handleMouseLeave);
-      
-      // Touch events for mobile
       canvas.addEventListener('touchmove', (e) => {
         e.preventDefault();
         handleMouseMove({
@@ -490,7 +512,6 @@ const ParticlesBackground = ({
           clientY: e.touches[0].clientY
         });
       });
-      
       canvas.addEventListener('touchend', handleMouseLeave);
     }
     
@@ -501,6 +522,7 @@ const ParticlesBackground = ({
       }
       
       window.removeEventListener('resize', throttledResize);
+      
       if (interactive && canvas) {
         canvas.removeEventListener('mousemove', handleMouseMove);
         canvas.removeEventListener('mouseleave', handleMouseLeave);
@@ -508,7 +530,7 @@ const ParticlesBackground = ({
         canvas.removeEventListener('touchend', handleMouseLeave);
       }
     };
-  }, [color, count, speed, connected, type, interactive, isVisible]);
+  }, [color, count, speed, connected, type, interactive, glow, isVisible]);
 
   return (
     <canvas
@@ -517,7 +539,7 @@ const ParticlesBackground = ({
       style={{
         ...style,
         opacity: isVisible ? 1 : 0,
-        transition: 'opacity 0.3s ease'
+        transition: 'opacity 0.5s ease',
       }}
     />
   );
@@ -528,8 +550,9 @@ ParticlesBackground.propTypes = {
   count: PropTypes.number,
   speed: PropTypes.number,
   connected: PropTypes.bool,
-  type: PropTypes.oneOf(['default', 'wave', 'pulse', 'gravity', 'vortex', 'magnetic']),
+  type: PropTypes.oneOf(['default', 'wave', 'pulse', 'flow']),
   interactive: PropTypes.bool,
+  glow: PropTypes.bool,
   style: PropTypes.object
 };
 
