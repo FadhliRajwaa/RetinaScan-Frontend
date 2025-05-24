@@ -9,7 +9,8 @@ import {
   EnvelopeIcon, 
   ExclamationCircleIcon,
   CheckCircleIcon,
-  ArrowLeftIcon
+  ArrowLeftIcon,
+  EyeIcon
 } from '@heroicons/react/24/outline';
 import AnimatedInput from '../components/AnimatedInput';
 import WavesBackground from '../components/WavesBackground';
@@ -86,11 +87,9 @@ const ForgotPasswordPage = () => {
             transition={{ duration: 0.5 }}
             className="mx-auto"
           >
-            <img 
-              src="/logo-retina.png" 
-              alt="RetinaScan" 
-              className="h-16 mx-auto mb-2"
-            />
+            <div className="h-16 w-16 bg-gradient-to-r from-blue-600 to-indigo-600 rounded-xl shadow-lg p-3 mx-auto mb-2">
+              <EyeIcon className="h-full w-full text-white" />
+            </div>
           </motion.div>
           <h1 className="text-3xl font-bold mb-2">Lupa Password</h1>
           <p className="opacity-70">Masukkan email Anda untuk reset password</p>

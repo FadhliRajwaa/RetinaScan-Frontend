@@ -107,9 +107,20 @@ export const handleFrontendLogout = (setIsAuthenticated, setUserName, setToken, 
  * @returns {URLSearchParams} - URL search params from hash
  */
 export const getHashParams = () => {
-  const hashParts = window.location.hash.split('?');
-  const hashParams = hashParts.length > 1 ? hashParts[1] : '';
-  return new URLSearchParams(hashParams);
+  // Pastikan window.location.hash tidak undefined dan tidak kosong
+  if (!window.location.hash || typeof window.location.hash !== 'string') {
+    console.warn('Hash tidak ada atau bukan string');
+    return new URLSearchParams('');
+  }
+  
+  try {
+    const hashParts = window.location.hash.split('?');
+    const hashParams = hashParts.length > 1 ? hashParts[1] : '';
+    return new URLSearchParams(hashParams);
+  } catch (error) {
+    console.error('Error saat parsing hash params:', error);
+    return new URLSearchParams('');
+  }
 };
 
 /**

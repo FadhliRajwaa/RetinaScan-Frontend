@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { useInView } from 'react-intersection-observer';
-import DotPattern from '../components/DotPattern';
+import WavesBackground from '../components/WavesBackground';
 import AnimatedText from '../components/AnimatedText';
 import AnimatedButton from '../components/AnimatedButton';
 
@@ -93,19 +93,7 @@ const LandingPage = () => {
   return (
     <div className="relative min-h-screen overflow-hidden bg-gray-950">
       {/* Background Pattern */}
-      {isMounted && (
-        <div className="fixed inset-0 pointer-events-none">
-          <DotPattern
-            className="opacity-50"
-            width={20} 
-            height={20}
-            color="#3b82f6"
-            cr={1}
-            glow={true}
-            maskImage="radial-gradient(circle at center, transparent, black 80%)"
-          />
-        </div>
-      )}
+      {isMounted && <WavesBackground />}
       
       {/* Hero Section */}
       <section ref={heroRef} className="relative min-h-screen flex items-center justify-center px-4 sm:px-6 lg:px-8 z-10 pt-20">
