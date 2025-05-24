@@ -1,16 +1,33 @@
 @import "tailwindcss";
 
+:root {
+  --bg-dark: #111827;
+  --bg-light: #f9fafb;
+  --text-dark: #f9fafb;
+  --text-light: #111827;
+  --primary-dark: #3b82f6;
+  --primary-light: #1e40af;
+  --transition-duration: 0.3s;
+}
+
+* {
+  transition: background-color var(--transition-duration) ease,
+              color var(--transition-duration) ease,
+              border-color var(--transition-duration) ease,
+              box-shadow var(--transition-duration) ease;
+}
+
 body {
   font-family: 'Inter', sans-serif;
-  background-color: #f9fafb;
+  background-color: var(--bg-light);
+  color: var(--text-light);
   overflow-x: hidden;
-  transition: background-color 0.3s ease, color 0.3s ease;
 }
 
 /* Dark mode styling */
 html.dark body {
-  background-color: #111827;
-  color: #f9fafb;
+  background-color: var(--bg-dark);
+  color: var(--text-dark);
 }
 
 html.dark .glass-effect {
@@ -18,6 +35,13 @@ html.dark .glass-effect {
   backdrop-filter: blur(8px);
   -webkit-backdrop-filter: blur(8px);
   border: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+html:not(.dark) .glass-effect {
+  background: rgba(255, 255, 255, 0.7);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  border: 1px solid rgba(0, 0, 0, 0.05);
 }
 
 @layer components {
@@ -65,10 +89,7 @@ html.dark .glass-effect {
   }
   
   .glass-effect {
-    background: rgba(255, 255, 255, 0.2);
-    backdrop-filter: blur(8px);
-    -webkit-backdrop-filter: blur(8px);
-    border: 1px solid rgba(255, 255, 255, 0.1);
+    transition: background-color 0.3s ease, backdrop-filter 0.3s ease, border-color 0.3s ease;
   }
   
   .hover-scale {
@@ -93,6 +114,15 @@ html.dark .glass-effect {
   
   .bg-gradient-secondary {
     background: linear-gradient(135deg, #8b5cf6 0%, #a78bfa 50%, #7c3aed 100%);
+  }
+
+  /* Light mode specific styles */
+  html:not(.dark) .bg-gradient-primary {
+    background: linear-gradient(135deg, #1e40af 0%, #3b82f6 50%, #60a5fa 100%);
+  }
+  
+  html:not(.dark) .bg-gradient-secondary {
+    background: linear-gradient(135deg, #6d28d9 0%, #8b5cf6 50%, #a78bfa 100%);
   }
 }
 

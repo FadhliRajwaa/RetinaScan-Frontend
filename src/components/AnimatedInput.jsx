@@ -1,6 +1,7 @@
-import { useState } from 'react';
+import { useState, useMemo } from 'react';
 import { motion } from 'framer-motion';
 import PropTypes from 'prop-types';
+import { useTheme } from '../context/ThemeContext';
 
 /**
  * Komponen input form dengan animasi
@@ -41,39 +42,61 @@ function AnimatedInput({
   endIcon,
 }) {
   const [isFocused, setIsFocused] = useState(false);
+  const { theme } = useTheme();
 
-  // Definisi style berdasarkan state
+  // Definisi style berdasarkan state dan tema
   const containerClass = `group relative mb-4 ${className}`;
   
-  const inputBaseClass = `
-    w-full rounded-xl px-4 py-3 transition-all duration-200 ease-in-out
-    bg-white/10 backdrop-blur-md
-    border text-white placeholder-gray-400
-    focus:outline-none focus:ring-2
-  `;
+  const inputBaseClass = useMemo(() => {
+    return `
+      w-full rounded-xl px-4 py-3 transition-all duration-200 ease-in-out
+      ${theme === 'dark' 
+        ? 'bg-white/10 backdrop-blur-md text-white placeholder-gray-400' 
+        : 'bg-white border-gray-300 text-gray-900 placeholder-gray-500'}
+      border focus:outline-none focus:ring-2
+    `;
+  }, [theme]);
   
-  const inputStateClass = error
-    ? 'border-red-500 focus:border-red-500 focus:ring-red-500/50'
-    : isFocused
-    ? 'border-blue-500 focus:border-blue-500 focus:ring-blue-500/50'
-    : 'border-gray-700 focus:border-blue-400';
+  const inputStateClass = useMemo(() => {
+    if (error) {
+      return theme === 'dark'
+        ? 'border-red-500 focus:border-red-500 focus:ring-red-500/50'
+        : 'border-red-500 focus:border-red-500 focus:ring-red-500/50';
+    } else if (isFocused) {
+      return theme === 'dark'
+        ? 'border-blue-500 focus:border-blue-500 focus:ring-blue-500/50'
+        : 'border-blue-600 focus:border-blue-600 focus:ring-blue-600/50';
+    } else {
+      return theme === 'dark'
+        ? 'border-gray-700 focus:border-blue-400'
+        : 'border-gray-300 focus:border-blue-500';
+    }
+  }, [error, isFocused, theme]);
     
   const inputClass = `${inputBaseClass} ${inputStateClass} ${icon ? 'pl-10' : ''}`;
   
-  const labelBaseClass = `
-    absolute left-2 px-1 transition-all duration-200 ease-in-out
-    bg-gradient-to-b from-transparent via-gray-900 to-gray-900
-  `;
+  const labelBaseClass = useMemo(() => {
+    return `
+      absolute left-2 px-1 transition-all duration-200 ease-in-out
+      ${theme === 'dark'
+        ? 'bg-gradient-to-b from-transparent via-gray-900 to-gray-900'
+        : 'bg-gradient-to-b from-transparent via-gray-50 to-white'}
+    `;
+  }, [theme]);
   
   const labelStateClass = isFocused || value
     ? '-top-2 text-xs font-medium'
     : 'top-3 text-base';
     
-  const labelColorClass = error
-    ? 'text-red-500'
-    : isFocused
-    ? 'text-blue-400'
-    : 'text-gray-400';
+  const labelColorClass = useMemo(() => {
+    if (error) {
+      return 'text-red-500';
+    } else if (isFocused) {
+      return theme === 'dark' ? 'text-blue-400' : 'text-blue-600';
+    } else {
+      return theme === 'dark' ? 'text-gray-400' : 'text-gray-600';
+    }
+  }, [error, isFocused, theme]);
     
   const labelClass = `${labelBaseClass} ${labelStateClass} ${labelColorClass}`;
 

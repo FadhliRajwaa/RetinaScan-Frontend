@@ -1,6 +1,7 @@
 import { motion } from 'framer-motion';
 import PropTypes from 'prop-types';
-import { useState } from 'react';
+import { useState, useMemo } from 'react';
+import { useTheme } from '../context/ThemeContext';
 
 /**
  * Komponen tombol dengan animasi modern
@@ -25,19 +26,38 @@ function AnimatedButton({
   disabled = false,
   isLoading = false,
   type = 'button',
-  gradientFrom = 'from-blue-600',
-  gradientTo = 'to-purple-600',
+  gradientFrom,
+  gradientTo,
 }) {
   const [isHovered, setIsHovered] = useState(false);
+  const { theme } = useTheme();
+
+  // Tentukan warna gradient berdasarkan tema jika tidak ditentukan melalui props
+  const gradientColors = useMemo(() => {
+    const defaultFrom = theme === 'dark' ? 'from-blue-600' : 'from-blue-700';
+    const defaultTo = theme === 'dark' ? 'to-purple-600' : 'to-indigo-700';
+    
+    return {
+      from: gradientFrom || defaultFrom,
+      to: gradientTo || defaultTo
+    };
+  }, [theme, gradientFrom, gradientTo]);
 
   // Base style untuk semua tombol
   const baseStyle = 'relative overflow-hidden rounded-xl px-6 py-3 font-medium transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-opacity-50';
 
   // Style untuk tombol primary (dengan gradient)
-  const primaryStyle = `bg-gradient-to-r ${gradientFrom} ${gradientTo} text-white focus:ring-blue-500 hover:shadow-lg hover:shadow-blue-500/25`;
+  const primaryStyle = useMemo(() => {
+    const gradientClass = `bg-gradient-to-r ${gradientColors.from} ${gradientColors.to}`;
+    return `${gradientClass} text-white focus:ring-blue-500 hover:shadow-lg ${theme === 'dark' ? 'hover:shadow-blue-500/25' : 'hover:shadow-blue-700/25'}`;
+  }, [gradientColors, theme]);
 
   // Style untuk tombol secondary (dengan border)
-  const secondaryStyle = 'bg-white/10 backdrop-blur-sm border border-white/20 text-white hover:bg-white/20 focus:ring-white';
+  const secondaryStyle = useMemo(() => {
+    return theme === 'dark' 
+      ? 'bg-white/10 backdrop-blur-sm border border-white/20 text-white hover:bg-white/20 focus:ring-white' 
+      : 'bg-gray-100 border border-gray-300 text-gray-800 hover:bg-gray-200 focus:ring-gray-300';
+  }, [theme]);
 
   // Style untuk tombol disabled
   const disabledStyle = 'opacity-60 cursor-not-allowed';
