@@ -19,7 +19,10 @@ export const login = async (credentials) => {
     console.log('Sending login request to:', `${API_URL}/api/auth/login`);
     console.log('With credentials:', { email: credentials.email, password: '***' });
     
-    const response = await axios.post(`${API_URL}/api/auth/login`, credentials);
+    const response = await axios.post(`${API_URL}/api/auth/login`, credentials, {
+      timeout: 30000 // 30 detik timeout untuk mengakomodasi cold start
+    });
+    
     console.log('Login API response status:', response.status);
     console.log('Login API response data:', response.data ? 'Data received' : 'No data');
     

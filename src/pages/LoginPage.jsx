@@ -6,6 +6,7 @@ import { login } from '../services/authService';
 import { useTheme } from '../context/ThemeContext';
 import { handleFrontendLogout, getHashParams, cleanHashParams } from '../utils/authUtils';
 import { HomeIcon, ArrowLeftOnRectangleIcon, EyeIcon, EyeSlashIcon, ArrowRightIcon } from '@heroicons/react/24/outline';
+import { toast } from 'react-hot-toast';
 
 function LoginPage() {
   const [email, setEmail] = useState('');
@@ -88,6 +89,12 @@ function LoginPage() {
       console.log('API URL:', API_URL);
       console.log('DASHBOARD URL:', DASHBOARD_URL);
       
+      // Tampilkan pesan cold start jika ini adalah login pertama
+      toast.info('Memulai proses login. Jika ini adalah akses pertama, mungkin perlu waktu hingga 30 detik karena server sedang startup.', {
+        autoClose: 5000,
+        position: 'top-center'
+      });
+      
       const response = await login({ email, password });
       console.log('Login response:', response);
       
@@ -109,6 +116,12 @@ function LoginPage() {
         // Format yang benar: https://dashboard.example.com/#/?token=xxx
         console.log('Redirecting to:', `${dashboardUrl}/#/?token=${response.token}`);
         
+        // Tampilkan pesan sukses
+        toast.success('Login berhasil! Mengalihkan ke dashboard...', {
+          autoClose: 2000,
+          position: 'top-center'
+        });
+        
         // Redirect ke dashboard dengan token sebagai parameter
         // Gunakan timeout untuk memastikan log selesai tercetak
         setTimeout(() => {
@@ -120,6 +133,9 @@ function LoginPage() {
     } catch (err) {
       console.error('Login error:', err);
       setError('Email atau kata sandi salah. Silakan periksa kembali informasi login Anda.');
+      toast.error('Login gagal. Silakan coba lagi.', {
+        position: 'top-center'
+      });
     } finally {
       setIsLoading(false);
     }
