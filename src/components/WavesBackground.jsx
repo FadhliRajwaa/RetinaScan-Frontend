@@ -48,12 +48,18 @@ function WavesBackground({
       // Delay sedikit untuk memastikan DOM sudah sepenuhnya dirender
       const initTimer = setTimeout(() => {
         try {
+          // Pastikan window dan THREE tersedia
+          if (!window || !THREE) {
+            console.error('Window atau THREE tidak tersedia');
+            return;
+          }
+          
           // Initialize Vanta.js effect dengan tinggi yang cukup
           const effect = WAVES({
             el: vantaRef.current,
             THREE: THREE,
-            mouseControls: true,
-            touchControls: true,
+            mouseControls: false, // Nonaktifkan mouse control agar tidak mengganggu interaksi form
+            touchControls: false, // Nonaktifkan touch control agar tidak mengganggu interaksi form
             gyroControls: false,
             minHeight: window.innerHeight,
             minWidth: window.innerWidth,
@@ -61,9 +67,9 @@ function WavesBackground({
             scaleMobile: 1.00,
             color: 0x000000, // Black color
             shininess: 150.00,
-            waveHeight: 20.00,
-            waveSpeed: 0.65,
-            zoom: 0.75,
+            waveHeight: 15.00, // Mengurangi tinggi gelombang agar tidak terlalu mencolok
+            waveSpeed: 0.50, // Mengurangi kecepatan agar tidak terlalu mengganggu
+            zoom: 0.85, // Meningkatkan zoom sedikit
             ...options
           });
           

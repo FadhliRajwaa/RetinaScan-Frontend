@@ -245,8 +245,7 @@ const LoginPage = () => {
   if (isAuthenticated) {
     return (
       <div className="min-h-screen flex items-center justify-center px-4 py-20 pt-36 relative overflow-hidden">
-        {/* Background - selalu render tanpa kondisi */}
-        <WavesBackground />
+        {/* Background tidak perlu lagi karena sudah ada di App.jsx */}
         
         <motion.div
           initial={{ opacity: 0, scale: 0.9 }}
@@ -299,8 +298,7 @@ const LoginPage = () => {
 
   return (
     <div className="min-h-screen flex items-center justify-center px-4 py-20 pt-36 relative overflow-hidden">
-      {/* Background - selalu render tanpa kondisi */}
-      <WavesBackground />
+      {/* Background tidak perlu lagi karena sudah ada di App.jsx */}
       
       {/* Login Form */}
       <div className="glass-effect w-full max-w-md p-8 rounded-2xl shadow-xl z-10">

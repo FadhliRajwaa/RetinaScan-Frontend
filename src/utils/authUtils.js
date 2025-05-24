@@ -8,10 +8,22 @@
  * @returns {Object} - Processed parameters
  */
 export const processLogoutParams = (params) => {
-  const logoutParam = params.get('logout');
-  const fromParam = params.get('from');
-  const errorParam = params.get('error');
-  const timeParam = params.get('t');
+  // Defensive programming untuk params
+  if (!params || typeof params.get !== 'function') {
+    console.warn('Parameter URL tidak valid');
+    return {
+      isLogout: false,
+      from: null,
+      hasError: false,
+      timestamp: null
+    };
+  }
+  
+  try {
+    const logoutParam = params.get('logout');
+    const fromParam = params.get('from');
+    const errorParam = params.get('error');
+    const timeParam = params.get('t');
   
   console.group('Logout Parameters');
   console.log('Logout:', logoutParam);
@@ -26,6 +38,15 @@ export const processLogoutParams = (params) => {
     hasError: errorParam === 'true',
     timestamp: timeParam
   };
+  } catch (error) {
+    console.error('Error saat memproses parameter logout:', error);
+    return {
+      isLogout: false,
+      from: null,
+      hasError: false,
+      timestamp: null
+    };
+  }
 };
 
 /**
@@ -108,25 +129,32 @@ export const handleFrontendLogout = (setIsAuthenticated, setUserName, setToken, 
  */
 export const getHashParams = () => {
   try {
+    // Defensive check untuk window.location
+    if (!window || !window.location) {
+      console.warn('Window location tidak tersedia');
+      return new URLSearchParams('');
+    }
+    
     // Pastikan window.location.hash tidak undefined dan tidak kosong
-    if (!window.location.hash || typeof window.location.hash !== 'string') {
+    const hash = window.location.hash;
+    if (!hash || typeof hash !== 'string') {
       console.warn('Hash tidak ada atau bukan string');
       return new URLSearchParams('');
     }
     
-    // Pisahkan path dari parameter
-    const hashParts = window.location.hash.split('?');
+    // Cari posisi '?' pertama dalam string hash
+    const questionMarkIndex = hash.indexOf('?');
     
-    // Jika tidak ada parameter (tidak ada '?'), return URLSearchParams kosong
-    if (hashParts.length <= 1) {
+    // Jika tidak ada '?', return URLSearchParams kosong
+    if (questionMarkIndex === -1) {
       return new URLSearchParams('');
     }
     
-    // Ambil parameter (bagian setelah '?')
-    const hashParams = hashParts[1];
+    // Ambil substring setelah '?' dengan cara yang lebih aman
+    const hashParams = hash.substring(questionMarkIndex + 1);
     
-    // Pastikan hashParams adalah string
-    if (typeof hashParams !== 'string') {
+    // Pastikan hashParams adalah string yang valid
+    if (!hashParams || typeof hashParams !== 'string') {
       console.warn('Format hash params tidak valid');
       return new URLSearchParams('');
     }
@@ -144,18 +172,36 @@ export const getHashParams = () => {
  */
 export const cleanHashParams = () => {
   try {
+    // Defensive check untuk window.location
+    if (!window || !window.location) {
+      console.warn('Window location tidak tersedia');
+      return;
+    }
+    
     // Pastikan window.location.hash tidak undefined dan tidak kosong
-    if (!window.location.hash || typeof window.location.hash !== 'string') {
+    const hash = window.location.hash;
+    if (!hash || typeof hash !== 'string') {
       console.warn('Hash tidak ada atau bukan string saat membersihkan params');
       return;
     }
     
-    // Pisahkan path dari parameter dengan aman
-    const hashParts = window.location.hash.split('?');
-    const hashPath = hashParts[0] || '#/';
+    // Cari posisi '?' pertama dalam string hash
+    const questionMarkIndex = hash.indexOf('?');
     
-    window.history.replaceState({}, document.title, hashPath);
-    console.log('Parameters removed from URL, new hash:', hashPath);
+    // Jika tidak ada '?', tidak perlu membersihkan parameter
+    if (questionMarkIndex === -1) {
+      return;
+    }
+    
+    // Ambil bagian path dengan substring yang lebih aman
+    const hashPath = questionMarkIndex > 0 ? hash.substring(0, questionMarkIndex) : '#/';
+    
+    if (window.history && typeof window.history.replaceState === 'function') {
+      window.history.replaceState({}, document.title, hashPath);
+      console.log('Parameters removed from URL, new hash:', hashPath);
+    } else {
+      console.warn('History API tidak didukung browser');
+    }
   } catch (error) {
     console.error('Error saat membersihkan hash params:', error);
   }

@@ -122,14 +122,15 @@ function Navbar() {
   });
 
   useEffect(() => {
-    // Dengan HashRouter, kita perlu mengambil query parameter dari hash
-    const query = getHashParams();
-    
-    console.log('Current URL:', window.location.href);
-    console.log('Hash params:', query.toString());
-    
-    // Proses parameter logout menggunakan utility function
-    const logoutParams = processLogoutParams(query);
+    try {
+      // Dengan HashRouter, kita perlu mengambil query parameter dari hash dengan defensive programming
+      const query = getHashParams();
+      
+      console.log('Current URL:', window.location?.href || 'URL tidak tersedia');
+      console.log('Hash params:', query?.toString() || 'Tidak ada parameter');
+      
+      // Proses parameter logout menggunakan utility function dengan defensive programming
+      const logoutParams = processLogoutParams(query || new URLSearchParams(''));
     
     // Jika parameter logout=true, paksa logout
     if (logoutParams.isLogout) {

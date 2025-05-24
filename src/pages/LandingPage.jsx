@@ -92,8 +92,7 @@ const LandingPage = () => {
 
   return (
     <div className="relative min-h-screen overflow-hidden bg-gray-950">
-      {/* Background Pattern - selalu render tanpa kondisi */}
-      <WavesBackground />
+      {/* Background Pattern tidak perlu lagi karena sudah ada di App.jsx */}
       
       {/* Hero Section */}
       <section ref={heroRef} className="relative min-h-screen flex items-center justify-center px-4 sm:px-6 lg:px-8 z-10 pt-20">

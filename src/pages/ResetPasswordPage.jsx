@@ -250,8 +250,7 @@ const ResetPasswordPage = () => {
 
   return (
     <div className="min-h-screen flex items-center justify-center px-4 py-20 pt-36 relative overflow-hidden">
-      {/* Background - selalu render tanpa kondisi */}
-      <WavesBackground />
+      {/* Background tidak perlu lagi karena sudah ada di App.jsx */}
       
       {/* Reset Password Form */}
       <div className="glass-effect w-full max-w-md p-8 rounded-2xl shadow-xl z-10">
