@@ -234,7 +234,7 @@ const RegisterPage = () => {
       });
       return;
     }
-    
+
     setIsLoading(true);
     setGeneralError('');
     
@@ -374,6 +374,7 @@ const RegisterPage = () => {
           speed={0.6}
           type="pulse"
           connected={true}
+          interactive={true}
         />
         
         <div className="relative z-10 max-w-md w-full">
@@ -419,7 +420,7 @@ const RegisterPage = () => {
       </motion.div>
       
       {/* Right Column - Register Form */}
-      <motion.div 
+      <motion.div
         className="md:w-1/2 flex items-center justify-center p-6 md:p-12"
         style={{ background: newTheme.background.light }}
         initial={{ opacity: 0, x: 20 }}
@@ -458,208 +459,221 @@ const RegisterPage = () => {
             )}
           </AnimatePresence>
           
-          <motion.form 
-            ref={formRef}
-            onSubmit={handleSubmit}
-            className="space-y-6"
-            variants={enhancedAnimations.container}
-            initial="hidden"
-            animate={controls}
-            onFocus={handleFormFocus}
-            onBlur={handleFormBlur}
+          <motion.div
+            className="bg-white dark:bg-gray-800 rounded-xl shadow-xl p-6 backdrop-blur-sm"
+            style={{
+              boxShadow: newTheme.shadows.xl,
+              background: 'rgba(255, 255, 255, 0.85)',
+              backdropFilter: 'blur(12px)',
+              border: '1px solid rgba(255, 255, 255, 0.2)',
+            }}
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.5, delay: 0.4 }}
           >
-            <motion.div variants={enhancedAnimations.item}>
-              <AnimatedInput
-                type="text"
-                name="name"
-                id="name"
-                label="Nama Lengkap"
-                value={formData.name}
-                onChange={handleChange}
-                required
-                error={errors.name}
-                icon={<UserIcon className="w-5 h-5" />}
-              />
-            </motion.div>
-            
-            <motion.div variants={enhancedAnimations.item}>
-              <AnimatedInput
-                type="email"
-                name="email"
-                id="email"
-                label="Email"
-                value={formData.email}
-                onChange={handleChange}
-                required
-                error={errors.email}
-                icon={<EnvelopeIcon className="w-5 h-5" />}
-              />
-            </motion.div>
-            
-            <motion.div variants={enhancedAnimations.item}>
-              <AnimatedInput
-                type={showPassword ? "text" : "password"}
-                name="password"
+            <motion.form 
+              ref={formRef}
+              onSubmit={handleSubmit}
+              className="space-y-6"
+              variants={enhancedAnimations.container}
+              initial="hidden"
+              animate={controls}
+              onFocus={handleFormFocus}
+              onBlur={handleFormBlur}
+            >
+              <motion.div variants={enhancedAnimations.item}>
+                <AnimatedInput
+              type="text"
+                  name="name"
+              id="name"
+                  label="Nama Lengkap"
+                  value={formData.name}
+                  onChange={handleChange}
+              required
+                  error={errors.name}
+                  icon={<UserIcon className="w-5 h-5" />}
+            />
+          </motion.div>
+              
+              <motion.div variants={enhancedAnimations.item}>
+                <AnimatedInput
+              type="email"
+                  name="email"
+              id="email"
+                  label="Email"
+                  value={formData.email}
+                  onChange={handleChange}
+              required
+                  error={errors.email}
+                  icon={<EnvelopeIcon className="w-5 h-5" />}
+            />
+          </motion.div>
+              
+              <motion.div variants={enhancedAnimations.item}>
+                <AnimatedInput
+                  type={showPassword ? "text" : "password"}
+                  name="password"
                 id="password"
-                label="Password"
-                value={formData.password}
-                onChange={handleChange}
-                required
-                error={errors.password}
-                icon={<LockClosedIcon className="w-5 h-5" />}
-                rightIcon={
-                  <motion.button
-                    type="button"
-                    onClick={togglePasswordVisibility}
-                    className="focus:outline-none"
-                    whileHover={{ scale: 1.1 }}
-                    whileTap={{ scale: 0.9 }}
+                  label="Password"
+                  value={formData.password}
+                  onChange={handleChange}
+                  required
+                  error={errors.password}
+                  icon={<LockClosedIcon className="w-5 h-5" />}
+                  rightIcon={
+                    <motion.button
+                      type="button"
+                      onClick={togglePasswordVisibility}
+                      className="focus:outline-none"
+                      whileHover={{ scale: 1.1 }}
+                      whileTap={{ scale: 0.9 }}
+                    >
+                      {showPassword ? (
+                        <EyeSlashIcon className="w-5 h-5 text-gray-500" />
+                      ) : (
+                        <EyeIcon className="w-5 h-5 text-gray-500" />
+                      )}
+                    </motion.button>
+                  }
+                />
+                
+                {/* Password strength indicator */}
+                {formData.password && (
+                  <motion.div 
+                    className="mt-2"
+                    initial={{ opacity: 0, height: 0 }}
+                    animate={{ opacity: 1, height: 'auto' }}
+                    transition={{ duration: 0.3 }}
                   >
-                    {showPassword ? (
-                      <EyeSlashIcon className="w-5 h-5 text-gray-500" />
-                    ) : (
-                      <EyeIcon className="w-5 h-5 text-gray-500" />
-                    )}
-                  </motion.button>
-                }
-              />
+                    <div className="flex gap-1 mb-1">
+                      {[1, 2, 3, 4].map((level) => (
+                        <motion.div
+                          key={level}
+                          className="h-1 flex-1 rounded-full"
+                          style={{ 
+                            backgroundColor: level <= passwordStrength 
+                              ? getStrengthColor(passwordStrength) 
+                              : '#E5E7EB' 
+                          }}
+                          initial={{ width: 0 }}
+                          animate={{ width: '100%' }}
+                          transition={{ duration: 0.3, delay: level * 0.1 }}
+                        />
+                      ))}
+                    </div>
+                    <p 
+                      className="text-xs"
+                      style={{ 
+                        color: passwordStrength > 0 
+                          ? getStrengthColor(passwordStrength) 
+                          : newTheme.text.muted 
+                      }}
+                    >
+                      {passwordFeedback || 'Masukkan password'}
+                    </p>
+                  </motion.div>
+                )}
+              </motion.div>
               
-              {/* Password strength indicator */}
-              {formData.password && (
-                <motion.div 
-                  className="mt-2"
-                  initial={{ opacity: 0, height: 0 }}
-                  animate={{ opacity: 1, height: 'auto' }}
-                  transition={{ duration: 0.3 }}
-                >
-                  <div className="flex gap-1 mb-1">
-                    {[1, 2, 3, 4].map((level) => (
-                      <motion.div
-                        key={level}
-                        className="h-1 flex-1 rounded-full"
-                        style={{ 
-                          backgroundColor: level <= passwordStrength 
-                            ? getStrengthColor(passwordStrength) 
-                            : '#E5E7EB' 
-                        }}
-                        initial={{ width: 0 }}
-                        animate={{ width: '100%' }}
-                        transition={{ duration: 0.3, delay: level * 0.1 }}
-                      />
-                    ))}
-                  </div>
-                  <p 
-                    className="text-xs"
-                    style={{ 
-                      color: passwordStrength > 0 
-                        ? getStrengthColor(passwordStrength) 
-                        : newTheme.text.muted 
-                    }}
+              <motion.div variants={enhancedAnimations.item}>
+                <AnimatedInput
+                  type={showConfirmPassword ? "text" : "password"}
+                  name="confirmPassword"
+                  id="confirmPassword"
+                  label="Konfirmasi Password"
+                  value={formData.confirmPassword}
+                  onChange={handleChange}
+                  required
+                  error={errors.confirmPassword}
+                  icon={<LockClosedIcon className="w-5 h-5" />}
+                  rightIcon={
+                    <motion.button
+                      type="button"
+                      onClick={toggleConfirmPasswordVisibility}
+                      className="focus:outline-none"
+                      whileHover={{ scale: 1.1 }}
+                      whileTap={{ scale: 0.9 }}
+                    >
+                      {showConfirmPassword ? (
+                        <EyeSlashIcon className="w-5 h-5 text-gray-500" />
+                      ) : (
+                        <EyeIcon className="w-5 h-5 text-gray-500" />
+                      )}
+                    </motion.button>
+                  }
+                />
+                
+                {/* Password match indicator */}
+                {formData.password && formData.confirmPassword && (
+                  <motion.div 
+                    className="mt-2 flex items-center"
+                    initial={{ opacity: 0, height: 0 }}
+                    animate={{ opacity: 1, height: 'auto' }}
+                    transition={{ duration: 0.3 }}
                   >
-                    {passwordFeedback || 'Masukkan password'}
-                  </p>
-                </motion.div>
-              )}
-            </motion.div>
-            
-            <motion.div variants={enhancedAnimations.item}>
-              <AnimatedInput
-                type={showConfirmPassword ? "text" : "password"}
-                name="confirmPassword"
-                id="confirmPassword"
-                label="Konfirmasi Password"
-                value={formData.confirmPassword}
-                onChange={handleChange}
-                required
-                error={errors.confirmPassword}
-                icon={<LockClosedIcon className="w-5 h-5" />}
-                rightIcon={
-                  <motion.button
-                    type="button"
-                    onClick={toggleConfirmPasswordVisibility}
-                    className="focus:outline-none"
-                    whileHover={{ scale: 1.1 }}
-                    whileTap={{ scale: 0.9 }}
-                  >
-                    {showConfirmPassword ? (
-                      <EyeSlashIcon className="w-5 h-5 text-gray-500" />
+                    {formData.password === formData.confirmPassword ? (
+                      <>
+                        <CheckCircleIcon className="w-4 h-4 mr-1" style={{ color: newTheme.success }} />
+                        <p className="text-xs" style={{ color: newTheme.success }}>
+                          Password cocok
+                        </p>
+                      </>
                     ) : (
-                      <EyeIcon className="w-5 h-5 text-gray-500" />
+                      <>
+                        <ExclamationCircleIcon className="w-4 h-4 mr-1" style={{ color: newTheme.danger }} />
+                        <p className="text-xs" style={{ color: newTheme.danger }}>
+                          Password tidak cocok
+                        </p>
+                      </>
                     )}
-                  </motion.button>
-                }
-              />
+                  </motion.div>
+            )}
+          </motion.div>
               
-              {/* Password match indicator */}
-              {formData.password && formData.confirmPassword && (
-                <motion.div 
-                  className="mt-2 flex items-center"
-                  initial={{ opacity: 0, height: 0 }}
-                  animate={{ opacity: 1, height: 'auto' }}
-                  transition={{ duration: 0.3 }}
-                >
-                  {formData.password === formData.confirmPassword ? (
-                    <>
-                      <CheckCircleIcon className="w-4 h-4 mr-1" style={{ color: newTheme.success }} />
-                      <p className="text-xs" style={{ color: newTheme.success }}>
-                        Password cocok
-                      </p>
-                    </>
+              <motion.div variants={enhancedAnimations.item}>
+                <AnimatedButton
+              type="submit"
+                  variant="accent"
+                  fullWidth
+              disabled={isLoading}
+            >
+              {isLoading ? (
+                    <div className="flex items-center justify-center">
+                      <svg className="animate-spin -ml-1 mr-3 h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                        <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                        <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                  </svg>
+                  Memproses...
+                    </div>
                   ) : (
                     <>
-                      <ExclamationCircleIcon className="w-4 h-4 mr-1" style={{ color: newTheme.danger }} />
-                      <p className="text-xs" style={{ color: newTheme.danger }}>
-                        Password tidak cocok
-                      </p>
+                      Daftar
+                      <ArrowRightIcon className="w-5 h-5 ml-2" />
                     </>
                   )}
-                </motion.div>
-              )}
-            </motion.div>
-            
-            <motion.div variants={enhancedAnimations.item}>
-              <AnimatedButton
-                type="submit"
-                variant="accent"
-                fullWidth
-                disabled={isLoading}
-              >
-                {isLoading ? (
-                  <div className="flex items-center justify-center">
-                    <svg className="animate-spin -ml-1 mr-3 h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                      <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-                      <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                    </svg>
-                    Memproses...
-                  </div>
-                ) : (
-                  <>
-                    Daftar
-                    <ArrowRightIcon className="w-5 h-5 ml-2" />
-                  </>
-                )}
-              </AnimatedButton>
-            </motion.div>
-            
-            <motion.div 
-              className="text-center mt-8"
-              variants={enhancedAnimations.item}
-            >
-              <motion.div
-                whileHover={{ scale: 1.05 }}
-                whileTap={{ scale: 0.95 }}
-              >
-                <Link 
-                  to="/" 
-                  className="inline-flex items-center text-sm font-medium hover:underline"
-                  style={{ color: newTheme.text.secondary }}
-                >
-                  <HomeIcon className="w-4 h-4 mr-2" />
-                  Kembali ke Beranda
-                </Link>
+                </AnimatedButton>
               </motion.div>
-            </motion.div>
-          </motion.form>
+              
+              <motion.div 
+                className="text-center mt-8"
+                variants={enhancedAnimations.item}
+              >
+                <motion.div
+                  whileHover={{ scale: 1.05 }}
+                  whileTap={{ scale: 0.95 }}
+                >
+                  <Link 
+                    to="/" 
+                    className="inline-flex items-center text-sm font-medium hover:underline"
+                    style={{ color: newTheme.text.secondary }}
+                  >
+                    <HomeIcon className="w-4 h-4 mr-2" />
+                    Kembali ke Beranda
+                  </Link>
+                </motion.div>
+              </motion.div>
+            </motion.form>
+          </motion.div>
         </div>
       </motion.div>
     </div>

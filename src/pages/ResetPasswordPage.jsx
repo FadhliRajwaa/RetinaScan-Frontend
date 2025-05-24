@@ -155,7 +155,7 @@ const ResetPasswordPage = () => {
       setResetError('Token reset password tidak ditemukan. Silakan meminta link reset password baru.');
       return;
     }
-
+    
     setIsLoading(true);
     setResetError('');
     setAnimationState('sending');
@@ -438,11 +438,11 @@ const ResetPasswordPage = () => {
                     error={errors.confirmPassword}
                     icon={<LockClosedIcon className="w-5 h-5" />}
                   />
-                </motion.div>
+          </motion.div>
                 
                 <motion.div variants={formVariants}>
                   <AnimatedButton
-                    type="submit"
+            type="submit"
                     variant="warning"
                     fullWidth
                     disabled={isLoading || !token || passwordStrength < 2}
@@ -462,7 +462,7 @@ const ResetPasswordPage = () => {
                   >
                     <ArrowLeftIcon className="w-4 h-4 mr-2" />
                     Kembali ke Login
-                  </Link>
+          </Link>
                 </motion.div>
               </motion.form>
             )}

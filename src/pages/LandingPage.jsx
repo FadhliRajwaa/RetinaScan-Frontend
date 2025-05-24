@@ -117,7 +117,7 @@ const LandingPage = () => {
     visible: {
       opacity: 1,
       y: 0,
-      transition: { 
+      transition: {
         type: 'spring',
         damping: 15,
         stiffness: 100
@@ -209,7 +209,7 @@ const LandingPage = () => {
         <div className="container mx-auto max-w-7xl relative z-10">
           <div className="flex flex-col lg:flex-row items-center justify-between gap-12">
             {/* Hero Content */}
-            <motion.div 
+            <motion.div
               className="lg:w-1/2 text-center lg:text-left"
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
@@ -224,7 +224,7 @@ const LandingPage = () => {
               </p>
               
               <div className="flex flex-col sm:flex-row gap-4 justify-center lg:justify-start">
-                {isAuthenticated ? (
+              {isAuthenticated ? (
                   <Link to={`${DASHBOARD_URL}?token=${token}`}>
                     <AnimatedButton variant="primary" size="lg">
                       <span className="flex items-center">
@@ -233,28 +233,28 @@ const LandingPage = () => {
                       </span>
                     </AnimatedButton>
                   </Link>
-                ) : (
-                  <>
-                    <Link to="/register">
+              ) : (
+                <>
+                  <Link to="/register">
                       <AnimatedButton variant="primary" size="lg">
                         <span className="flex items-center">
-                          Mulai Sekarang
+                      Mulai Sekarang
                           <ArrowRightIcon className="ml-2 h-5 w-5" />
                         </span>
                       </AnimatedButton>
-                    </Link>
-                    <Link to="/login">
+                  </Link>
+                  <Link to="/login">
                       <AnimatedButton variant="outline" size="lg">
-                        Login
+                      Login
                       </AnimatedButton>
-                    </Link>
-                  </>
-                )}
+                  </Link>
+                </>
+              )}
               </div>
             </motion.div>
             
             {/* Hero Animation */}
-            <motion.div 
+            <motion.div
               className="lg:w-1/2 h-64 sm:h-80 md:h-96 lg:h-[500px]"
               initial={{ opacity: 0, scale: 0.9 }}
               animate={{ opacity: 1, scale: 1 }}
@@ -265,8 +265,8 @@ const LandingPage = () => {
                 loop={true}
               />
             </motion.div>
-          </div>
-          
+        </div>
+        
           {/* Scroll Down Indicator */}
           <motion.div 
             className="absolute bottom-8 left-1/2 transform -translate-x-1/2 cursor-pointer"
@@ -275,7 +275,7 @@ const LandingPage = () => {
             transition={{ delay: 1, duration: 0.5 }}
             onClick={scrollToFeatures}
           >
-            <motion.div
+            <motion.div 
               animate={{ y: [0, 10, 0] }}
               transition={{ repeat: Infinity, duration: 2 }}
               className="flex flex-col items-center"
@@ -317,7 +317,7 @@ const LandingPage = () => {
                   <div className="p-6">
                     <div className={`w-12 h-12 rounded-lg mb-4 flex items-center justify-center bg-gradient-to-br ${feature.color} text-white`}>
                       {feature.icon}
-                    </div>
+              </div>
                     <h3 className="text-xl font-semibold mb-2 text-gray-900 dark:text-white">
                       {feature.title}
                     </h3>
@@ -329,7 +329,7 @@ const LandingPage = () => {
               </ScrollReveal>
             ))}
           </div>
-        </div>
+                  </div>
       </section>
       
       {/* How It Works Section */}
@@ -372,14 +372,14 @@ const LandingPage = () => {
               <div className="bg-white dark:bg-gray-800 rounded-xl p-6 shadow-lg backdrop-blur-sm bg-opacity-80 dark:bg-opacity-80">
                 <div className="w-12 h-12 rounded-full bg-indigo-100 dark:bg-indigo-900 flex items-center justify-center mb-4">
                   <span className="text-xl font-bold text-indigo-600 dark:text-indigo-400">2</span>
-                </div>
+                  </div>
                 <h3 className="text-xl font-semibold mb-2 text-gray-900 dark:text-white">
                   Analisis AI Otomatis
                 </h3>
                 <p className="text-gray-600 dark:text-gray-400">
                   Algoritma AI kami menganalisis gambar, mendeteksi kelainan dan tanda-tanda penyakit retina.
                 </p>
-              </div>
+                  </div>
             </ScrollReveal>
             
             <ScrollReveal animation="fade-left" delay={0.3}>
@@ -395,7 +395,7 @@ const LandingPage = () => {
                 </p>
               </div>
             </ScrollReveal>
-          </div>
+                  </div>
           
           <ScrollReveal animation="fade-up" delay={0.4}>
             <div className="mt-16 text-center">
@@ -407,11 +407,11 @@ const LandingPage = () => {
                   </span>
                 </AnimatedButton>
               </Link>
-            </div>
+                  </div>
           </ScrollReveal>
         </div>
       </section>
-      
+
       {/* Stats Section */}
       <section 
         ref={statsRef}
@@ -503,7 +503,7 @@ const LandingPage = () => {
           </div>
         </div>
       </section>
-      
+
       {/* CTA Section */}
       <section 
         ref={ctaRef}
@@ -530,14 +530,14 @@ const LandingPage = () => {
                   <Link to={`${DASHBOARD_URL}?token=${token}`}>
                     <AnimatedButton variant="light" size="lg">
                       <span className="flex items-center">
-                        Buka Dashboard
+                      Buka Dashboard
                         <ArrowRightIcon className="ml-2 h-5 w-5" />
                       </span>
                     </AnimatedButton>
                   </Link>
                 ) : (
                   <>
-                    <Link to="/register">
+                  <Link to="/register">
                       <AnimatedButton variant="light" size="lg">
                         <span className="flex items-center">
                           Daftar Sekarang
@@ -549,7 +549,7 @@ const LandingPage = () => {
                       <AnimatedButton variant="outline-light" size="lg">
                         Login
                       </AnimatedButton>
-                    </Link>
+                  </Link>
                   </>
                 )}
               </div>
@@ -564,7 +564,7 @@ const LandingPage = () => {
                 <CheckCircleIcon className="h-5 w-5 text-indigo-200" />
                 <span className="text-indigo-100">Dukungan 24/7</span>
               </div>
-            </div>
+                </div>
           </ScrollReveal>
         </div>
       </section>

@@ -200,7 +200,7 @@ const LoginPage = () => {
   const handleLogout = () => {
     handleFrontendLogout(setIsAuthenticated, null, null, navigate);
   };
-
+  
   // Toggle password visibility
   const togglePasswordVisibility = () => {
     setShowPassword(!showPassword);
@@ -225,7 +225,7 @@ const LoginPage = () => {
     } else if (loginAttempts === 1) {
       return {
         hidden: { opacity: 0, y: 20 },
-        visible: {
+    visible: { 
           opacity: 1,
           y: 0,
           transition: {
@@ -240,7 +240,7 @@ const LoginPage = () => {
       return {
         hidden: { opacity: 0, y: 20 },
         visible: {
-          opacity: 1,
+      opacity: 1,
           y: 0,
           transition: {
             type: 'spring',
@@ -340,6 +340,7 @@ const LoginPage = () => {
           speed={0.6}
           type="wave"
           connected={true}
+          interactive={true}
         />
         
         <div className="relative z-10 max-w-md w-full">
@@ -381,11 +382,11 @@ const LoginPage = () => {
               </motion.div>
             </div>
           </ScrollReveal>
-        </div>
+      </div>
       </motion.div>
       
       {/* Right Column - Login Form */}
-      <motion.div 
+      <motion.div
         className="md:w-1/2 flex items-center justify-center p-6 md:p-12"
         style={{ background: newTheme.background.light }}
         initial={{ opacity: 0, x: 20 }}
@@ -423,136 +424,149 @@ const LoginPage = () => {
             )}
           </AnimatePresence>
           
-          <motion.form 
-            ref={formRef}
-            onSubmit={handleSubmit}
-            className="space-y-6"
-            variants={getFormAnimation()}
-            initial="hidden"
-            animate={controls}
-            onFocus={handleFormFocus}
-            onBlur={handleFormBlur}
+          <motion.div
+            className="bg-white dark:bg-gray-800 rounded-xl shadow-xl p-6 backdrop-blur-sm"
+            style={{
+              boxShadow: newTheme.shadows.xl,
+              background: 'rgba(255, 255, 255, 0.85)',
+              backdropFilter: 'blur(12px)',
+              border: '1px solid rgba(255, 255, 255, 0.2)',
+            }}
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.5, delay: 0.4 }}
           >
-            <motion.div variants={enhancedAnimations.item}>
-              <AnimatedInput
+        <motion.form 
+              ref={formRef}
+          onSubmit={handleSubmit}
+              className="space-y-6"
+              variants={getFormAnimation()}
+          initial="hidden"
+              animate={controls}
+              onFocus={handleFormFocus}
+              onBlur={handleFormBlur}
+            >
+              <motion.div variants={enhancedAnimations.item}>
+                <AnimatedInput
                 type="email"
-                name="email"
+                  name="email"
                 id="email"
-                label="Email"
+                  label="Email"
                 value={email}
-                onChange={(e) => {
-                  setEmail(e.target.value);
-                  if (error) setError('');
-                }}
+                  onChange={(e) => {
+                    setEmail(e.target.value);
+                    if (error) setError('');
+                  }}
                 required
-                icon={<EnvelopeIcon className="w-5 h-5" />}
-                error={error && error.includes('Email') ? ' ' : undefined}
+                  icon={<EnvelopeIcon className="w-5 h-5" />}
+                  error={error && error.includes('Email') ? ' ' : undefined}
               />
-            </motion.div>
-            
-            <motion.div variants={enhancedAnimations.item}>
-              <AnimatedInput
-                type={showPassword ? "text" : "password"}
-                name="password"
+          </motion.div>
+          
+              <motion.div variants={enhancedAnimations.item}>
+                <AnimatedInput
+                  type={showPassword ? "text" : "password"}
+                  name="password"
                 id="password"
-                label="Kata Sandi"
+                  label="Kata Sandi"
                 value={password}
-                onChange={(e) => {
-                  setPassword(e.target.value);
-                  if (error) setError('');
-                }}
+                  onChange={(e) => {
+                    setPassword(e.target.value);
+                    if (error) setError('');
+                  }}
                 required
-                icon={<LockClosedIcon className="w-5 h-5" />}
-                error={error && error.includes('sandi') ? ' ' : undefined}
-                rightIcon={
-                  <motion.button
-                    type="button"
-                    onClick={togglePasswordVisibility}
-                    className="focus:outline-none"
-                    whileHover={{ scale: 1.1 }}
-                    whileTap={{ scale: 0.9 }}
-                  >
-                    {showPassword ? (
-                      <EyeSlashIcon className="w-5 h-5 text-gray-500" />
-                    ) : (
-                      <EyeIcon className="w-5 h-5 text-gray-500" />
-                    )}
-                  </motion.button>
-                }
-              />
-            </motion.div>
-            
-            <motion.div 
-              className="flex justify-between items-center text-sm"
-              variants={enhancedAnimations.item}
-            >
-              <div className="flex items-center">
-                <input
-                  type="checkbox"
-                  id="remember"
-                  className="mr-2 h-4 w-4 rounded border-gray-300 text-indigo-600 focus:ring-indigo-500"
+                  icon={<LockClosedIcon className="w-5 h-5" />}
+                  error={error && error.includes('sandi') ? ' ' : undefined}
+                  rightIcon={
+                    <motion.button
+                type="button"
+                      onClick={togglePasswordVisibility}
+                      className="focus:outline-none"
+                      whileHover={{ scale: 1.1 }}
+                      whileTap={{ scale: 0.9 }}
+              >
+                {showPassword ? (
+                        <EyeSlashIcon className="w-5 h-5 text-gray-500" />
+                      ) : (
+                        <EyeIcon className="w-5 h-5 text-gray-500" />
+                      )}
+                    </motion.button>
+                  }
                 />
-                <label htmlFor="remember" style={{ color: newTheme.text.secondary }}>
-                  Ingat saya
-                </label>
-              </div>
-              <motion.div
-                whileHover={{ scale: 1.05 }}
-                whileTap={{ scale: 0.95 }}
-              >
-                <Link 
-                  to="/forgot-password" 
-                  className="font-medium hover:underline transition-all"
-                  style={{ color: newTheme.primary }}
-                >
-                  Lupa kata sandi?
-                </Link>
               </motion.div>
-            </motion.div>
-            
-            <motion.div variants={enhancedAnimations.item}>
-              <AnimatedButton
-                type="submit"
-                variant="primary"
-                fullWidth
-                disabled={isLoading}
+              
+              <motion.div 
+                className="flex justify-between items-center text-sm"
+                variants={enhancedAnimations.item}
               >
-                {isLoading ? (
-                  <div className="flex items-center justify-center">
-                    <svg className="animate-spin -ml-1 mr-3 h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                      <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-                      <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                    </svg>
-                    Memproses...
-                  </div>
-                ) : (
-                  <>
-                    Masuk
-                    <ArrowRightIcon className="w-5 h-5 ml-2" />
-                  </>
-                )}
-              </AnimatedButton>
-            </motion.div>
-            
-            <motion.div 
-              className="text-center mt-8"
-              variants={enhancedAnimations.item}
+                <div className="flex items-center">
+                  <input
+                    type="checkbox"
+                    id="remember"
+                    className="mr-2 h-4 w-4 rounded border-gray-300 text-indigo-600 focus:ring-indigo-500"
+                  />
+                  <label htmlFor="remember" style={{ color: newTheme.text.secondary }}>
+                    Ingat saya
+                  </label>
+            </div>
+                <motion.div
+                  whileHover={{ scale: 1.05 }}
+                  whileTap={{ scale: 0.95 }}
+                >
+                  <Link 
+                    to="/forgot-password" 
+                    className="font-medium hover:underline transition-all"
+                    style={{ color: newTheme.primary }}
+                  >
+                    Lupa kata sandi?
+                  </Link>
+                </motion.div>
+          </motion.div>
+          
+              <motion.div variants={enhancedAnimations.item}>
+                <AnimatedButton
+              type="submit"
+                  variant="primary"
+                  fullWidth
+              disabled={isLoading}
             >
-              <motion.div
-                whileHover={{ scale: 1.05 }}
-                whileTap={{ scale: 0.95 }}
+              {isLoading ? (
+                    <div className="flex items-center justify-center">
+                      <svg className="animate-spin -ml-1 mr-3 h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                    <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                    <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                  </svg>
+                  Memproses...
+                    </div>
+              ) : (
+                    <>
+                  Masuk
+                      <ArrowRightIcon className="w-5 h-5 ml-2" />
+                    </>
+              )}
+                </AnimatedButton>
+          </motion.div>
+        
+        <motion.div 
+                className="text-center mt-8"
+                variants={enhancedAnimations.item}
               >
-                <Link 
-                  to="/" 
-                  className="inline-flex items-center text-sm font-medium hover:underline"
-                  style={{ color: newTheme.text.secondary }}
+                <motion.div
+                  whileHover={{ scale: 1.05 }}
+                  whileTap={{ scale: 0.95 }}
                 >
-                  <HomeIcon className="w-4 h-4 mr-2" />
-                  Kembali ke Beranda
-                </Link>
+                  <Link 
+                    to="/" 
+                    className="inline-flex items-center text-sm font-medium hover:underline"
+                    style={{ color: newTheme.text.secondary }}
+                  >
+                    <HomeIcon className="w-4 h-4 mr-2" />
+                    Kembali ke Beranda
+            </Link>
+                </motion.div>
               </motion.div>
-            </motion.div>
-          </motion.form>
+            </motion.form>
+        </motion.div>
         </div>
       </motion.div>
     </div>
