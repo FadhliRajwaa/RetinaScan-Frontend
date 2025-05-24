@@ -4,7 +4,7 @@ import * as THREE from 'three';
 import { useTheme } from '../context/ThemeContext';
 
 // Lazy load VANTA untuk menghindari masalah SSR
-let VANTA = null;
+let WAVES = null;
 
 /**
  * Komponen untuk menampilkan efek background menggunakan Vanta.js
@@ -32,11 +32,10 @@ const VantaBackground = ({
   // Dinamis import Vanta.js
   useEffect(() => {
     const loadVanta = async () => {
-      if (!VANTA) {
+      if (!WAVES) {
         try {
           // Dynamically import Vanta
-          const vantaModule = await import('vanta/dist/vanta.waves.min');
-          VANTA = vantaModule.default;
+          WAVES = (await import('vanta/dist/vanta.waves.min')).default;
           setVantaLoaded(true);
         } catch (error) {
           console.error('Error loading Vanta.js:', error);
@@ -59,7 +58,7 @@ const VantaBackground = ({
 
   // Inisialisasi efek Vanta.js
   useEffect(() => {
-    if (!vantaLoaded || !vantaRef.current || !VANTA) return;
+    if (!vantaLoaded || !vantaRef.current || !WAVES) return;
 
     // Destroy previous effect if exists
     if (vantaEffectRef.current) {
@@ -67,7 +66,7 @@ const VantaBackground = ({
     }
 
     // Create new effect
-    vantaEffectRef.current = VANTA.WAVES({
+    vantaEffectRef.current = WAVES({
       el: vantaRef.current,
       THREE: THREE,
       mouseControls: mouseControls,
