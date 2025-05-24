@@ -1,14 +1,24 @@
-import { useCallback } from "react";
+import { useCallback, useState, useEffect } from "react";
 import Particles from "react-tsparticles";
 import { loadFull } from "tsparticles";
+import { motion } from "framer-motion";
 
 const ParticlesBackground = ({ 
   preset = "default",
   customOptions = {},
   className = ""
 }) => {
+  const [isLoaded, setIsLoaded] = useState(false);
+  const [hasError, setHasError] = useState(false);
+
   const particlesInit = useCallback(async (engine) => {
-    await loadFull(engine);
+    try {
+      await loadFull(engine);
+      setIsLoaded(true);
+    } catch (error) {
+      console.error("Error initializing particles:", error);
+      setHasError(true);
+    }
   }, []);
 
   const getPresetOptions = () => {
@@ -116,7 +126,14 @@ const ParticlesBackground = ({
             }
           }
         },
-        retina_detect: true
+        retina_detect: true,
+        background: {
+          color: "#111827",
+          image: "",
+          position: "50% 50%",
+          repeat: "no-repeat",
+          size: "cover"
+        }
       },
       
       bubbles: {
@@ -456,13 +473,58 @@ const ParticlesBackground = ({
     ...customOptions,
   };
 
+  // Fallback CSS classes berdasarkan preset
+  const fallbackClasses = {
+    default: "bg-gradient-to-br from-gray-900 to-blue-900",
+    stars: "bg-gradient-to-br from-gray-900 via-blue-900 to-gray-800",
+    bubbles: "bg-gradient-to-br from-blue-50 via-blue-100 to-white",
+    fireflies: "bg-gradient-to-br from-gray-900 via-blue-900 to-purple-900"
+  };
+
   return (
-    <Particles
-      id="tsparticles"
-      init={particlesInit}
-      options={options}
-      className={`absolute inset-0 z-0 ${className}`}
-    />
+    <div className={`absolute inset-0 -z-10 ${className} ${hasError ? fallbackClasses[preset] : ''}`}>
+      {!hasError && (
+        <Particles
+          id={`particles-${preset}`}
+          init={particlesInit}
+          options={options}
+          className="absolute inset-0"
+        />
+      )}
+
+      {/* Fallback animation jika particles gagal dimuat */}
+      {hasError && (
+        <div className="absolute inset-0 overflow-hidden">
+          <motion.div 
+            className="absolute -inset-[10%] rounded-full opacity-20 blur-3xl bg-blue-500"
+            animate={{ 
+              scale: [1, 1.2, 1],
+              opacity: [0.1, 0.2, 0.1],
+              rotate: [0, 90]
+            }}
+            transition={{ duration: 8, repeat: Infinity, repeatType: "reverse" }}
+          />
+          <motion.div 
+            className="absolute -inset-[20%] rounded-full opacity-20 blur-3xl bg-purple-500"
+            animate={{ 
+              scale: [1.2, 1, 1.2],
+              opacity: [0.1, 0.2, 0.1],
+              rotate: [0, -90]
+            }}
+            transition={{ duration: 10, repeat: Infinity, repeatType: "reverse", delay: 1 }}
+          />
+          <motion.div 
+            className="absolute -inset-[15%] rounded-full opacity-15 blur-3xl bg-indigo-500"
+            animate={{ 
+              scale: [0.8, 1, 0.8],
+              opacity: [0.1, 0.15, 0.1],
+              rotate: [0, 45]
+            }}
+            transition={{ duration: 12, repeat: Infinity, repeatType: "reverse", delay: 2 }}
+          />
+        </div>
+      )}
+    </div>
   );
 };
 

@@ -129,97 +129,97 @@ function LandingPage() {
                 className="text-lg md:text-xl mb-8 text-blue-100 max-w-3xl mx-auto"
                 delay={0.9}
               />
-              
-              {/* Medical Info Card */}
-              <motion.div
-                className="mb-10 p-6 rounded-xl mx-auto max-w-3xl"
-                style={{ ...theme.glassEffect }}
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
+            
+            {/* Medical Info Card */}
+            <motion.div
+              className="mb-10 p-6 rounded-xl mx-auto max-w-3xl"
+              style={{ ...theme.glassEffect }}
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.5, delay: 1.2 }}
-              >
-                <h3 className="text-xl font-semibold mb-3 text-white">Untuk Tim Medis</h3>
-                <p className="text-blue-50 mb-4">
-                  RetinaScan membantu skrining pasien diabetes dengan cepat dan akurat, mengklasifikasikan 
-                  tingkat keparahan retinopati diabetik sesuai standar ICDR (0-4) dengan akurasi 98%.
-                </p>
-                <div className="grid grid-cols-2 md:grid-cols-4 gap-3 text-sm text-white">
-                  <div className="flex items-center">
-                    <ClockIcon className="h-4 w-4 mr-1" />
-                    <span>Hasil dalam 3 detik</span>
-                  </div>
-                  <div className="flex items-center">
-                    <BeakerIcon className="h-4 w-4 mr-1" />
-                    <span>Sensitivitas 96%</span>
-                  </div>
-                  <div className="flex items-center">
-                    <DocumentTextIcon className="h-4 w-4 mr-1" />
-                    <span>Laporan terstruktur</span>
-                  </div>
-                  <div className="flex items-center">
-                    <AcademicCapIcon className="h-4 w-4 mr-1" />
-                    <span>Berbasis riset</span>
-                  </div>
+            >
+              <h3 className="text-xl font-semibold mb-3 text-white">Untuk Tim Medis</h3>
+              <p className="text-blue-50 mb-4">
+                RetinaScan membantu skrining pasien diabetes dengan cepat dan akurat, mengklasifikasikan 
+                tingkat keparahan retinopati diabetik sesuai standar ICDR (0-4) dengan akurasi 98%.
+              </p>
+              <div className="grid grid-cols-2 md:grid-cols-4 gap-3 text-sm text-white">
+                <div className="flex items-center">
+                  <ClockIcon className="h-4 w-4 mr-1" />
+                  <span>Hasil dalam 3 detik</span>
                 </div>
-              </motion.div>
-              
+                <div className="flex items-center">
+                  <BeakerIcon className="h-4 w-4 mr-1" />
+                  <span>Sensitivitas 96%</span>
+                </div>
+                <div className="flex items-center">
+                  <DocumentTextIcon className="h-4 w-4 mr-1" />
+                  <span>Laporan terstruktur</span>
+                </div>
+                <div className="flex items-center">
+                  <AcademicCapIcon className="h-4 w-4 mr-1" />
+                  <span>Berbasis riset</span>
+                </div>
+              </div>
+            </motion.div>
+            
               <div className="flex flex-col sm:flex-row justify-center gap-4 mb-12">
-                {isAuthenticated ? (
-                  <a href={`${DASHBOARD_URL}?token=${token}`}>
+              {isAuthenticated ? (
+                <a href={`${DASHBOARD_URL}?token=${token}`}>
                     <AnimatedButton
                       variant="primary"
                       size="lg"
                       withGlow
                       withGradient
                       gradientColors={['#3b82f6', '#8b5cf6']}
-                    >
-                      Mulai Sekarang
-                      <ArrowRightIcon className="w-5 h-5 ml-2" />
+                  >
+                    Mulai Sekarang
+                    <ArrowRightIcon className="w-5 h-5 ml-2" />
                     </AnimatedButton>
-                  </a>
-                ) : (
-                  <>
-                    <Link to="/register">
+                </a>
+              ) : (
+                <>
+                  <Link to="/register">
                       <AnimatedButton
                         variant="primary"
                         size="lg"
                         withGlow
                         withGradient
                         gradientColors={['#3b82f6', '#8b5cf6']}
-                      >
-                        Mulai Sekarang
-                        <ArrowRightIcon className="w-5 h-5 ml-2" />
+                    >
+                      Mulai Sekarang
+                      <ArrowRightIcon className="w-5 h-5 ml-2" />
                       </AnimatedButton>
-                    </Link>
-                    <Link to="/login">
+                  </Link>
+                  <Link to="/login">
                       <AnimatedButton
                         variant="outline"
                         size="lg"
                         className="bg-white/10 border-white text-white hover:bg-white/20"
-                      >
-                        Login
+                    >
+                      Login
                       </AnimatedButton>
-                    </Link>
-                  </>
-                )}
+                  </Link>
+                </>
+              )}
               </div>
-              
-              <motion.div
-                initial={{ opacity: 0, y: 10 }}
-                animate={{ opacity: 1, y: 0 }}
+            
+            <motion.div
+              initial={{ opacity: 0, y: 10 }}
+              animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: 1.5, duration: 0.5 }}
-                className="flex justify-center"
+              className="flex justify-center"
                 onClick={() => scrollToSection(heroRef)}
+            >
+              <motion.div 
+                className="animate-bounce cursor-pointer"
+                whileHover={{ scale: 1.2 }}
               >
-                <motion.div 
-                  className="animate-bounce cursor-pointer"
-                  whileHover={{ scale: 1.2 }}
-                >
-                  <ArrowDownIcon className="h-8 w-8 text-white opacity-80" />
-                </motion.div>
+                <ArrowDownIcon className="h-8 w-8 text-white opacity-80" />
               </motion.div>
-            </div>
+            </motion.div>
           </div>
+        </div>
         </AnimatedBackground>
         
         {/* Wave separator */}
@@ -453,8 +453,8 @@ function LandingPage() {
             />
             
             <div className="flex flex-col sm:flex-row justify-center gap-4">
-              {isAuthenticated ? (
-                <a href={`${DASHBOARD_URL}?token=${token}`}>
+                {isAuthenticated ? (
+                  <a href={`${DASHBOARD_URL}?token=${token}`}>
                   <AnimatedButton
                     variant="light"
                     size="lg"
@@ -463,8 +463,8 @@ function LandingPage() {
                     Akses Dashboard
                     <ArrowRightIcon className="w-5 h-5 ml-2" />
                   </AnimatedButton>
-                </a>
-              ) : (
+                  </a>
+                ) : (
                 <>
                   <Link to="/register">
                     <AnimatedButton
@@ -486,9 +486,9 @@ function LandingPage() {
                     </AnimatedButton>
                   </Link>
                 </>
-              )}
+                )}
             </div>
-          </div>
+        </div>
         </AnimatedBackground>
       </section>
     </div>

@@ -4,6 +4,7 @@ import { HashRouter } from 'react-router-dom';
 import { ThemeProvider } from './context/ThemeContext';
 import App from './App.jsx';
 import './index.css';
+import './styles/animations.css'; // Import file CSS animasi
 
 // Menggunakan HashRouter untuk mengatasi masalah routing static hosting
 // HashRouter menambahkan # pada URL tapi menghindari masalah 404 saat refresh
