@@ -1,3 +1,4 @@
+import { Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { useTheme } from '../../context/ThemeContext';
 import { useState, useEffect } from 'react';
@@ -12,6 +13,7 @@ import {
   HeartIcon
 } from '@heroicons/react/24/outline';
 import { newTheme } from '../../utils/newTheme';
+import ScrollReveal from '../ScrollReveal';
 
 function Footer() {
   const currentYear = new Date().getFullYear();
@@ -80,211 +82,291 @@ function Footer() {
     }
   };
 
+  // Animasi untuk link
+  const linkAnimation = {
+    whileHover: { scale: 1.05, x: 5 },
+    whileTap: { scale: 0.95 }
+  };
+  
+  // Animasi untuk icon sosial media
+  const socialAnimation = {
+    whileHover: { scale: 1.2, rotate: 5 },
+    whileTap: { scale: 0.9 }
+  };
+  
+  // Animasi untuk container
+  const containerAnimation = {
+    hidden: { opacity: 0, y: 20 },
+    visible: {
+      opacity: 1,
+      y: 0,
+      transition: {
+        duration: 0.6,
+        staggerChildren: 0.1,
+        delayChildren: 0.2
+      }
+    }
+  };
+  
+  // Animasi untuk item
+  const itemAnimation = {
+    hidden: { opacity: 0, y: 20 },
+    visible: { opacity: 1, y: 0 }
+  };
+
   return (
-    <motion.footer 
-      ref={ref}
-      variants={footerVariants}
-      initial="hidden"
-      animate={inView ? "visible" : "hidden"}
-      className="relative pt-16 pb-8 overflow-hidden"
-      style={{ 
-        background: 'linear-gradient(to bottom, rgba(79, 70, 229, 0.1), rgba(79, 70, 229, 0.3))',
-        backdropFilter: 'blur(10px)'
-      }}
-    >
-      {/* Background elements */}
-      <div className="absolute inset-0 overflow-hidden z-0">
-        <div className="absolute top-0 left-0 w-64 h-64 rounded-full bg-indigo-600 opacity-10 -translate-x-1/2 -translate-y-1/2"></div>
-        <div className="absolute bottom-0 right-0 w-80 h-80 rounded-full bg-blue-500 opacity-10 translate-x-1/3 translate-y-1/3"></div>
-        <div className="absolute top-1/2 left-1/2 w-96 h-96 rounded-full bg-purple-500 opacity-5 -translate-x-1/2 -translate-y-1/2"></div>
+    <footer className="relative bg-gradient-to-b from-transparent to-indigo-50 dark:to-gray-900/30 pt-16 overflow-hidden">
+      {/* Efek glass di bagian atas footer */}
+      <div className="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-indigo-300 dark:via-indigo-700 to-transparent opacity-50"></div>
+      
+      {/* Lingkaran dekoratif */}
+      <div className="absolute -top-20 -right-20 w-64 h-64 rounded-full bg-gradient-to-br from-indigo-300/20 to-purple-300/20 dark:from-indigo-900/20 dark:to-purple-900/20 blur-3xl"></div>
+      <div className="absolute -bottom-32 -left-32 w-96 h-96 rounded-full bg-gradient-to-tr from-purple-300/20 to-indigo-300/20 dark:from-purple-900/20 dark:to-indigo-900/20 blur-3xl"></div>
+      
+      <div className="container mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8 mb-12">
+          <ScrollReveal>
+            <motion.div
+              variants={containerAnimation}
+              initial="hidden"
+              whileInView="visible"
+              viewport={{ once: true, amount: 0.2 }}
+              className="space-y-4"
+            >
+              <motion.div variants={itemAnimation} className="flex items-center mb-4">
+                <img src="/logo.png" alt="RetinaScan Logo" className="h-8 w-auto mr-2" />
+                <h3 className="text-xl font-bold bg-gradient-to-r from-indigo-600 to-purple-600 bg-clip-text text-transparent">
+                  RetinaScan
+                </h3>
+              </motion.div>
+              
+              <motion.p variants={itemAnimation} className="text-gray-600 dark:text-gray-300 text-sm">
+                Sistem deteksi dini Diabetic Retinopathy menggunakan teknologi AI untuk membantu pencegahan kebutaan akibat diabetes.
+              </motion.p>
+              
+              <motion.div variants={itemAnimation} className="flex space-x-4 mt-6">
+                <motion.a
+                  href="https://facebook.com"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="w-10 h-10 rounded-full bg-white dark:bg-gray-800 flex items-center justify-center shadow-md hover:shadow-lg transition-all duration-300"
+                  {...socialAnimation}
+                >
+                  <svg className="w-5 h-5 text-blue-600 dark:text-blue-400" fill="currentColor" viewBox="0 0 24 24">
+                    <path d="M18.77,7.46H14.5v-1.9c0-0.9,0.6-1.1,1-1.1h3V0.5h-4.33c-4.19,0-5.14,3.13-5.14,5.1v1.86H6V12h3.02v12h5.48V12h3.69L18.77,7.46z" />
+                  </svg>
+                </motion.a>
+                
+                <motion.a
+                  href="https://twitter.com"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="w-10 h-10 rounded-full bg-white dark:bg-gray-800 flex items-center justify-center shadow-md hover:shadow-lg transition-all duration-300"
+                  {...socialAnimation}
+                >
+                  <svg className="w-5 h-5 text-blue-400 dark:text-blue-300" fill="currentColor" viewBox="0 0 24 24">
+                    <path d="M23.44,4.83c-0.8,0.37-1.66,0.61-2.55,0.73c0.91-0.57,1.61-1.48,1.94-2.57c-0.87,0.53-1.81,0.9-2.83,1.13c-0.82-0.88-1.98-1.43-3.26-1.43c-2.47,0-4.47,2.11-4.47,4.7c0,0.37,0.04,0.73,0.12,1.07C8.29,8.24,4.61,6.36,2.36,3.57c-0.4,0.71-0.63,1.53-0.63,2.4c0,1.65,0.81,3.1,2.03,3.96c-0.74-0.02-1.45-0.23-2.06-0.58v0.06c0,2.3,1.56,4.22,3.63,4.65c-0.38,0.11-0.78,0.16-1.19,0.16c-0.29,0-0.58-0.03-0.85-0.08c0.58,1.88,2.26,3.25,4.25,3.29c-1.56,1.27-3.53,2.03-5.66,2.03c-0.37,0-0.73-0.02-1.08-0.07c2.02,1.35,4.42,2.14,7,2.14c8.4,0,13-7.25,13-13.54c0-0.21,0-0.41-0.01-0.61C22.1,6.57,22.85,5.76,23.44,4.83z" />
+                  </svg>
+                </motion.a>
+                
+                <motion.a
+                  href="https://instagram.com"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="w-10 h-10 rounded-full bg-white dark:bg-gray-800 flex items-center justify-center shadow-md hover:shadow-lg transition-all duration-300"
+                  {...socialAnimation}
+                >
+                  <svg className="w-5 h-5 text-pink-600 dark:text-pink-400" fill="currentColor" viewBox="0 0 24 24">
+                    <path d="M12,2.16c3.2,0,3.58,0.01,4.85,0.07c1.17,0.05,1.8,0.24,2.22,0.41c0.56,0.22,0.96,0.48,1.38,0.9c0.42,0.42,0.68,0.82,0.9,1.38c0.17,0.42,0.35,1.05,0.41,2.22c0.06,1.27,0.07,1.65,0.07,4.85s-0.01,3.58-0.07,4.85c-0.05,1.17-0.24,1.8-0.41,2.22c-0.22,0.56-0.48,0.96-0.9,1.38c-0.42,0.42-0.82,0.68-1.38,0.9c-0.42,0.17-1.05,0.35-2.22,0.41c-1.27,0.06-1.65,0.07-4.85,0.07s-3.58-0.01-4.85-0.07c-1.17-0.05-1.8-0.24-2.22-0.41c-0.56-0.22-0.96-0.48-1.38-0.9c-0.42-0.42-0.68-0.82-0.9-1.38c-0.17-0.42-0.35-1.05-0.41-2.22c-0.06-1.27-0.07-1.65-0.07-4.85s0.01-3.58,0.07-4.85c0.05-1.17,0.24-1.8,0.41-2.22c0.22-0.56,0.48-0.96,0.9-1.38c0.42-0.42,0.82-0.68,1.38-0.9c0.42-0.17,1.05-0.35,2.22-0.41C8.42,2.17,8.8,2.16,12,2.16 M12,0C8.74,0,8.33,0.01,7.05,0.07c-1.27,0.06-2.14,0.26-2.91,0.55C3.36,0.91,2.69,1.3,2.03,1.97C1.3,2.69,0.91,3.36,0.62,4.14c-0.29,0.77-0.49,1.64-0.55,2.91C0.01,8.33,0,8.74,0,12s0.01,3.67,0.07,4.95c0.06,1.27,0.26,2.14,0.55,2.91c0.29,0.78,0.68,1.45,1.35,2.12c0.72,0.72,1.39,1.12,2.17,1.41c0.77,0.29,1.64,0.49,2.91,0.55C8.33,23.99,8.74,24,12,24s3.67-0.01,4.95-0.07c1.27-0.06,2.14-0.26,2.91-0.55c0.78-0.29,1.45-0.69,2.12-1.35c0.72-0.72,1.12-1.39,1.41-2.17c0.29-0.77,0.49-1.64,0.55-2.91c0.06-1.28,0.07-1.69,0.07-4.95s-0.01-3.67-0.07-4.95c-0.06-1.27-0.26-2.14-0.55-2.91c-0.29-0.78-0.69-1.45-1.35-2.12c-0.72-0.72-1.39-1.12-2.17-1.41c-0.77-0.29-1.64-0.49-2.91-0.55C15.67,0.01,15.26,0,12,0L12,0z M12,5.84c-3.4,0-6.16,2.76-6.16,6.16c0,3.4,2.76,6.16,6.16,6.16c3.4,0,6.16-2.76,6.16-6.16C18.16,8.6,15.4,5.84,12,5.84z M12,16c-2.21,0-4-1.79-4-4s1.79-4,4-4s4,1.79,4,4S14.21,16,12,16z M19.84,5.6c0,0.8-0.64,1.44-1.44,1.44c-0.8,0-1.44-0.64-1.44-1.44c0-0.8,0.64-1.44,1.44-1.44C19.2,4.16,19.84,4.8,19.84,5.6z" />
+                  </svg>
+                </motion.a>
+                
+                <motion.a
+                  href="https://linkedin.com"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="w-10 h-10 rounded-full bg-white dark:bg-gray-800 flex items-center justify-center shadow-md hover:shadow-lg transition-all duration-300"
+                  {...socialAnimation}
+                >
+                  <svg className="w-5 h-5 text-blue-700 dark:text-blue-500" fill="currentColor" viewBox="0 0 24 24">
+                    <path d="M20.45,20.45h-3.56v-5.57c0-1.33-0.02-3.04-1.85-3.04s-2.14,1.45-2.14,2.94v5.67H9.35V9h3.42v1.56h0.05c0.47-0.9,1.63-1.85,3.36-1.85c3.6,0,4.27,2.37,4.27,5.46V20.45z M5.34,7.43c-1.14,0-2.07-0.93-2.07-2.07s0.93-2.07,2.07-2.07c1.14,0,2.07,0.93,2.07,2.07S6.48,7.43,5.34,7.43z M7.12,20.45H3.56V9h3.56V20.45z" />
+                  </svg>
+                </motion.a>
+              </motion.div>
+            </motion.div>
+          </ScrollReveal>
+          
+          <ScrollReveal>
+            <motion.div
+              variants={containerAnimation}
+              initial="hidden"
+              whileInView="visible"
+              viewport={{ once: true, amount: 0.2 }}
+              className="space-y-4"
+            >
+              <motion.h3 variants={itemAnimation} className="text-lg font-semibold text-gray-900 dark:text-white mb-4">
+                Tautan Cepat
+              </motion.h3>
+              
+              <motion.div variants={itemAnimation} className="space-y-3">
+                <motion.div {...linkAnimation}>
+                  <Link to="/" className="flex items-center text-gray-600 dark:text-gray-300 hover:text-indigo-600 dark:hover:text-indigo-400 transition-colors duration-300">
+                    <span className="mr-2">•</span>
+                    <span>Beranda</span>
+                  </Link>
+                </motion.div>
+                
+                <motion.div {...linkAnimation}>
+                  <Link to="/about" className="flex items-center text-gray-600 dark:text-gray-300 hover:text-indigo-600 dark:hover:text-indigo-400 transition-colors duration-300">
+                    <span className="mr-2">•</span>
+                    <span>Tentang Kami</span>
+                  </Link>
+                </motion.div>
+                
+                <motion.div {...linkAnimation}>
+                  <Link to="/services" className="flex items-center text-gray-600 dark:text-gray-300 hover:text-indigo-600 dark:hover:text-indigo-400 transition-colors duration-300">
+                    <span className="mr-2">•</span>
+                    <span>Layanan</span>
+                  </Link>
+                </motion.div>
+                
+                <motion.div {...linkAnimation}>
+                  <Link to="/contact" className="flex items-center text-gray-600 dark:text-gray-300 hover:text-indigo-600 dark:hover:text-indigo-400 transition-colors duration-300">
+                    <span className="mr-2">•</span>
+                    <span>Kontak</span>
+                  </Link>
+                </motion.div>
+                
+                <motion.div {...linkAnimation}>
+                  <Link to="/faq" className="flex items-center text-gray-600 dark:text-gray-300 hover:text-indigo-600 dark:hover:text-indigo-400 transition-colors duration-300">
+                    <span className="mr-2">•</span>
+                    <span>FAQ</span>
+                  </Link>
+                </motion.div>
+              </motion.div>
+            </motion.div>
+          </ScrollReveal>
+          
+          <ScrollReveal>
+            <motion.div
+              variants={containerAnimation}
+              initial="hidden"
+              whileInView="visible"
+              viewport={{ once: true, amount: 0.2 }}
+              className="space-y-4"
+            >
+              <motion.h3 variants={itemAnimation} className="text-lg font-semibold text-gray-900 dark:text-white mb-4">
+                Informasi Legal
+              </motion.h3>
+              
+              <motion.div variants={itemAnimation} className="space-y-3">
+                <motion.div {...linkAnimation}>
+                  <Link to="/privacy-policy" className="flex items-center text-gray-600 dark:text-gray-300 hover:text-indigo-600 dark:hover:text-indigo-400 transition-colors duration-300">
+                    <span className="mr-2">•</span>
+                    <span>Kebijakan Privasi</span>
+                  </Link>
+                </motion.div>
+                
+                <motion.div {...linkAnimation}>
+                  <Link to="/terms-of-service" className="flex items-center text-gray-600 dark:text-gray-300 hover:text-indigo-600 dark:hover:text-indigo-400 transition-colors duration-300">
+                    <span className="mr-2">•</span>
+                    <span>Syarat Layanan</span>
+                  </Link>
+                </motion.div>
+                
+                <motion.div {...linkAnimation}>
+                  <Link to="/disclaimer" className="flex items-center text-gray-600 dark:text-gray-300 hover:text-indigo-600 dark:hover:text-indigo-400 transition-colors duration-300">
+                    <span className="mr-2">•</span>
+                    <span>Disclaimer</span>
+                  </Link>
+                </motion.div>
+                
+                <motion.div {...linkAnimation}>
+                  <Link to="/cookies" className="flex items-center text-gray-600 dark:text-gray-300 hover:text-indigo-600 dark:hover:text-indigo-400 transition-colors duration-300">
+                    <span className="mr-2">•</span>
+                    <span>Kebijakan Cookie</span>
+                  </Link>
+                </motion.div>
+              </motion.div>
+            </motion.div>
+          </ScrollReveal>
+          
+          <ScrollReveal>
+            <motion.div
+              variants={containerAnimation}
+              initial="hidden"
+              whileInView="visible"
+              viewport={{ once: true, amount: 0.2 }}
+              className="space-y-4"
+            >
+              <motion.h3 variants={itemAnimation} className="text-lg font-semibold text-gray-900 dark:text-white mb-4">
+                Kontak Kami
+              </motion.h3>
+              
+              <motion.div variants={itemAnimation} className="space-y-4">
+                <div className="flex items-start">
+                  <MapPinIcon className="w-5 h-5 text-indigo-600 dark:text-indigo-400 mt-0.5 mr-3 flex-shrink-0" />
+                  <span className="text-gray-600 dark:text-gray-300">
+                    Jl. Teknologi No. 123, Jakarta Selatan, Indonesia
+                  </span>
+                </div>
+                
+                <div className="flex items-center">
+                  <PhoneIcon className="w-5 h-5 text-indigo-600 dark:text-indigo-400 mr-3 flex-shrink-0" />
+                  <a 
+                    href="tel:+6281234567890" 
+                    className="text-gray-600 dark:text-gray-300 hover:text-indigo-600 dark:hover:text-indigo-400 transition-colors duration-300"
+                  >
+                    +62 812 3456 7890
+                  </a>
+                </div>
+                
+                <div className="flex items-center">
+                  <EnvelopeIcon className="w-5 h-5 text-indigo-600 dark:text-indigo-400 mr-3 flex-shrink-0" />
+                  <a 
+                    href="mailto:info@retinascan.com" 
+                    className="text-gray-600 dark:text-gray-300 hover:text-indigo-600 dark:hover:text-indigo-400 transition-colors duration-300"
+                  >
+                    info@retinascan.com
+                  </a>
+                </div>
+                
+                <div className="flex items-center">
+                  <GlobeAltIcon className="w-5 h-5 text-indigo-600 dark:text-indigo-400 mr-3 flex-shrink-0" />
+                  <a 
+                    href="https://www.retinascan.com" 
+                    target="_blank" 
+                    rel="noopener noreferrer"
+                    className="text-gray-600 dark:text-gray-300 hover:text-indigo-600 dark:hover:text-indigo-400 transition-colors duration-300"
+                  >
+                    www.retinascan.com
+                  </a>
+                </div>
+              </motion.div>
+            </motion.div>
+          </ScrollReveal>
+        </div>
       </div>
       
-      <div className="container mx-auto px-4 relative z-10">
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8 mb-12">
-          {/* Logo & About */}
-          <motion.div variants={itemVariants} className="col-span-1 lg:col-span-1">
-            <div className="flex items-center mb-4">
-              <EyeIcon className="h-8 w-8 text-indigo-600 mr-2" />
-              <h2 className="text-2xl font-bold text-gray-800 dark:text-white">RetinaScan</h2>
+      {/* Bottom bar dengan efek glass */}
+      <div className="relative bg-white/30 dark:bg-gray-900/30 backdrop-blur-md border-t border-gray-200 dark:border-gray-800/30 py-6">
+        <div className="container mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="flex flex-col md:flex-row justify-between items-center">
+            <p className="text-sm text-gray-600 dark:text-gray-400 text-center md:text-left mb-4 md:mb-0">
+              © {currentYear} RetinaScan. All rights reserved.
+            </p>
+            
+            <div className="flex items-center">
+              <p className="text-sm text-gray-600 dark:text-gray-400 flex items-center">
+                Made with 
+                <HeartIcon className="w-4 h-4 text-red-500 mx-1 animate-pulse" /> 
+                in Indonesia
+              </p>
             </div>
-            <p className="text-gray-600 dark:text-gray-300 mb-4">
-              Solusi terdepan untuk deteksi dini penyakit retina dengan teknologi AI yang akurat dan terpercaya.
-            </p>
-            <div className="flex space-x-4">
-              <motion.a 
-                href="#" 
-                className="w-8 h-8 rounded-full bg-indigo-100 dark:bg-indigo-900 flex items-center justify-center text-indigo-600 dark:text-indigo-300"
-                whileHover={{ scale: 1.1, backgroundColor: '#4F46E5', color: '#ffffff' }}
-                whileTap={{ scale: 0.95 }}
-              >
-                <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 24 24" aria-hidden="true">
-                  <path fillRule="evenodd" d="M22 12c0-5.523-4.477-10-10-10S2 6.477 2 12c0 4.991 3.657 9.128 8.438 9.878v-6.987h-2.54V12h2.54V9.797c0-2.506 1.492-3.89 3.777-3.89 1.094 0 2.238.195 2.238.195v2.46h-1.26c-1.243 0-1.63.771-1.63 1.562V12h2.773l-.443 2.89h-2.33v6.988C18.343 21.128 22 16.991 22 12z" clipRule="evenodd"></path>
-                </svg>
-              </motion.a>
-              <motion.a 
-                href="#" 
-                className="w-8 h-8 rounded-full bg-indigo-100 dark:bg-indigo-900 flex items-center justify-center text-indigo-600 dark:text-indigo-300"
-                whileHover={{ scale: 1.1, backgroundColor: '#4F46E5', color: '#ffffff' }}
-                whileTap={{ scale: 0.95 }}
-              >
-                <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 24 24" aria-hidden="true">
-                  <path d="M8.29 20.251c7.547 0 11.675-6.253 11.675-11.675 0-.178 0-.355-.012-.53A8.348 8.348 0 0022 5.92a8.19 8.19 0 01-2.357.646 4.118 4.118 0 001.804-2.27 8.224 8.224 0 01-2.605.996 4.107 4.107 0 00-6.993 3.743 11.65 11.65 0 01-8.457-4.287 4.106 4.106 0 001.27 5.477A4.072 4.072 0 012.8 9.713v.052a4.105 4.105 0 003.292 4.022 4.095 4.095 0 01-1.853.07 4.108 4.108 0 003.834 2.85A8.233 8.233 0 012 18.407a11.616 11.616 0 006.29 1.84"></path>
-                </svg>
-              </motion.a>
-              <motion.a 
-                href="#" 
-                className="w-8 h-8 rounded-full bg-indigo-100 dark:bg-indigo-900 flex items-center justify-center text-indigo-600 dark:text-indigo-300"
-                whileHover={{ scale: 1.1, backgroundColor: '#4F46E5', color: '#ffffff' }}
-                whileTap={{ scale: 0.95 }}
-              >
-                <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 24 24" aria-hidden="true">
-                  <path fillRule="evenodd" d="M12.315 2c2.43 0 2.784.013 3.808.06 1.064.049 1.791.218 2.427.465a4.902 4.902 0 011.772 1.153 4.902 4.902 0 011.153 1.772c.247.636.416 1.363.465 2.427.048 1.067.06 1.407.06 4.123v.08c0 2.643-.012 2.987-.06 4.043-.049 1.064-.218 1.791-.465 2.427a4.902 4.902 0 01-1.153 1.772 4.902 4.902 0 01-1.772 1.153c-.636.247-1.363.416-2.427.465-1.067.048-1.407.06-4.123.06h-.08c-2.643 0-2.987-.012-4.043-.06-1.064-.049-1.791-.218-2.427-.465a4.902 4.902 0 01-1.772-1.153 4.902 4.902 0 01-1.153-1.772c-.247-.636-.416-1.363-.465-2.427-.047-1.024-.06-1.379-.06-3.808v-.63c0-2.43.013-2.784.06-3.808.049-1.064.218-1.791.465-2.427a4.902 4.902 0 011.153-1.772A4.902 4.902 0 015.45 2.525c.636-.247 1.363-.416 2.427-.465C8.901 2.013 9.256 2 11.685 2h.63zm-.081 1.802h-.468c-2.456 0-2.784.011-3.807.058-.975.045-1.504.207-1.857.344-.467.182-.8.398-1.15.748-.35.35-.566.683-.748 1.15-.137.353-.3.882-.344 1.857-.047 1.023-.058 1.351-.058 3.807v.468c0 2.456.011 2.784.058 3.807.045.975.207 1.504.344 1.857.182.466.399.8.748 1.15.35.35.683.566 1.15.748.353.137.882.3 1.857.344 1.054.048 1.37.058 4.041.058h.08c2.597 0 2.917-.01 3.96-.058.976-.045 1.505-.207 1.858-.344.466-.182.8-.398 1.15-.748.35-.35.566-.683.748-1.15.137-.353.3-.882.344-1.857.048-1.055.058-1.37.058-4.041v-.08c0-2.597-.01-2.917-.058-3.96-.045-.976-.207-1.505-.344-1.858a3.097 3.097 0 00-.748-1.15 3.098 3.098 0 00-1.15-.748c-.353-.137-.882-.3-1.857-.344-1.023-.047-1.351-.058-3.807-.058zM12 6.865a5.135 5.135 0 110 10.27 5.135 5.135 0 010-10.27zm0 1.802a3.333 3.333 0 100 6.666 3.333 3.333 0 000-6.666zm5.338-3.205a1.2 1.2 0 110 2.4 1.2 1.2 0 010-2.4z" clipRule="evenodd"></path>
-                </svg>
-              </motion.a>
           </div>
-          </motion.div>
-          
-          {/* Quick Links */}
-          <motion.div variants={itemVariants} className="col-span-1">
-            <h3 className="text-lg font-semibold mb-4 text-gray-800 dark:text-white">Tautan Cepat</h3>
-            <ul className="space-y-2">
-              <li>
-                <motion.a 
-                  href="/" 
-                  className="text-gray-600 dark:text-gray-300 hover:text-indigo-600 dark:hover:text-indigo-400 flex items-center"
-                  variants={linkHoverVariants}
-                  initial="initial"
-                  whileHover="hover"
-                >
-                  <GlobeAltIcon className="h-4 w-4 mr-2" />
-                  Beranda
-                </motion.a>
-              </li>
-              {!isAuthenticated && (
-                <>
-                  <li>
-                    <motion.a 
-                      href="/login" 
-                      className="text-gray-600 dark:text-gray-300 hover:text-indigo-600 dark:hover:text-indigo-400 flex items-center"
-                      variants={linkHoverVariants}
-                      initial="initial"
-                      whileHover="hover"
-                    >
-                      <svg className="h-4 w-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M11 16l-4-4m0 0l4-4m-4 4h14m-5 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h7a3 3 0 013 3v1"></path>
-                      </svg>
-                      Login
-                    </motion.a>
-                  </li>
-                  <li>
-                    <motion.a 
-                      href="/register" 
-                      className="text-gray-600 dark:text-gray-300 hover:text-indigo-600 dark:hover:text-indigo-400 flex items-center"
-                      variants={linkHoverVariants}
-                      initial="initial"
-                      whileHover="hover"
-                    >
-                      <svg className="h-4 w-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M18 9v3m0 0v3m0-3h3m-3 0h-3m-2-5a4 4 0 11-8 0 4 4 0 018 0zM3 20a6 6 0 0112 0v1H3v-1z"></path>
-                      </svg>
-                      Register
-                    </motion.a>
-                  </li>
-                </>
-              )}
-              {isAuthenticated && (
-                <li>
-                <motion.a 
-                    href={`${DASHBOARD_URL}?token=${token}`} 
-                    className="text-gray-600 dark:text-gray-300 hover:text-indigo-600 dark:hover:text-indigo-400 flex items-center"
-                    variants={linkHoverVariants}
-                    initial="initial"
-                    whileHover="hover"
-                  >
-                    <svg className="h-4 w-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"></path>
-                  </svg>
-                    Dashboard
-                </motion.a>
-                </li>
-              )}
-              <li>
-                <motion.a 
-                  href="#about" 
-                  className="text-gray-600 dark:text-gray-300 hover:text-indigo-600 dark:hover:text-indigo-400 flex items-center"
-                  variants={linkHoverVariants}
-                  initial="initial"
-                  whileHover="hover"
-                >
-                  <svg className="h-4 w-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
-                  </svg>
-                  Tentang Kami
-                </motion.a>
-              </li>
-            </ul>
-          </motion.div>
-          
-          {/* Contact */}
-          <motion.div variants={itemVariants} className="col-span-1">
-            <h3 className="text-lg font-semibold mb-4 text-gray-800 dark:text-white">Kontak</h3>
-            <ul className="space-y-3">
-              <li className="flex items-start">
-                <MapPinIcon className="h-5 w-5 text-indigo-600 mr-2 mt-0.5 flex-shrink-0" />
-                <span className="text-gray-600 dark:text-gray-300">Jl. Retina No. 123, Jakarta Selatan, Indonesia</span>
-              </li>
-              <li className="flex items-center">
-                <PhoneIcon className="h-5 w-5 text-indigo-600 mr-2 flex-shrink-0" />
-                <span className="text-gray-600 dark:text-gray-300">+62 812 3456 7890</span>
-              </li>
-              <li className="flex items-center">
-                <EnvelopeIcon className="h-5 w-5 text-indigo-600 mr-2 flex-shrink-0" />
-                <span className="text-gray-600 dark:text-gray-300">info@retinascan.id</span>
-              </li>
-            </ul>
-          </motion.div>
-          
-          {/* Newsletter */}
-          <motion.div variants={itemVariants} className="col-span-1">
-            <h3 className="text-lg font-semibold mb-4 text-gray-800 dark:text-white">Newsletter</h3>
-            <p className="text-gray-600 dark:text-gray-300 mb-4">
-              Dapatkan informasi terbaru tentang teknologi deteksi retina
-            </p>
-            <form className="flex">
-              <input
-                type="email"
-                placeholder="Email Anda"
-                className="px-4 py-2 w-full rounded-l-md border-gray-300 focus:ring-indigo-500 focus:border-indigo-500 dark:bg-gray-800 dark:border-gray-700 dark:text-white"
-              />
-              <motion.button
-                type="submit"
-                className="px-4 py-2 bg-indigo-600 text-white rounded-r-md hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500"
-                whileHover={{ scale: 1.05 }}
-                whileTap={{ scale: 0.95 }}
-              >
-                Kirim
-              </motion.button>
-            </form>
-          </motion.div>
         </div>
-        
-        {/* Divider */}
-        <motion.div 
-          className="h-px bg-gradient-to-r from-transparent via-gray-400 dark:via-gray-600 to-transparent mb-6"
-          variants={itemVariants}
-        ></motion.div>
-        
-        {/* Copyright */}
-        <motion.div 
-          className="text-center text-gray-600 dark:text-gray-400 text-sm"
-          variants={itemVariants}
-        >
-          <p>
-            &copy; {currentYear} RetinaScan. All rights reserved. Dibuat dengan <HeartIcon className="h-4 w-4 inline text-red-500" /> di Indonesia
-          </p>
-        </motion.div>
       </div>
-    </motion.footer>
+    </footer>
   );
 }
 

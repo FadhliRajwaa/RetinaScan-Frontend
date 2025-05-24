@@ -22,7 +22,10 @@ import {
   UserIcon,
   LockClosedIcon,
   EyeIcon,
-  ChartBarSquareIcon
+  ChartBarSquareIcon,
+  SunIcon,
+  MoonIcon,
+  ChevronDownIcon
 } from '@heroicons/react/24/outline';
 import { newTheme } from '../../utils/newTheme';
 
@@ -68,9 +71,10 @@ function Navbar() {
   const [userName, setUserName] = useState('');
   const [token, setToken] = useState('');
   const [scrolled, setScrolled] = useState(false);
+  const [userMenuOpen, setUserMenuOpen] = useState(false);
   const location = useLocation();
   const navigate = useNavigate();
-  const { theme, isMobile } = useTheme();
+  const { theme, isMobile, toggleTheme } = useTheme();
   
   // Environment variables
   const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000';
@@ -172,7 +176,7 @@ function Navbar() {
   useEffect(() => {
     const handleScroll = () => {
       const offset = window.scrollY;
-      if (offset > 50) {
+      if (offset > 10) {
         setScrolled(true);
       } else {
         setScrolled(false);
@@ -180,11 +184,17 @@ function Navbar() {
     };
     
     window.addEventListener('scroll', handleScroll);
+    
     return () => {
       window.removeEventListener('scroll', handleScroll);
     };
   }, []);
 
+  useEffect(() => {
+    setIsOpen(false);
+    setUserMenuOpen(false);
+  }, [location]);
+  
   const handleLogout = () => {
     console.log('Logging out from frontend'); // Debugging
     
@@ -269,6 +279,105 @@ function Navbar() {
     }
   };
 
+  // Animasi untuk menu mobile
+  const menuVariants = {
+    closed: {
+      opacity: 0,
+      height: 0,
+      transition: {
+        duration: 0.3,
+        ease: 'easeInOut',
+        staggerChildren: 0.05,
+        staggerDirection: -1,
+        when: 'afterChildren'
+      }
+    },
+    open: {
+      opacity: 1,
+      height: 'auto',
+      transition: {
+        duration: 0.4,
+        ease: 'easeOut',
+        staggerChildren: 0.1,
+        delayChildren: 0.1,
+        when: 'beforeChildren'
+      }
+    }
+  };
+  
+  // Animasi untuk user menu dropdown
+  const dropdownVariants = {
+    closed: {
+      opacity: 0,
+      y: -10,
+      scale: 0.95,
+      transition: {
+        duration: 0.2,
+        ease: 'easeInOut'
+      }
+    },
+    open: {
+      opacity: 1,
+      y: 0,
+      scale: 1,
+      transition: {
+        duration: 0.3,
+        ease: 'easeOut'
+      }
+    }
+  };
+  
+  // Toggle menu mobile
+  const toggleMenu = () => {
+    setIsOpen(!isOpen);
+  };
+  
+  // Toggle user menu dropdown
+  const toggleUserMenu = () => {
+    setUserMenuOpen(!userMenuOpen);
+  };
+  
+  // Tutup user menu dropdown jika klik di luar
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (userMenuOpen && !event.target.closest('.user-menu-container')) {
+        setUserMenuOpen(false);
+      }
+    };
+    
+    document.addEventListener('mousedown', handleClickOutside);
+    
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, [userMenuOpen]);
+  
+  // Ambil info user dari localStorage jika ada
+  const getUserInfo = () => {
+    const userString = localStorage.getItem('user');
+    if (userString) {
+      try {
+        return JSON.parse(userString);
+      } catch (e) {
+        return null;
+      }
+    }
+    return null;
+  };
+  
+  const user = getUserInfo();
+  
+  // Tentukan class untuk navbar berdasarkan scroll
+  const navbarClass = scrolled
+    ? 'bg-white/80 dark:bg-gray-900/90 backdrop-blur-lg shadow-md'
+    : 'bg-white/50 dark:bg-gray-900/50 backdrop-blur-md';
+  
+  // Animasi untuk navbar saat scroll
+  const navbarAnimation = {
+    initial: { height: 80 },
+    scrolled: { height: 70 }
+  };
+
   return (
     <>
       {/* Logout Notification */}
@@ -286,7 +395,7 @@ function Navbar() {
         initial="hidden"
         animate="visible"
         variants={navbarVariants}
-        className="fixed top-0 left-0 right-0 z-40 transition-all duration-300"
+        className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${navbarClass}`}
         style={{
           background: scrolled ? 
             'rgba(79, 70, 229, 0.9)' : 

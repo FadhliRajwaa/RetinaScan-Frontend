@@ -217,7 +217,7 @@ const LoginPage = () => {
       setFormFocused(false);
     }
   };
-
+  
   // Variasi animasi berdasarkan jumlah percobaan login
   const getFormAnimation = () => {
     if (loginAttempts === 0) {
@@ -227,7 +227,7 @@ const LoginPage = () => {
         hidden: { opacity: 0, y: 20 },
     visible: { 
           opacity: 1,
-          y: 0,
+      y: 0, 
           transition: {
             staggerChildren: 0.15,
             delayChildren: 0.2,
@@ -305,7 +305,7 @@ const LoginPage = () => {
               variant="primary"
               fullWidth
               onClick={() => navigate('/')}
-            >
+              >
               <HomeIcon className="w-5 h-5 mr-2" />
               Kembali ke Beranda
             </AnimatedButton>
@@ -325,250 +325,193 @@ const LoginPage = () => {
   }
 
   return (
-    <div className="min-h-screen flex flex-col md:flex-row">
-      {/* Left Column - Animation */}
-      <motion.div 
-        className="md:w-1/2 bg-gradient-to-br flex items-center justify-center p-8 relative overflow-hidden"
-        style={{ background: newTheme.gradients.ocean }}
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-        transition={{ duration: 0.8 }}
-      >
-        <ParticlesBackground 
-          color="rgba(6, 182, 212, 0.6)"
-          count={isMobile ? 30 : 50}
-          speed={0.6}
-          type="wave"
-          connected={true}
-          interactive={true}
-        />
-        
-        <div className="relative z-10 max-w-md w-full">
-          <ScrollReveal animation="fade-down" delay={0.2}>
-            <div className="mb-8 text-center">
-              <h1 className="text-3xl md:text-4xl font-bold mb-4" style={{ color: newTheme.text.light }}>
-                Selamat Datang Kembali
-              </h1>
-              <p className="text-lg opacity-90" style={{ color: newTheme.text.light }}>
-                Masuk ke akun Anda untuk mengakses layanan RetinaScan
-              </p>
-            </div>
-          </ScrollReveal>
-          
-          <ScrollReveal animation="zoom-in" delay={0.4}>
-            <div className="w-full h-64 md:h-80 mx-auto">
-              <LottieAnimation 
-                animationData={lottieConfig.animations.login}
-                loop={true}
-              />
-            </div>
-          </ScrollReveal>
-          
-          <ScrollReveal animation="fade-up" delay={0.6}>
-            <div className="mt-8 text-center">
-              <p className="text-white text-opacity-90">
-                Belum memiliki akun?
-              </p>
-              <motion.div
-                whileHover={{ scale: 1.05 }}
-                whileTap={{ scale: 0.95 }}
-              >
-                <Link 
-                  to="/register" 
-                  className="inline-block mt-2 px-6 py-2 rounded-full bg-white/20 backdrop-blur-sm text-white font-medium hover:bg-white/30 transition-all"
-                >
-                  Daftar Sekarang
-                </Link>
-              </motion.div>
-            </div>
-          </ScrollReveal>
-      </div>
-      </motion.div>
+    <div className="min-h-screen flex flex-col items-center justify-center w-full relative overflow-hidden">
+      {/* Background animasi partikel yang ditingkatkan */}
+      <ParticlesBackground 
+        color={theme === 'dark' ? 'rgba(139, 92, 246, 0.5)' : 'rgba(79, 70, 229, 0.5)'} 
+        count={isMobile ? 40 : 80}
+        speed={0.8}
+        type="vortex"
+        connected={true}
+        interactive={true}
+      />
       
-      {/* Right Column - Login Form */}
-      <motion.div
-        className="md:w-1/2 flex items-center justify-center p-6 md:p-12"
-        style={{ background: newTheme.background.light }}
-        initial={{ opacity: 0, x: 20 }}
-        animate={{ opacity: 1, x: 0 }}
-        transition={{ duration: 0.5, delay: 0.3 }}
-      >
-        <div className="w-full max-w-md">
-          <ScrollReveal animation="fade-down" delay={0.3}>
-            <div className="text-center mb-8">
-              <h2 className="text-3xl font-bold mb-2" style={{ color: newTheme.text.primary }}>
-                Login
-              </h2>
-              <p style={{ color: newTheme.text.secondary }}>
-                Masukkan email dan kata sandi Anda
-              </p>
-            </div>
-          </ScrollReveal>
-          
-          <AnimatePresence>
-            {error && (
-              <motion.div 
-                className="mb-6 p-4 rounded-lg flex items-start"
-                style={{ 
-                  backgroundColor: 'rgba(239, 68, 68, 0.1)',
-                  borderLeft: `4px solid ${newTheme.danger}` 
-                }}
-                initial={{ opacity: 0, y: -10, height: 0 }}
-                animate={{ opacity: 1, y: 0, height: 'auto' }}
-                exit={{ opacity: 0, y: -10, height: 0 }}
-                transition={{ duration: 0.3 }}
-              >
-                <ExclamationCircleIcon className="w-5 h-5 mr-2 mt-0.5 flex-shrink-0" style={{ color: newTheme.danger }} />
-                <p style={{ color: newTheme.danger }}>{error}</p>
-              </motion.div>
-            )}
-          </AnimatePresence>
-          
-          <motion.div
-            className="bg-white dark:bg-gray-800 rounded-xl shadow-xl p-6 backdrop-blur-sm"
-            style={{
-              boxShadow: newTheme.shadows.xl,
-              background: 'rgba(255, 255, 255, 0.85)',
-              backdropFilter: 'blur(12px)',
-              border: '1px solid rgba(255, 255, 255, 0.2)',
-            }}
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.5, delay: 0.4 }}
-          >
-        <motion.form 
-              ref={formRef}
-          onSubmit={handleSubmit}
-              className="space-y-6"
-              variants={getFormAnimation()}
-          initial="hidden"
-              animate={controls}
-              onFocus={handleFormFocus}
-              onBlur={handleFormBlur}
+      {/* Container utama dengan efek glass yang ditingkatkan */}
+      <ScrollReveal>
+        <div className="w-full max-w-md px-4 py-6 relative z-10">
+          {/* Logo dan judul */}
+          <div className="text-center mb-8">
+            <motion.div
+              initial={{ scale: 0.8, opacity: 0 }}
+              animate={{ scale: 1, opacity: 1 }}
+              transition={{ duration: 0.6, ease: "easeOut" }}
+              className="mb-4 inline-block"
             >
-              <motion.div variants={enhancedAnimations.item}>
-                <AnimatedInput
-                type="email"
-                  name="email"
-                id="email"
-                  label="Email"
-                value={email}
-                  onChange={(e) => {
-                    setEmail(e.target.value);
-                    if (error) setError('');
-                  }}
-                required
-                  icon={<EnvelopeIcon className="w-5 h-5" />}
-                  error={error && error.includes('Email') ? ' ' : undefined}
+              <LottieAnimation 
+                animationData={lottieConfig.eyeScan}
+                style={{ width: 120, height: 120 }}
               />
-          </motion.div>
+            </motion.div>
+            <motion.h1
+              initial={{ y: -20, opacity: 0 }}
+              animate={{ y: 0, opacity: 1 }}
+              transition={{ delay: 0.3, duration: 0.6 }}
+              className="text-3xl md:text-4xl font-bold text-gray-900 dark:text-white drop-shadow-md"
+            >
+              RetinaScan
+            </motion.h1>
+            <motion.p
+              initial={{ y: 20, opacity: 0 }}
+              animate={{ y: 0, opacity: 1 }}
+              transition={{ delay: 0.4, duration: 0.6 }}
+              className="text-gray-600 dark:text-gray-300 mt-2 text-lg drop-shadow-sm"
+            >
+              Masuk ke akun Anda
+            </motion.p>
+          </div>
           
-              <motion.div variants={enhancedAnimations.item}>
-                <AnimatedInput
-                  type={showPassword ? "text" : "password"}
-                  name="password"
-                id="password"
-                  label="Kata Sandi"
-                value={password}
-                  onChange={(e) => {
-                    setPassword(e.target.value);
-                    if (error) setError('');
-                  }}
-                required
-                  icon={<LockClosedIcon className="w-5 h-5" />}
-                  error={error && error.includes('sandi') ? ' ' : undefined}
-                  rightIcon={
-                    <motion.button
-                type="button"
-                      onClick={togglePasswordVisibility}
-                      className="focus:outline-none"
-                      whileHover={{ scale: 1.1 }}
-                      whileTap={{ scale: 0.9 }}
+          {/* Form login dengan efek glass yang ditingkatkan */}
+          <motion.div
+            initial="hidden"
+            animate="visible"
+            variants={getFormAnimation()}
+            className={`bg-white/20 dark:bg-gray-900/30 backdrop-blur-lg rounded-2xl shadow-xl p-6 md:p-8 border border-white/20 dark:border-gray-700/30 transition-all duration-300 ${formFocused ? 'shadow-2xl scale-[1.01]' : ''}`}
+            style={{
+              boxShadow: formFocused 
+                ? '0 25px 50px -12px rgba(0, 0, 0, 0.25), 0 0 15px rgba(79, 70, 229, 0.2)' 
+                : '0 10px 25px -5px rgba(0, 0, 0, 0.1)'
+            }}
+          >
+            {/* Form header */}
+            <div className="flex justify-between items-center mb-6">
+              <h2 className="text-xl font-semibold text-gray-900 dark:text-white">Login</h2>
+              <Link 
+                to="/" 
+                className="text-indigo-600 hover:text-indigo-800 dark:text-indigo-400 dark:hover:text-indigo-300 transition-colors duration-200 flex items-center gap-1 text-sm"
               >
-                {showPassword ? (
-                        <EyeSlashIcon className="w-5 h-5 text-gray-500" />
-                      ) : (
-                        <EyeIcon className="w-5 h-5 text-gray-500" />
-                      )}
-                    </motion.button>
-                  }
-                />
-              </motion.div>
-              
-              <motion.div 
-                className="flex justify-between items-center text-sm"
-                variants={enhancedAnimations.item}
-              >
-                <div className="flex items-center">
-                  <input
-                    type="checkbox"
-                    id="remember"
-                    className="mr-2 h-4 w-4 rounded border-gray-300 text-indigo-600 focus:ring-indigo-500"
-                  />
-                  <label htmlFor="remember" style={{ color: newTheme.text.secondary }}>
-                    Ingat saya
-                  </label>
+                <HomeIcon className="w-4 h-4" />
+                <span>Beranda</span>
+              </Link>
             </div>
+            
+            {/* Error message */}
+            <AnimatePresence>
+              {error && (
                 <motion.div
-                  whileHover={{ scale: 1.05 }}
-                  whileTap={{ scale: 0.95 }}
+                  initial={{ opacity: 0, y: -10 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0, y: -10 }}
+                  transition={{ duration: 0.3 }}
+                  className="bg-red-100 dark:bg-red-900/40 border border-red-200 dark:border-red-800/50 text-red-800 dark:text-red-200 px-4 py-3 rounded-lg mb-6 flex items-start"
                 >
-                  <Link 
-                    to="/forgot-password" 
-                    className="font-medium hover:underline transition-all"
-                    style={{ color: newTheme.primary }}
+                  <ExclamationCircleIcon className="w-5 h-5 mr-2 mt-0.5 flex-shrink-0" />
+                  <span className="text-sm">{error}</span>
+                </motion.div>
+              )}
+            </AnimatePresence>
+            
+            {/* Form */}
+            <form onSubmit={handleSubmit} ref={formRef} onFocus={handleFormFocus} onBlur={handleFormBlur}>
+              <div className="space-y-5">
+                {/* Email field */}
+                <motion.div variants={enhancedAnimations.item}>
+                  <AnimatedInput
+                    id="email"
+                    type="email"
+                    label="Email"
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)}
+                    icon={<EnvelopeIcon className="w-5 h-5 text-gray-500 dark:text-gray-400" />}
+                    placeholder="nama@email.com"
+                    autoComplete="email"
+                    required
+                  />
+                </motion.div>
+                
+                {/* Password field */}
+                <motion.div variants={enhancedAnimations.item}>
+                  <AnimatedInput
+                    id="password"
+                    type={showPassword ? "text" : "password"}
+                    label="Password"
+                    value={password}
+                    onChange={(e) => setPassword(e.target.value)}
+                    icon={<LockClosedIcon className="w-5 h-5 text-gray-500 dark:text-gray-400" />}
+                    placeholder="••••••••"
+                    autoComplete="current-password"
+                    required
+                    endAdornment={
+                      <button
+                        type="button"
+                        onClick={togglePasswordVisibility}
+                        className="text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-300 focus:outline-none"
+                      >
+                        {showPassword ? (
+                          <EyeSlashIcon className="w-5 h-5" />
+                        ) : (
+                          <EyeIcon className="w-5 h-5" />
+                        )}
+                      </button>
+                    }
+                  />
+                </motion.div>
+                
+                {/* Forgot password link */}
+                <motion.div variants={enhancedAnimations.item} className="text-right">
+                  <Link
+                    to="/forgot-password"
+                    className="text-sm font-medium text-indigo-600 hover:text-indigo-800 dark:text-indigo-400 dark:hover:text-indigo-300 transition-colors duration-200"
                   >
-                    Lupa kata sandi?
+                    Lupa password?
                   </Link>
                 </motion.div>
+                
+                {/* Submit button */}
+                <motion.div variants={enhancedAnimations.item}>
+                  <AnimatedButton
+                    type="submit"
+                    fullWidth
+                    isLoading={isLoading}
+                    disabled={isLoading}
+                    animate={controls}
+                    className="bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-700 hover:to-purple-700"
+                  >
+                    <span className="mr-2">Masuk</span>
+                    <ArrowRightIcon className="w-5 h-5" />
+                  </AnimatedButton>
+                </motion.div>
+              </div>
+            </form>
+            
+            {/* Register link */}
+            <motion.div 
+              variants={enhancedAnimations.item}
+              className="mt-6 text-center"
+            >
+              <p className="text-sm text-gray-600 dark:text-gray-400">
+                Belum punya akun?{' '}
+                <Link
+                  to="/register"
+                  className="font-medium text-indigo-600 hover:text-indigo-800 dark:text-indigo-400 dark:hover:text-indigo-300 transition-colors duration-200"
+                >
+                  Daftar sekarang
+                </Link>
+              </p>
+            </motion.div>
           </motion.div>
           
-              <motion.div variants={enhancedAnimations.item}>
-                <AnimatedButton
-              type="submit"
-                  variant="primary"
-                  fullWidth
-              disabled={isLoading}
-            >
-              {isLoading ? (
-                    <div className="flex items-center justify-center">
-                      <svg className="animate-spin -ml-1 mr-3 h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                    <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-                    <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                  </svg>
-                  Memproses...
-                    </div>
-              ) : (
-                    <>
-                  Masuk
-                      <ArrowRightIcon className="w-5 h-5 ml-2" />
-                    </>
-              )}
-                </AnimatedButton>
+          {/* Footer text */}
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ delay: 0.8, duration: 0.6 }}
+            className="text-center mt-8 text-xs text-gray-500 dark:text-gray-400"
+          >
+            <p>© {new Date().getFullYear()} RetinaScan. All rights reserved.</p>
+            <p className="mt-1">Sistem Deteksi Diabetic Retinopathy</p>
           </motion.div>
-        
-        <motion.div 
-                className="text-center mt-8"
-                variants={enhancedAnimations.item}
-              >
-                <motion.div
-                  whileHover={{ scale: 1.05 }}
-                  whileTap={{ scale: 0.95 }}
-                >
-                  <Link 
-                    to="/" 
-                    className="inline-flex items-center text-sm font-medium hover:underline"
-                    style={{ color: newTheme.text.secondary }}
-                  >
-                    <HomeIcon className="w-4 h-4 mr-2" />
-                    Kembali ke Beranda
-            </Link>
-                </motion.div>
-              </motion.div>
-            </motion.form>
-        </motion.div>
         </div>
-      </motion.div>
+      </ScrollReveal>
     </div>
   );
 };

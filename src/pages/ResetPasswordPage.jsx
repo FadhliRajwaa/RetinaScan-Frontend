@@ -159,7 +159,7 @@ const ResetPasswordPage = () => {
     setIsLoading(true);
     setResetError('');
     setAnimationState('sending');
-
+    
     try {
       // Simulasi reset password berhasil (dalam implementasi nyata, ini akan memanggil API)
       // Tunggu 1.5 detik untuk simulasi proses
@@ -288,8 +288,8 @@ const ResetPasswordPage = () => {
                     lottieConfig.animations.resetPassword
                   }
                   loop={!resetSuccess}
-                />
-              </motion.div>
+            />
+          </motion.div>
               
               <motion.h2
                 className="text-3xl font-bold mb-2"
