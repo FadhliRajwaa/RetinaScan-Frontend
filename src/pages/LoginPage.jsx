@@ -24,12 +24,17 @@ const LoginPage = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
+  const [emailError, setEmailError] = useState('');
+  const [passwordError, setPasswordError] = useState('');
   const [isLoading, setIsLoading] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
   const [formFocused, setFormFocused] = useState(false);
   const [loginAttempts, setLoginAttempts] = useState(0);
   const [isMounted, setIsMounted] = useState(false);
+  const [remember, setRemember] = useState(false);
+  
   const formRef = useRef(null);
   
   const navigate = useNavigate();
@@ -118,27 +123,41 @@ const LoginPage = () => {
     return /\S+@\S+\.\S+/.test(email);
   };
 
+  // Validasi form
+  const validateForm = () => {
+    let valid = true;
+    
+    // Reset error
+    setEmailError('');
+    setPasswordError('');
+    setError('');
+    
+    if (!email.trim()) {
+      setEmailError('Email tidak boleh kosong');
+      valid = false;
+    } else if (!validateEmail(email)) {
+      setEmailError('Format email tidak valid');
+      valid = false;
+    }
+    
+    if (!password) {
+      setPasswordError('Password tidak boleh kosong');
+      valid = false;
+    }
+    
+    return valid;
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     
     // Validasi form
-    if (!email.trim()) {
-      setError('Email tidak boleh kosong');
+    if (!validateForm()) {
       return;
     }
     
-    if (!validateEmail(email)) {
-      setError('Format email tidak valid');
-      return;
-    }
-    
-    if (!password) {
-      setError('Password tidak boleh kosong');
-      return;
-    }
-    
+    setIsSubmitting(true);
     setIsLoading(true);
-    setError('');
     
     try {
       console.log('Mencoba login dengan:', { email, password: '***' });
@@ -198,6 +217,7 @@ const LoginPage = () => {
       });
     } finally {
       setIsLoading(false);
+      setIsSubmitting(false);
     }
   };
 
@@ -342,7 +362,7 @@ const LoginPage = () => {
             endIcon={
               <button 
                 type="button" 
-                onClick={() => setShowPassword(!showPassword)}
+                onClick={togglePasswordVisibility}
                 className="focus:outline-none"
               >
                 {showPassword ? 

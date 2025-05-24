@@ -24,6 +24,7 @@ const RegisterPage = () => {
   const [confirmPassword, setConfirmPassword] = useState('');
   const [error, setError] = useState('');
   const [success, setSuccess] = useState(false);
+  const [successMessage, setSuccessMessage] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
@@ -87,12 +88,15 @@ const RegisterPage = () => {
     
     setIsLoading(true);
     setError('');
+    setSuccess(false);
+    setSuccessMessage('');
     
     try {
       const response = await register({ name, email, password });
       
       if (response && response.success) {
         setSuccess(true);
+        setSuccessMessage('Registrasi berhasil! Silahkan login dengan akun baru Anda.');
         
         // Reset form
         setName('');
@@ -169,7 +173,7 @@ const RegisterPage = () => {
             className="bg-green-500/10 border border-green-500/30 text-green-600 rounded-lg p-3 mb-6 flex items-center"
           >
             <CheckCircleIcon className="h-5 w-5 mr-2 flex-shrink-0" />
-            <p>{success}</p>
+            <p>{successMessage}</p>
           </motion.div>
         )}
 

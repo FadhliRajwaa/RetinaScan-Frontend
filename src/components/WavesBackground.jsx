@@ -24,44 +24,66 @@ function WavesBackground({
   const vantaRef = useRef(null);
   const [vantaEffect, setVantaEffect] = useState(null);
   const { theme } = useTheme();
+  const [isMounted, setIsMounted] = useState(false);
+
+  // Pastikan komponen dimount sebelum inisialisasi Vanta
+  useEffect(() => {
+    setIsMounted(true);
+    return () => setIsMounted(false);
+  }, []);
 
   useEffect(() => {
-    if (!vantaEffect) {
-      // Initialize Vanta.js effect
-      setVantaEffect(
-        WAVES({
-          el: vantaRef.current,
-          THREE: THREE,
-          mouseControls: true,
-          touchControls: true,
-          gyroControls: false,
-          minHeight: 200.00,
-          minWidth: 200.00,
-          scale: 1.00,
-          scaleMobile: 1.00,
-          color: 0x000000, // Black color
-          shininess: 150.00,
-          waveHeight: 20.00,
-          waveSpeed: 0.50,
-          zoom: 0.65,
-          ...options
-        })
-      );
+    if (!vantaEffect && isMounted && vantaRef.current) {
+      // Log untuk debugging
+      console.log('Initializing Vanta.js effect');
+      
+      // Delay sedikit untuk memastikan DOM sudah sepenuhnya dirender
+      setTimeout(() => {
+        try {
+          // Initialize Vanta.js effect dengan tinggi yang cukup
+          const effect = WAVES({
+            el: vantaRef.current,
+            THREE: THREE,
+            mouseControls: true,
+            touchControls: true,
+            gyroControls: false,
+            minHeight: window.innerHeight,
+            minWidth: window.innerWidth,
+            scale: 1.00,
+            scaleMobile: 1.00,
+            color: 0x000000, // Black color
+            shininess: 150.00,
+            waveHeight: 20.00,
+            waveSpeed: 0.65,
+            zoom: 0.75,
+            ...options
+          });
+          
+          setVantaEffect(effect);
+          console.log('Vanta.js effect initialized successfully');
+        } catch (error) {
+          console.error('Error initializing Vanta.js effect:', error);
+        }
+      }, 100);
     }
 
     // Cleanup function
     return () => {
-      if (vantaEffect) vantaEffect.destroy();
+      if (vantaEffect) {
+        console.log('Destroying Vanta.js effect');
+        vantaEffect.destroy();
+      }
     };
-  }, [options]);
+  }, [options, isMounted]);
 
   // Update effect when theme changes
   useEffect(() => {
     if (vantaEffect) {
       const themeOptions = theme === 'dark' 
-        ? { color: 0x000000 } 
-        : { color: 0x050505 };
+        ? { color: 0x000000 } // Black color for dark mode
+        : { color: 0x000000 }; // Keep black for light mode too as requested
       
+      console.log('Updating Vanta.js effect with theme:', theme);
       vantaEffect.setOptions(themeOptions);
     }
   }, [theme, vantaEffect]);
@@ -69,8 +91,16 @@ function WavesBackground({
   return (
     <div 
       ref={vantaRef} 
-      className={`absolute inset-0 -z-10 overflow-hidden ${className}`}
+      className={`fixed inset-0 -z-10 h-full w-full overflow-hidden ${className}`}
       aria-hidden="true"
+      style={{ 
+        position: 'fixed',
+        top: 0,
+        left: 0,
+        width: '100%',
+        height: '100%',
+        pointerEvents: 'none'
+      }}
     />
   );
 }

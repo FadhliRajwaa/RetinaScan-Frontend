@@ -232,11 +232,18 @@ const ResetPasswordPage = () => {
 
   // Warna untuk indikator kekuatan password
   const getStrengthColor = (strength) => {
+    const strengthColors = {
+      danger: '#ef4444',   // red-500
+      warning: '#f59e0b',  // amber-500
+      info: '#3b82f6',     // blue-500
+      success: '#10b981'   // emerald-500
+    };
+    
     switch (strength) {
-      case 1: return newTheme.danger;
-      case 2: return newTheme.warning;
-      case 3: return newTheme.info;
-      case 4: return newTheme.success;
+      case 1: return strengthColors.danger;
+      case 2: return strengthColors.warning;
+      case 3: return strengthColors.info;
+      case 4: return strengthColors.success;
       default: return '#E5E7EB';
     }
   };

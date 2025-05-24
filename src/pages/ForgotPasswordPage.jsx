@@ -19,6 +19,7 @@ const ForgotPasswordPage = () => {
   const [error, setError] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [success, setSuccess] = useState(false);
+  const [successMessage, setSuccessMessage] = useState('');
   const [isMounted, setIsMounted] = useState(false);
   
   // Environment variables
@@ -50,12 +51,15 @@ const ForgotPasswordPage = () => {
     
     setIsLoading(true);
     setError('');
+    setSuccess(false);
+    setSuccessMessage('');
     
     try {
       const response = await requestPasswordReset(email);
       
       if (response && response.success) {
         setSuccess(true);
+        setSuccessMessage('Link reset password telah dikirim ke email Anda. Silakan periksa kotak masuk atau folder spam Anda.');
       } else {
         throw new Error(response?.message || 'Terjadi kesalahan saat mengirim permintaan reset password');
       }
@@ -100,7 +104,7 @@ const ForgotPasswordPage = () => {
             className="bg-green-500/10 border border-green-500/30 text-green-600 rounded-lg p-3 mb-6 flex items-center"
           >
             <CheckCircleIcon className="h-5 w-5 mr-2 flex-shrink-0" />
-            <p>{success}</p>
+            <p>{successMessage}</p>
           </motion.div>
         )}
         
