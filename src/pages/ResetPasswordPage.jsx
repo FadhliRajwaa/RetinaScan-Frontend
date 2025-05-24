@@ -5,7 +5,7 @@ import { useInView } from 'react-intersection-observer';
 import { withPageTransition } from '../context/ThemeContext';
 import { newTheme, enhancedAnimations, lottieConfig } from '../utils/newTheme';
 import LottieAnimation from '../components/LottieAnimation';
-import ParticlesBackground from '../components/ParticlesBackground';
+import VantaBackground from '../components/VantaBackground';
 import AnimatedButton from '../components/AnimatedButton';
 import AnimatedInput from '../components/AnimatedInput';
 import { HomeIcon, ArrowLeftIcon, ShieldCheckIcon, ExclamationCircleIcon, LockClosedIcon } from '@heroicons/react/24/outline';
@@ -246,12 +246,7 @@ const ResetPasswordPage = () => {
   return (
     <div className="min-h-screen flex items-center justify-center px-4 py-12 bg-gradient-to-br from-amber-50 to-orange-50 dark:from-gray-900 dark:to-amber-900">
       {/* Background */}
-      <ParticlesBackground 
-        color="rgba(245, 158, 11, 0.3)"
-        count={40}
-        speed={0.5}
-        type="pulse"
-      />
+      <VantaBackground />
       
       <motion.div
         className="w-full max-w-md relative z-10"
@@ -288,8 +283,8 @@ const ResetPasswordPage = () => {
                     lottieConfig.animations.resetPassword
                   }
                   loop={!resetSuccess}
-            />
-          </motion.div>
+                />
+              </motion.div>
               
               <motion.h2
                 className="text-3xl font-bold mb-2"
@@ -438,11 +433,11 @@ const ResetPasswordPage = () => {
                     error={errors.confirmPassword}
                     icon={<LockClosedIcon className="w-5 h-5" />}
                   />
-          </motion.div>
+                </motion.div>
                 
                 <motion.div variants={formVariants}>
                   <AnimatedButton
-            type="submit"
+                    type="submit"
                     variant="warning"
                     fullWidth
                     disabled={isLoading || !token || passwordStrength < 2}
@@ -462,7 +457,7 @@ const ResetPasswordPage = () => {
                   >
                     <ArrowLeftIcon className="w-4 h-4 mr-2" />
                     Kembali ke Login
-          </Link>
+                  </Link>
                 </motion.div>
               </motion.form>
             )}
