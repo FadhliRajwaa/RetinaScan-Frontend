@@ -17,13 +17,19 @@ import {
   AcademicCapIcon
 } from '@heroicons/react/24/outline';
 import axios from 'axios';
+import { withPageTransition } from '../context/ThemeContext';
+import { newTheme, enhancedAnimations, lottieConfig } from '../utils/newTheme';
+import LottieAnimation from '../components/LottieAnimation';
+import ParticlesBackground from '../components/ParticlesBackground';
+import AnimatedButton from '../components/AnimatedButton';
 
-function LandingPage() {
+const LandingPage = () => {
   const { theme, animations } = useTheme();
   const [animateParticles, setAnimateParticles] = useState(true);
   const [currentSlide, setCurrentSlide] = useState(0);
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [token, setToken] = useState('');
+  const [scrollY, setScrollY] = useState(0);
   
   // Environment variables
   const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000';
@@ -57,6 +63,16 @@ function LandingPage() {
       setCurrentSlide((prev) => (prev + 1) % 3);
     }, 5000);
     return () => clearInterval(interval);
+  }, []);
+  
+  // Effect untuk mendeteksi scroll
+  useEffect(() => {
+    const handleScroll = () => {
+      setScrollY(window.scrollY);
+    };
+
+    window.addEventListener('scroll', handleScroll);
+    return () => window.removeEventListener('scroll', handleScroll);
   }, []);
   
   const fadeInUp = {
@@ -134,627 +150,704 @@ function LandingPage() {
     })
   };
 
+  // Variasi animasi untuk elemen yang muncul saat di-scroll
+  const scrollRevealVariants = {
+    hidden: { opacity: 0, y: 50 },
+    visible: {
+      opacity: 1,
+      y: 0,
+      transition: {
+        duration: 0.8,
+        ease: [0.22, 1, 0.36, 1]
+      }
+    }
+  };
+
   return (
-    <div className="pt-16">
-      {/* Hero Section dengan Animasi Medis */}
-      <section className="relative overflow-hidden min-h-[90vh] flex items-center">
-        {/* Background gradient dengan animasi partikel retina */}
-        <div className="absolute inset-0 opacity-90 z-0" style={{
-          background: `linear-gradient(135deg, ${theme.primary}, ${theme.accent}, ${theme.secondary})`,
-          backgroundSize: '400% 400%',
-          animation: 'gradientAnimation 15s ease infinite'
-        }}>
-          {/* Animasi partikel yang menyerupai sel retina */}
-          <div className="absolute inset-0 overflow-hidden">
-            {animateParticles && Array.from({ length: 20 }).map((_, i) => (
-              <motion.div
-                key={i}
-                className="absolute rounded-full bg-white"
-                style={{
-                  width: Math.random() * 10 + 5,
-                  height: Math.random() * 10 + 5,
-                  left: `${Math.random() * 100}%`,
-                  top: `${Math.random() * 100}%`,
-                }}
-                variants={particleVariants}
-                animate="animate"
-                custom={i}
-              />
-            ))}
-            
-            {/* Animasi aliran darah (garis bergerak) */}
-            <svg className="absolute inset-0 w-full h-full opacity-20" xmlns="http://www.w3.org/2000/svg">
-              <motion.path
-                d="M0,100 Q300,150 600,100 T1200,100"
-                fill="none"
-                stroke="rgba(255,255,255,0.5)"
-                strokeWidth="2"
-                initial={{ pathLength: 0, opacity: 0 }}
-                animate={{ 
-                  pathLength: 1, 
-                  opacity: 0.5,
-                  transition: { duration: 3, repeat: Infinity, repeatType: "loop" }
-                }}
-              />
-              <motion.path
-                d="M0,200 Q300,250 600,200 T1200,200"
-                fill="none"
-                stroke="rgba(255,255,255,0.3)"
-                strokeWidth="2"
-                initial={{ pathLength: 0, opacity: 0 }}
-                animate={{ 
-                  pathLength: 1, 
-                  opacity: 0.3,
-                  transition: { duration: 4, repeat: Infinity, repeatType: "loop", delay: 1 }
-                }}
-              />
-            </svg>
-          </div>
-        </div>
+    <div style={{ overflow: 'hidden' }}>
+      {/* Background Particles */}
+      <ParticlesBackground color="rgba(79, 70, 229, 0.3)" count={100} speed={0.5} />
+
+      {/* Hero Section */}
+      <section
+        style={{
+          minHeight: '100vh',
+          display: 'flex',
+          flexDirection: 'column',
+          justifyContent: 'center',
+          position: 'relative',
+          padding: '2rem',
+          overflow: 'hidden',
+        }}
+      >
+        {/* Decorative Circles */}
+        <motion.div
+          style={{
+            position: 'absolute',
+            width: '40rem',
+            height: '40rem',
+            borderRadius: '50%',
+            background: 'radial-gradient(circle, rgba(79, 70, 229, 0.1) 0%, rgba(79, 70, 229, 0) 70%)',
+            top: '-20%',
+            right: '-10%',
+            zIndex: -1,
+          }}
+          animate={{
+            scale: [1, 1.05, 1],
+            rotate: [0, 5, 0],
+            opacity: [0.5, 0.7, 0.5],
+          }}
+          transition={{
+            duration: 20,
+            repeat: Infinity,
+            ease: 'easeInOut',
+          }}
+        />
         
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-20 md:py-28 relative z-10">
-          <div className="text-center">
-            <motion.h1 
-              className="text-4xl md:text-6xl font-bold mb-6 text-white text-shadow"
-              initial={{ opacity: 0, y: -20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.8, ease: "easeOut" }}
+        <motion.div
+          style={{
+            position: 'absolute',
+            width: '30rem',
+            height: '30rem',
+            borderRadius: '50%',
+            background: 'radial-gradient(circle, rgba(6, 182, 212, 0.1) 0%, rgba(6, 182, 212, 0) 70%)',
+            bottom: '-10%',
+            left: '-5%',
+            zIndex: -1,
+          }}
+          animate={{
+            scale: [1, 1.1, 1],
+            rotate: [0, -5, 0],
+            opacity: [0.5, 0.7, 0.5],
+          }}
+          transition={{
+            duration: 15,
+            repeat: Infinity,
+            ease: 'easeInOut',
+            delay: 2,
+          }}
+        />
+
+        <div
+          style={{
+            maxWidth: '1200px',
+            margin: '0 auto',
+            width: '100%',
+            display: 'flex',
+            flexDirection: 'column',
+            alignItems: 'center',
+            textAlign: 'center',
+            zIndex: 1,
+          }}
+        >
+          {/* Hero Content */}
+          <motion.div
+            initial="hidden"
+            animate="visible"
+            variants={enhancedAnimations.container}
+          >
+            {/* Badge */}
+            <motion.div
+              variants={enhancedAnimations.item}
+              style={{
+                display: 'inline-flex',
+                alignItems: 'center',
+                background: newTheme.glass.light.background,
+                backdropFilter: newTheme.glass.light.backdropFilter,
+                border: newTheme.glass.light.border,
+                borderRadius: '9999px',
+                padding: '0.5rem 1rem',
+                marginBottom: '1.5rem',
+                boxShadow: newTheme.shadows.sm,
+              }}
             >
-              <motion.span
-                initial={{ opacity: 0, scale: 0.8 }}
-                animate={{ opacity: 1, scale: 1 }}
-                transition={{ duration: 0.8, delay: 0.2 }}
-              >
-                Deteksi Dini 
-              </motion.span>
-              <motion.span 
-                className="block md:inline md:ml-2" 
+              <span
                 style={{
-                  background: 'linear-gradient(90deg, white, rgba(255,255,255,0.8))',
-                  WebkitBackgroundClip: 'text',
-                  WebkitTextFillColor: 'transparent',
+                  width: '0.5rem',
+                  height: '0.5rem',
+                  borderRadius: '50%',
+                  background: newTheme.primary,
+                  marginRight: '0.5rem',
                 }}
-                initial={{ opacity: 0, scale: 0.8 }}
-                animate={{ opacity: 1, scale: 1 }}
-                transition={{ duration: 0.8, delay: 0.4 }}
+              />
+              <span
+                style={{
+                  fontSize: '0.875rem',
+                  fontWeight: '500',
+                  color: newTheme.text.accent,
+                }}
               >
-                Retinopati Diabetik
-              </motion.span>
-            </motion.h1>
-            
-            <motion.p 
-              className="text-lg md:text-xl mb-6 text-blue-100 max-w-3xl mx-auto"
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              transition={{ duration: 0.8, delay: 0.6 }}
-            >
-              Solusi berbasis AI untuk tim medis dalam mendeteksi dan mengklasifikasikan tingkat keparahan 
-              retinopati diabetik melalui analisis citra fundus retina secara cepat dan akurat.
-            </motion.p>
-            
-            {/* Medical Info Card */}
-            <motion.div
-              className="mb-10 p-6 rounded-xl mx-auto max-w-3xl"
-              style={{ ...theme.glassEffect }}
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.5, delay: 0.8 }}
-            >
-              <h3 className="text-xl font-semibold mb-3 text-white">Untuk Tim Medis</h3>
-              <p className="text-blue-50 mb-4">
-                RetinaScan membantu skrining pasien diabetes dengan cepat dan akurat, mengklasifikasikan 
-                tingkat keparahan retinopati diabetik sesuai standar ICDR (0-4) dengan akurasi 98%.
-              </p>
-              <div className="grid grid-cols-2 md:grid-cols-4 gap-3 text-sm text-white">
-                <div className="flex items-center">
-                  <ClockIcon className="h-4 w-4 mr-1" />
-                  <span>Hasil dalam 3 detik</span>
-                </div>
-                <div className="flex items-center">
-                  <BeakerIcon className="h-4 w-4 mr-1" />
-                  <span>Sensitivitas 96%</span>
-                </div>
-                <div className="flex items-center">
-                  <DocumentTextIcon className="h-4 w-4 mr-1" />
-                  <span>Laporan terstruktur</span>
-                </div>
-                <div className="flex items-center">
-                  <AcademicCapIcon className="h-4 w-4 mr-1" />
-                  <span>Berbasis riset</span>
-                </div>
-              </div>
+                Teknologi Terkini untuk Kesehatan Mata
+              </span>
             </motion.div>
-            
+
+            {/* Headline */}
+            <motion.h1
+              variants={enhancedAnimations.item}
+              style={{
+                fontSize: '3.5rem',
+                fontWeight: '800',
+                lineHeight: '1.1',
+                marginBottom: '1.5rem',
+                background: newTheme.gradients.retina,
+                WebkitBackgroundClip: 'text',
+                WebkitTextFillColor: 'transparent',
+                backgroundClip: 'text',
+                textFillColor: 'transparent',
+              }}
+            >
+              Deteksi Dini Retinopati Diabetik dengan AI
+            </motion.h1>
+
+            {/* Subheadline */}
+            <motion.p
+              variants={enhancedAnimations.item}
+              style={{
+                fontSize: '1.25rem',
+                lineHeight: '1.7',
+                color: newTheme.text.secondary,
+                maxWidth: '800px',
+                margin: '0 auto 2rem',
+              }}
+            >
+              Solusi inovatif berbasis kecerdasan buatan untuk mendeteksi retinopati diabetik pada tahap awal, 
+              membantu mencegah kebutaan dan meningkatkan kualitas hidup pasien diabetes.
+            </motion.p>
+
+            {/* CTA Buttons */}
             <motion.div
-              className="flex flex-col sm:flex-row justify-center gap-4 mb-12"
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.5, delay: 1 }}
+              variants={enhancedAnimations.item}
+              style={{
+                display: 'flex',
+                flexWrap: 'wrap',
+                gap: '1rem',
+                justifyContent: 'center',
+                marginBottom: '3rem',
+              }}
             >
               {isAuthenticated ? (
-                <a href={`${DASHBOARD_URL}?token=${token}`}>
-                  <motion.button
-                    className="px-8 py-4 rounded-full text-white font-bold shadow-lg hover:shadow-xl transition duration-300 flex items-center justify-center w-full sm:w-auto"
-                    style={{
-                      background: `linear-gradient(to right, ${theme.accent}, ${theme.primary})`,
-                      boxShadow: '0 10px 25px -5px rgba(59, 130, 246, 0.5)'
-                    }}
-                    whileHover={{ scale: 1.05, boxShadow: "0 15px 30px -5px rgba(59, 130, 246, 0.7)" }}
-                    whileTap={{ scale: 0.95 }}
+                <a href={DASHBOARD_URL}>
+                  <AnimatedButton 
+                    variant="primary" 
+                    size="lg"
                   >
-                    Mulai Sekarang
-                    <ArrowRightIcon className="w-5 h-5 ml-2" />
-                  </motion.button>
+                    Buka Dashboard
+                  </AnimatedButton>
                 </a>
               ) : (
                 <>
-                  <Link to="/register">
-                    <motion.button
-                      className="px-8 py-4 rounded-full text-white font-bold shadow-lg hover:shadow-xl transition duration-300 flex items-center justify-center w-full sm:w-auto"
-                      style={{
-                        background: `linear-gradient(to right, ${theme.accent}, ${theme.primary})`,
-                        boxShadow: '0 10px 25px -5px rgba(59, 130, 246, 0.5)'
-                      }}
-                      whileHover={{ scale: 1.05, boxShadow: "0 15px 30px -5px rgba(59, 130, 246, 0.7)" }}
-                      whileTap={{ scale: 0.95 }}
+                  <Link to="/login">
+                    <AnimatedButton 
+                      variant="primary" 
+                      size="lg"
                     >
                       Mulai Sekarang
-                      <ArrowRightIcon className="w-5 h-5 ml-2" />
-                    </motion.button>
+                    </AnimatedButton>
                   </Link>
-                  <Link to="/login">
-                    <motion.button
-                      className="px-8 py-4 rounded-full text-white font-bold transition duration-300 flex items-center justify-center w-full sm:w-auto"
-                      style={{ ...theme.glassEffect }}
-                      whileHover={{ scale: 1.05 }}
-                      whileTap={{ scale: 0.95 }}
+                  <Link to="/register">
+                    <AnimatedButton 
+                      variant="outline" 
+                      size="lg"
                     >
-                      Login
-                    </motion.button>
+                      Daftar Akun
+                    </AnimatedButton>
                   </Link>
                 </>
               )}
             </motion.div>
-            
-            <motion.div
-              initial={{ opacity: 0, y: 10 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 1.2, duration: 0.5 }}
-              className="flex justify-center"
-            >
-              <motion.div 
-                className="animate-bounce cursor-pointer"
-                whileHover={{ scale: 1.2 }}
-              >
-                <ArrowDownIcon className="h-8 w-8 text-white opacity-80" />
-              </motion.div>
-            </motion.div>
-          </div>
+          </motion.div>
+
+          {/* Hero Animation */}
+          <motion.div
+            initial={{ opacity: 0, scale: 0.8 }}
+            animate={{ opacity: 1, scale: 1 }}
+            transition={{ duration: 0.8, delay: 0.5 }}
+            style={{
+              width: '100%',
+              maxWidth: '600px',
+              height: '400px',
+              margin: '0 auto',
+            }}
+          >
+            <LottieAnimation
+              animationData={lottieConfig.animations.eyeScan}
+              loop={true}
+              autoplay={true}
+            />
+          </motion.div>
         </div>
-        
-        {/* Wave separator */}
-        <div className="absolute bottom-0 left-0 right-0">
-          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1440 320" className="w-full">
-            <path fill="#ffffff" fillOpacity="1" d="M0,256L48,234.7C96,213,192,171,288,154.7C384,139,480,149,576,165.3C672,181,768,203,864,197.3C960,192,1056,160,1152,154.7C1248,149,1344,171,1392,181.3L1440,192L1440,320L1392,320C1344,320,1248,320,1152,320C1056,320,960,320,864,320C768,320,672,320,576,320C480,320,384,320,288,320C192,320,96,320,48,320L0,320Z"></path>
+
+        {/* Scroll Indicator */}
+        <motion.div
+          style={{
+            position: 'absolute',
+            bottom: '2rem',
+            left: '50%',
+            transform: 'translateX(-50%)',
+            display: 'flex',
+            flexDirection: 'column',
+            alignItems: 'center',
+            cursor: 'pointer',
+          }}
+          animate={{
+            y: [0, 10, 0],
+          }}
+          transition={{
+            duration: 1.5,
+            repeat: Infinity,
+            ease: 'easeInOut',
+          }}
+          onClick={() => window.scrollTo({
+            top: window.innerHeight,
+            behavior: 'smooth',
+          })}
+        >
+          <span style={{ color: newTheme.text.secondary, marginBottom: '0.5rem', fontSize: '0.875rem' }}>
+            Scroll untuk melihat lebih banyak
+          </span>
+          <svg
+            width="24"
+            height="24"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke={newTheme.primary}
+            strokeWidth="2"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+          >
+            <path d="M7 13l5 5 5-5M7 6l5 5 5-5" />
           </svg>
-        </div>
+        </motion.div>
       </section>
 
-      {/* Features Section dengan Animasi dan Informasi Medis */}
-      <section className="py-20 bg-white">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      {/* Features Section */}
+      <section
+        style={{
+          padding: '6rem 2rem',
+          background: 'linear-gradient(180deg, rgba(255,255,255,0) 0%, rgba(239,246,255,0.5) 100%)',
+        }}
+      >
+        <div
+          style={{
+            maxWidth: '1200px',
+            margin: '0 auto',
+          }}
+        >
+          {/* Section Header */}
           <motion.div
-            className="text-center mb-16"
             initial="hidden"
             whileInView="visible"
             viewport={{ once: true, amount: 0.2 }}
-            variants={fadeInUp}
-            custom={0}
+            variants={scrollRevealVariants}
+            style={{
+              textAlign: 'center',
+              marginBottom: '4rem',
+            }}
           >
-            <h2 className="text-3xl md:text-4xl font-bold text-gray-900 mb-4">Fitur Utama untuk Tim Medis</h2>
-            <p className="text-xl text-gray-600 max-w-3xl mx-auto">
-              RetinaScan menyediakan solusi komprehensif untuk deteksi retinopati diabetik
-              dengan fitur-fitur canggih yang dirancang khusus untuk tenaga medis.
+            <h2
+              style={{
+                fontSize: '2.5rem',
+                fontWeight: '700',
+                marginBottom: '1rem',
+                color: newTheme.text.primary,
+              }}
+            >
+              Fitur Unggulan
+            </h2>
+            <p
+              style={{
+                fontSize: '1.125rem',
+                color: newTheme.text.secondary,
+                maxWidth: '700px',
+                margin: '0 auto',
+              }}
+            >
+              Sistem kami menggabungkan teknologi AI terkini dengan pengalaman pengguna yang intuitif untuk memberikan solusi deteksi retinopati diabetik yang akurat dan mudah digunakan.
             </p>
           </motion.div>
 
-          <motion.div 
-            className="grid grid-cols-1 md:grid-cols-3 gap-8"
-            variants={staggerContainer}
-            initial="hidden"
-            whileInView="visible"
-            viewport={{ once: true, amount: 0.1 }}
+          {/* Features Grid */}
+          <div
+            style={{
+              display: 'grid',
+              gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))',
+              gap: '2rem',
+            }}
           >
-            <motion.div 
-              className="bg-white p-8 rounded-2xl hover-scale relative overflow-hidden"
-              style={{ boxShadow: theme.mediumShadow }}
-              variants={fadeInUp}
-              whileHover={{ y: -10, boxShadow: theme.largeShadow }}
+            {/* Feature 1 */}
+            <motion.div
+              initial="hidden"
+              whileInView="visible"
+              viewport={{ once: true, amount: 0.2 }}
+              variants={scrollRevealVariants}
+              style={{
+                background: 'white',
+                borderRadius: '1rem',
+                padding: '2rem',
+                boxShadow: newTheme.shadows.md,
+                display: 'flex',
+                flexDirection: 'column',
+                alignItems: 'flex-start',
+              }}
             >
-              {/* Animasi background subtle */}
-              <motion.div 
-                className="absolute top-0 right-0 w-40 h-40 rounded-full"
-                style={{ background: `${theme.primary}10`, filter: 'blur(40px)' }}
-                animate={{ 
-                  scale: [1, 1.2, 1], 
-                  opacity: [0.3, 0.5, 0.3] 
+              <div
+                style={{
+                  width: '3rem',
+                  height: '3rem',
+                  borderRadius: '0.75rem',
+                  background: 'rgba(79, 70, 229, 0.1)',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  marginBottom: '1.5rem',
                 }}
-                transition={{ 
-                  duration: 5, 
-                  repeat: Infinity,
-                  repeatType: "reverse" 
-                }}
-              />
-              
-              <div className="w-16 h-16 rounded-xl flex items-center justify-center mb-6 relative"
-                   style={{ background: `${theme.primary}20`, color: theme.primary }}>
-                <EyeIcon className="w-8 h-8" />
-                <motion.div 
-                  className="absolute inset-0 rounded-xl"
-                  style={{ border: `2px solid ${theme.primary}30` }}
-                  animate={{ scale: [1, 1.2, 1] }}
-                  transition={{ duration: 2, repeat: Infinity }}
-                />
+              >
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke={newTheme.primary} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                  <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
+                  <circle cx="12" cy="12" r="3"></circle>
+                </svg>
               </div>
-              <h3 className="text-xl font-semibold mb-4 text-gray-900">Unggah & Analisis Citra</h3>
-              <p className="text-gray-600 mb-4">Unggah citra fundus retina dengan mudah dan dapatkan hasil analisis dalam hitungan detik.</p>
-              <ul className="text-sm text-gray-500 space-y-2">
-                <li className="flex items-start">
-                  <div className="mr-2 mt-0.5 h-4 w-4 rounded-full bg-green-100 flex items-center justify-center">
-                    <div className="h-2 w-2 rounded-full bg-green-500"></div>
-                  </div>
-                  <span>Mendukung format JPEG, PNG, dan DICOM</span>
-                </li>
-                <li className="flex items-start">
-                  <div className="mr-2 mt-0.5 h-4 w-4 rounded-full bg-green-100 flex items-center justify-center">
-                    <div className="h-2 w-2 rounded-full bg-green-500"></div>
-                  </div>
-                  <span>Enkripsi data sesuai standar HIPAA</span>
-                </li>
-              </ul>
+              <h3
+                style={{
+                  fontSize: '1.25rem',
+                  fontWeight: '600',
+                  marginBottom: '0.75rem',
+                  color: newTheme.text.primary,
+                }}
+              >
+                Deteksi Cepat & Akurat
+              </h3>
+              <p
+                style={{
+                  color: newTheme.text.secondary,
+                  lineHeight: '1.6',
+                }}
+              >
+                Algoritma AI kami dapat mendeteksi tanda-tanda retinopati diabetik dengan akurasi tinggi dalam hitungan detik, membantu diagnosis dini dan penanganan yang tepat.
+              </p>
             </motion.div>
 
-            <motion.div 
-              className="bg-white p-8 rounded-2xl hover-scale relative overflow-hidden"
-              style={{ boxShadow: theme.mediumShadow }}
-              variants={fadeInUp}
-              whileHover={{ y: -10, boxShadow: theme.largeShadow }}
+            {/* Feature 2 */}
+            <motion.div
+              initial="hidden"
+              whileInView="visible"
+              viewport={{ once: true, amount: 0.2 }}
+              variants={scrollRevealVariants}
+              style={{
+                background: 'white',
+                borderRadius: '1rem',
+                padding: '2rem',
+                boxShadow: newTheme.shadows.md,
+                display: 'flex',
+                flexDirection: 'column',
+                alignItems: 'flex-start',
+                transition: 'transform 0.3s ease, box-shadow 0.3s ease',
+              }}
             >
-              {/* Animasi background subtle */}
-              <motion.div 
-                className="absolute top-0 right-0 w-40 h-40 rounded-full"
-                style={{ background: `${theme.accent}10`, filter: 'blur(40px)' }}
-                animate={{ 
-                  scale: [1, 1.2, 1], 
-                  opacity: [0.3, 0.5, 0.3] 
+              <div
+                style={{
+                  width: '3rem',
+                  height: '3rem',
+                  borderRadius: '0.75rem',
+                  background: 'rgba(6, 182, 212, 0.1)',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  marginBottom: '1.5rem',
                 }}
-                transition={{ 
-                  duration: 5, 
-                  delay: 1,
-                  repeat: Infinity,
-                  repeatType: "reverse" 
-                }}
-              />
-              
-              <div className="w-16 h-16 rounded-xl flex items-center justify-center mb-6"
-                   style={{ background: `${theme.accent}20`, color: theme.accent }}>
-                <CogIcon className="w-8 h-8" />
-                <motion.div 
-                  className="absolute inset-0 rounded-xl"
-                  style={{ border: `2px solid ${theme.accent}30` }}
-                  animate={{ scale: [1, 1.2, 1] }}
-                  transition={{ duration: 2, delay: 0.5, repeat: Infinity }}
-                />
+              >
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke={newTheme.secondary} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                  <rect x="2" y="3" width="20" height="14" rx="2" ry="2"></rect>
+                  <line x1="8" y1="21" x2="16" y2="21"></line>
+                  <line x1="12" y1="17" x2="12" y2="21"></line>
+                </svg>
               </div>
-              <h3 className="text-xl font-semibold mb-4 text-gray-900">Klasifikasi Tingkat Keparahan</h3>
-              <p className="text-gray-600 mb-4">Klasifikasi otomatis tingkat keparahan retinopati diabetik sesuai standar ICDR (0-4).</p>
-              <ul className="text-sm text-gray-500 space-y-2">
-                <li className="flex items-start">
-                  <div className="mr-2 mt-0.5 h-4 w-4 rounded-full bg-green-100 flex items-center justify-center">
-                    <div className="h-2 w-2 rounded-full bg-green-500"></div>
-                  </div>
-                  <span>Deteksi microaneurysm dan hemorrhage</span>
-                </li>
-                <li className="flex items-start">
-                  <div className="mr-2 mt-0.5 h-4 w-4 rounded-full bg-green-100 flex items-center justify-center">
-                    <div className="h-2 w-2 rounded-full bg-green-500"></div>
-                  </div>
-                  <span>Identifikasi neovaskularisasi</span>
-                </li>
-              </ul>
+              <h3
+                style={{
+                  fontSize: '1.25rem',
+                  fontWeight: '600',
+                  marginBottom: '0.75rem',
+                  color: newTheme.text.primary,
+                }}
+              >
+                Antarmuka Pengguna Intuitif
+              </h3>
+              <p
+                style={{
+                  color: newTheme.text.secondary,
+                  lineHeight: '1.6',
+                }}
+              >
+                Platform yang mudah digunakan untuk dokter dan tenaga medis, dengan dashboard yang informatif dan alur kerja yang efisien untuk mengelola data pasien.
+              </p>
             </motion.div>
 
-            <motion.div 
-              className="bg-white p-8 rounded-2xl hover-scale relative overflow-hidden"
-              style={{ boxShadow: theme.mediumShadow }}
-              variants={fadeInUp}
-              whileHover={{ y: -10, boxShadow: theme.largeShadow }}
+            {/* Feature 3 */}
+            <motion.div
+              initial="hidden"
+              whileInView="visible"
+              viewport={{ once: true, amount: 0.2 }}
+              variants={scrollRevealVariants}
+              style={{
+                background: 'white',
+                borderRadius: '1rem',
+                padding: '2rem',
+                boxShadow: newTheme.shadows.md,
+                display: 'flex',
+                flexDirection: 'column',
+                alignItems: 'flex-start',
+              }}
             >
-              {/* Animasi background subtle */}
-              <motion.div 
-                className="absolute top-0 right-0 w-40 h-40 rounded-full"
-                style={{ background: `${theme.secondary}10`, filter: 'blur(40px)' }}
-                animate={{ 
-                  scale: [1, 1.2, 1], 
-                  opacity: [0.3, 0.5, 0.3] 
+              <div
+                style={{
+                  width: '3rem',
+                  height: '3rem',
+                  borderRadius: '0.75rem',
+                  background: 'rgba(139, 92, 246, 0.1)',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  marginBottom: '1.5rem',
                 }}
-                transition={{ 
-                  duration: 5, 
-                  delay: 2,
-                  repeat: Infinity,
-                  repeatType: "reverse" 
-                }}
-              />
-              
-              <div className="w-16 h-16 rounded-xl flex items-center justify-center mb-6"
-                   style={{ background: `${theme.secondary}20`, color: theme.secondary }}>
-                <DocumentTextIcon className="w-8 h-8" />
-                <motion.div 
-                  className="absolute inset-0 rounded-xl"
-                  style={{ border: `2px solid ${theme.secondary}30` }}
-                  animate={{ scale: [1, 1.2, 1] }}
-                  transition={{ duration: 2, delay: 1, repeat: Infinity }}
-                />
+              >
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke={newTheme.accent} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                  <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path>
+                </svg>
               </div>
-              <h3 className="text-xl font-semibold mb-4 text-gray-900">Laporan Medis Terstruktur</h3>
-              <p className="text-gray-600 mb-4">Laporan terstruktur dengan visualisasi area yang terdeteksi untuk membantu diagnosis.</p>
-              <ul className="text-sm text-gray-500 space-y-2">
-                <li className="flex items-start">
-                  <div className="mr-2 mt-0.5 h-4 w-4 rounded-full bg-green-100 flex items-center justify-center">
-                    <div className="h-2 w-2 rounded-full bg-green-500"></div>
-                  </div>
-                  <span>Ekspor ke PDF dan integrasi EMR</span>
-                </li>
-                <li className="flex items-start">
-                  <div className="mr-2 mt-0.5 h-4 w-4 rounded-full bg-green-100 flex items-center justify-center">
-                    <div className="h-2 w-2 rounded-full bg-green-500"></div>
-                  </div>
-                  <span>Rekomendasi tindak lanjut</span>
-                </li>
-              </ul>
+              <h3
+                style={{
+                  fontSize: '1.25rem',
+                  fontWeight: '600',
+                  marginBottom: '0.75rem',
+                  color: newTheme.text.primary,
+                }}
+              >
+                Keamanan Data Terjamin
+              </h3>
+              <p
+                style={{
+                  color: newTheme.text.secondary,
+                  lineHeight: '1.6',
+                }}
+              >
+                Kami memprioritaskan keamanan data pasien dengan enkripsi end-to-end dan kepatuhan terhadap standar privasi kesehatan internasional.
+              </p>
             </motion.div>
-          </motion.div>
-        </div>
-      </section>
-
-      {/* Stats Section */}
-      <section className="py-20 bg-gradient-to-r from-gray-50 to-gray-100">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <motion.div
-            className="text-center mb-16"
-            initial="hidden"
-            whileInView="visible"
-            viewport={{ once: true }}
-            variants={fadeInUp}
-            custom={0}
-          >
-            <h2 className="text-3xl md:text-4xl font-bold text-gray-900 mb-4">Keunggulan RetinaScan</h2>
-            <p className="text-xl text-gray-600 max-w-3xl mx-auto">
-              Platform kami telah membantu ribuan pasien untuk mendeteksi retinopati diabetik lebih awal
-            </p>
-          </motion.div>
-
-          <motion.div 
-            className="grid grid-cols-1 md:grid-cols-4 gap-8"
-            variants={staggerContainer}
-            initial="hidden"
-            whileInView="visible"
-            viewport={{ once: true }}
-          >
-            <motion.div 
-              className="text-center p-6 bg-white rounded-2xl shadow-sm"
-              variants={fadeInUp}
-              whileHover={{ y: -5 }}
-            >
-              <div className="text-4xl font-bold mb-2" style={{ color: theme.primary }}>98%</div>
-              <p className="text-gray-600">Akurasi Deteksi</p>
-            </motion.div>
-            
-            <motion.div 
-              className="text-center p-6 bg-white rounded-2xl shadow-sm"
-              variants={fadeInUp}
-              whileHover={{ y: -5 }}
-            >
-              <div className="text-4xl font-bold mb-2" style={{ color: theme.primary }}>3 detik</div>
-              <p className="text-gray-600">Waktu Analisis</p>
-            </motion.div>
-            
-            <motion.div 
-              className="text-center p-6 bg-white rounded-2xl shadow-sm"
-              variants={fadeInUp}
-              whileHover={{ y: -5 }}
-            >
-              <div className="text-4xl font-bold mb-2" style={{ color: theme.primary }}>10K+</div>
-              <p className="text-gray-600">Pengguna Aktif</p>
-            </motion.div>
-            
-            <motion.div 
-              className="text-center p-6 bg-white rounded-2xl shadow-sm"
-              variants={fadeInUp}
-              whileHover={{ y: -5 }}
-            >
-              <div className="text-4xl font-bold mb-2" style={{ color: theme.primary }}>5</div>
-              <p className="text-gray-600">Tingkat Klasifikasi</p>
-            </motion.div>
-          </motion.div>
+          </div>
         </div>
       </section>
 
       {/* CTA Section */}
-      <section className="py-20">
-        <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
-          <motion.div 
-            className="rounded-3xl overflow-hidden shadow-2xl"
-            initial={{ opacity: 0, y: 20 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.8 }}
-            viewport={{ once: true }}
-            style={{ 
-              background: `linear-gradient(to right, ${theme.primary}, ${theme.accent})`,
-              boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.25)'
+      <section
+        style={{
+          padding: '6rem 2rem',
+          background: `linear-gradient(135deg, rgba(79, 70, 229, 0.05) 0%, rgba(139, 92, 246, 0.05) 100%)`,
+          position: 'relative',
+          overflow: 'hidden',
+        }}
+      >
+        {/* Decorative Elements */}
+        <motion.div
+          style={{
+            position: 'absolute',
+            top: '20%',
+            left: '5%',
+            width: '15rem',
+            height: '15rem',
+            borderRadius: '50%',
+            background: 'radial-gradient(circle, rgba(79, 70, 229, 0.1) 0%, rgba(79, 70, 229, 0) 70%)',
+            zIndex: 0,
+          }}
+          animate={{
+            scale: [1, 1.2, 1],
+            opacity: [0.3, 0.5, 0.3],
+          }}
+          transition={{
+            duration: 12,
+            repeat: Infinity,
+            ease: 'easeInOut',
+          }}
+        />
+        
+        <motion.div
+          style={{
+            position: 'absolute',
+            bottom: '10%',
+            right: '10%',
+            width: '20rem',
+            height: '20rem',
+            borderRadius: '50%',
+            background: 'radial-gradient(circle, rgba(139, 92, 246, 0.1) 0%, rgba(139, 92, 246, 0) 70%)',
+            zIndex: 0,
+          }}
+          animate={{
+            scale: [1, 1.3, 1],
+            opacity: [0.2, 0.4, 0.2],
+          }}
+          transition={{
+            duration: 15,
+            repeat: Infinity,
+            ease: 'easeInOut',
+            delay: 1,
+          }}
+        />
+
+        <div
+          style={{
+            maxWidth: '1000px',
+            margin: '0 auto',
+            position: 'relative',
+            zIndex: 1,
+          }}
+        >
+          <motion.div
+            initial="hidden"
+            whileInView="visible"
+            viewport={{ once: true, amount: 0.2 }}
+            variants={scrollRevealVariants}
+            style={{
+              background: 'white',
+              borderRadius: '1.5rem',
+              padding: '3rem',
+              boxShadow: newTheme.shadows.xl,
+              textAlign: 'center',
+              overflow: 'hidden',
+              position: 'relative',
             }}
           >
-            <div className="relative px-6 py-16 md:p-16 text-center">
-              <div className="absolute inset-0 bg-[url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNjAwIiBoZWlnaHQ9IjYwMCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48cGF0aCBzdHJva2U9IiNmZmYiIHN0cm9rZS13aWR0aD0iMiIgZD0iTTAgMGw2MDAgNjAwTTYwMCAwTDAgNjAwIiBmaWxsPSJub25lIiBvcGFjaXR5PSIuMSIvPjwvc3ZnPg==')] opacity-10" />
-              
-              <motion.h2 
-                className="text-3xl md:text-4xl font-bold text-white mb-4"
-                initial={{ opacity: 0, y: -10 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                transition={{ delay: 0.2, duration: 0.5 }}
-                viewport={{ once: true }}
-              >
-                Mulai Deteksi Retinopati Diabetik Sekarang
-              </motion.h2>
-              
-              <motion.p 
-                className="text-xl text-blue-100 mb-8 max-w-2xl mx-auto"
-                initial={{ opacity: 0 }}
-                whileInView={{ opacity: 1 }}
-                transition={{ delay: 0.4, duration: 0.5 }}
-                viewport={{ once: true }}
-              >
-                {isAuthenticated 
-                  ? "Akses dashboard untuk menggunakan platform deteksi retinopati diabetik berbasis AI" 
-                  : "Daftar sekarang dan dapatkan akses ke platform deteksi retinopati diabetik berbasis AI"}
-              </motion.p>
-              
-              <motion.div
-                initial={{ opacity: 0, y: 10 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                transition={{ delay: 0.6, duration: 0.5 }}
-                viewport={{ once: true }}
-              >
-                {isAuthenticated ? (
-                  <a href={`${DASHBOARD_URL}?token=${token}`}>
-                    <motion.button
-                      className="px-8 py-4 bg-white text-blue-600 rounded-full font-bold shadow-lg hover:shadow-xl transition duration-300 text-lg"
-                      whileHover={{ scale: 1.05 }}
-                      whileTap={{ scale: 0.95 }}
-                    >
-                      Buka Dashboard
-                    </motion.button>
-                  </a>
-                ) : (
+            {/* Glass Effect Overlay */}
+            <div
+              style={{
+                position: 'absolute',
+                top: 0,
+                left: 0,
+                right: 0,
+                height: '6px',
+                background: newTheme.gradients.retina,
+                borderTopLeftRadius: '1.5rem',
+                borderTopRightRadius: '1.5rem',
+              }}
+            />
+            
+            <h2
+              style={{
+                fontSize: '2.5rem',
+                fontWeight: '700',
+                marginBottom: '1.5rem',
+                color: newTheme.text.primary,
+              }}
+            >
+              Siap Bergabung dengan Kami?
+            </h2>
+            <p
+              style={{
+                fontSize: '1.125rem',
+                color: newTheme.text.secondary,
+                maxWidth: '700px',
+                margin: '0 auto 2rem',
+                lineHeight: '1.7',
+              }}
+            >
+              Mulai gunakan platform RetinaScan sekarang untuk membantu mendeteksi retinopati diabetik lebih awal dan mencegah komplikasi serius pada pasien diabetes Anda.
+            </p>
+            <div
+              style={{
+                display: 'flex',
+                gap: '1rem',
+                justifyContent: 'center',
+                flexWrap: 'wrap',
+              }}
+            >
+              {isAuthenticated ? (
+                <a href={DASHBOARD_URL}>
+                  <AnimatedButton 
+                    variant="primary" 
+                    size="lg"
+                  >
+                    Buka Dashboard
+                  </AnimatedButton>
+                </a>
+              ) : (
+                <>
                   <Link to="/register">
-                    <motion.button
-                      className="px-8 py-4 bg-white text-blue-600 rounded-full font-bold shadow-lg hover:shadow-xl transition duration-300 text-lg"
-                      whileHover={{ scale: 1.05 }}
-                      whileTap={{ scale: 0.95 }}
+                    <AnimatedButton 
+                      variant="primary" 
+                      size="lg"
                     >
-                      Daftar Gratis
-                    </motion.button>
+                      Daftar Sekarang
+                    </AnimatedButton>
                   </Link>
-                )}
-              </motion.div>
+                  <Link to="/login">
+                    <AnimatedButton 
+                      variant="secondary" 
+                      size="lg"
+                    >
+                      Masuk ke Akun
+                    </AnimatedButton>
+                  </Link>
+                </>
+              )}
             </div>
           </motion.div>
         </div>
       </section>
 
-      {/* Testimonial Section */}
-      <section className="py-20 bg-gray-50">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <motion.div
-            className="text-center mb-16"
-            initial="hidden"
-            whileInView="visible"
-            viewport={{ once: true }}
-            variants={fadeInUp}
-            custom={0}
+      {/* Footer */}
+      <footer
+        style={{
+          padding: '3rem 2rem',
+          background: 'white',
+          borderTop: '1px solid rgba(229, 231, 235, 0.5)',
+        }}
+      >
+        <div
+          style={{
+            maxWidth: '1200px',
+            margin: '0 auto',
+            display: 'flex',
+            flexDirection: 'column',
+            alignItems: 'center',
+          }}
+        >
+          <div
+            style={{
+              display: 'flex',
+              alignItems: 'center',
+              marginBottom: '2rem',
+            }}
           >
-            <h2 className="text-3xl md:text-4xl font-bold text-gray-900 mb-4">Apa Kata Pengguna Kami</h2>
-            <p className="text-xl text-gray-600 max-w-3xl mx-auto">
-              RetinaScan telah membantu banyak dokter dan pasien dalam mendeteksi retinopati diabetik
-            </p>
-          </motion.div>
-
-          <motion.div 
-            className="grid grid-cols-1 md:grid-cols-3 gap-8"
-            variants={staggerContainer}
-            initial="hidden"
-            whileInView="visible"
-            viewport={{ once: true, amount: 0.1 }}
+            <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke={newTheme.primary} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+              <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
+              <circle cx="12" cy="12" r="3"></circle>
+            </svg>
+            <span
+              style={{
+                fontSize: '1.5rem',
+                fontWeight: '700',
+                marginLeft: '0.75rem',
+                background: newTheme.gradients.primary,
+                WebkitBackgroundClip: 'text',
+                WebkitTextFillColor: 'transparent',
+                backgroundClip: 'text',
+                textFillColor: 'transparent',
+              }}
+            >
+              RetinaScan
+            </span>
+          </div>
+          <p
+            style={{
+              color: newTheme.text.secondary,
+              textAlign: 'center',
+              fontSize: '0.875rem',
+            }}
           >
-            <motion.div 
-              className="bg-white p-8 rounded-2xl"
-              style={{ boxShadow: theme.mediumShadow }}
-              variants={fadeInUp}
-              whileHover={{ 
-                scale: 1.03, 
-                boxShadow: theme.largeShadow
-              }}
-            >
-              <div className="flex items-center mb-6">
-                <div className="h-12 w-12 rounded-full flex items-center justify-center text-xl font-bold"
-                     style={{ background: `${theme.primary}20`, color: theme.primary }}>
-                  DR
-                </div>
-                <div className="ml-4">
-                  <h4 className="font-semibold">Dr. Rini Pratiwi</h4>
-                  <p className="text-gray-500 text-sm">Dokter Spesialis Mata</p>
-                </div>
-              </div>
-              <p className="text-gray-600">
-                "RetinaScan membantu saya mengidentifikasi kasus retinopati diabetik dengan cepat dan akurat. 
-                Sangat membantu untuk screening pasien diabetes."
-              </p>
-            </motion.div>
-
-            <motion.div 
-              className="bg-white p-8 rounded-2xl"
-              style={{ boxShadow: theme.mediumShadow }}
-              variants={fadeInUp}
-              whileHover={{ 
-                scale: 1.03, 
-                boxShadow: theme.largeShadow
-              }}
-            >
-              <div className="flex items-center mb-6">
-                <div className="h-12 w-12 rounded-full flex items-center justify-center text-xl font-bold"
-                     style={{ background: `${theme.accent}20`, color: theme.accent }}>
-                  BS
-                </div>
-                <div className="ml-4">
-                  <h4 className="font-semibold">Budi Santoso</h4>
-                  <p className="text-gray-500 text-sm">Pasien Diabetes</p>
-                </div>
-              </div>
-              <p className="text-gray-600">
-                "Berkat pemeriksaan rutin dengan RetinaScan, saya bisa mendeteksi masalah retina 
-                sejak dini dan mendapatkan perawatan tepat waktu."
-              </p>
-            </motion.div>
-
-            <motion.div 
-              className="bg-white p-8 rounded-2xl"
-              style={{ boxShadow: theme.mediumShadow }}
-              variants={fadeInUp}
-              whileHover={{ 
-                scale: 1.03, 
-                boxShadow: theme.largeShadow
-              }}
-            >
-              <div className="flex items-center mb-6">
-                <div className="h-12 w-12 rounded-full flex items-center justify-center text-xl font-bold"
-                     style={{ background: `${theme.secondary}20`, color: theme.secondary }}>
-                  SK
-                </div>
-                <div className="ml-4">
-                  <h4 className="font-semibold">Siti Kurniawati</h4>
-                  <p className="text-gray-500 text-sm">Perawat RS Medika</p>
-                </div>
-              </div>
-              <p className="text-gray-600">
-                "Sangat mudah digunakan dan memberikan hasil yang akurat. Kami menggunakan 
-                RetinaScan untuk screening pasien diabetes di rumah sakit kami."
-              </p>
-            </motion.div>
-          </motion.div>
+            &copy; {new Date().getFullYear()} RetinaScan. All rights reserved.
+          </p>
         </div>
-      </section>
+      </footer>
     </div>
   );
-}
+};
 
-export default LandingPage;
+export default withPageTransition(LandingPage);

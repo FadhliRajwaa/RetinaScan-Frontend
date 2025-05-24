@@ -3,17 +3,21 @@ import { Link, useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import axios from 'axios';
 import { login } from '../services/authService';
-import { useTheme } from '../context/ThemeContext';
+import { useTheme, withPageTransition } from '../context/ThemeContext';
 import { handleFrontendLogout, getHashParams, cleanHashParams } from '../utils/authUtils';
-import { HomeIcon, ArrowLeftOnRectangleIcon, EyeIcon, EyeSlashIcon, ArrowRightIcon } from '@heroicons/react/24/outline';
+import { HomeIcon, ArrowLeftOnRectangleIcon, ArrowRightIcon } from '@heroicons/react/24/outline';
+import { newTheme, enhancedAnimations, lottieConfig } from '../utils/newTheme';
+import LottieAnimation from '../components/LottieAnimation';
+import ParticlesBackground from '../components/ParticlesBackground';
+import AnimatedButton from '../components/AnimatedButton';
+import AnimatedInput from '../components/AnimatedInput';
 
-function LoginPage() {
+const LoginPage = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [isAuthenticated, setIsAuthenticated] = useState(false);
-  const [showPassword, setShowPassword] = useState(false);
   const navigate = useNavigate();
   const { theme, isMobile } = useTheme();
   
@@ -128,50 +132,27 @@ function LoginPage() {
   const handleLogout = () => {
     handleFrontendLogout(setIsAuthenticated, null, null, navigate);
   };
-  
-  const formVariants = {
-    hidden: { opacity: 0 },
-    visible: { 
-      opacity: 1,
-      transition: { 
-        staggerChildren: 0.2,
-        delayChildren: 0.3,
-        duration: 0.5
-      }
-    }
-  };
-  
-  const itemVariants = {
-    hidden: { y: 20, opacity: 0 },
-    visible: { 
-      y: 0, 
-      opacity: 1,
-      transition: { type: 'spring', stiffness: 300, damping: 24 }
-    }
-  };
 
   if (isAuthenticated) {
     return (
       <div className="min-h-screen flex items-center justify-center px-4 py-20 pt-36"
            style={{ 
-             background: `linear-gradient(to bottom right, ${theme.background}, #e6e9f0)` 
+             background: newTheme.gradients.ocean
            }}>
         {/* Animated background particles */}
-        <div className="absolute inset-0 overflow-hidden pointer-events-none">
-          <div className="absolute h-96 w-96 -top-24 -left-24 rounded-full blur-3xl"
-               style={{ backgroundColor: `${theme.primary}20` }}></div>
-          <div className="absolute h-96 w-96 -bottom-24 -right-24 rounded-full blur-3xl"
-               style={{ backgroundColor: `${theme.accent}30` }}></div>
-        </div>
+        <ParticlesBackground 
+          color="rgba(6, 182, 212, 0.6)"
+          count={60}
+          speed={0.8}
+        />
         
         <motion.div
-          initial={{ opacity: 0, scale: 0.9 }}
-          animate={{ opacity: 1, scale: 1 }}
-          transition={{ duration: 0.5, ease: [0.22, 1, 0.36, 1] }}
+          initial={enhancedAnimations.card.initial}
+          animate={enhancedAnimations.card.animate}
           className="w-full max-w-md p-8 rounded-2xl relative z-10"
           style={{ 
-            ...theme.glassEffect,
-            boxShadow: theme.mediumShadow
+            ...newTheme.glass.light,
+            boxShadow: newTheme.shadows.xl
           }}
         >
           <motion.div
@@ -179,37 +160,32 @@ function LoginPage() {
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.2, duration: 0.5 }}
           >
-            <h2 className="text-3xl font-bold text-center text-gray-800 mb-2">Anda Sudah Login</h2>
-            <p className="text-center text-gray-600 mb-6">Silakan kembali ke beranda atau logout untuk masuk dengan akun lain.</p>
+            <h2 className="text-3xl font-bold text-center mb-2" style={{ color: newTheme.text.primary }}>
+              Anda Sudah Login
+            </h2>
+            <p className="text-center mb-8" style={{ color: newTheme.text.secondary }}>
+              Silakan kembali ke beranda atau logout untuk masuk dengan akun lain.
+            </p>
           </motion.div>
           
           <div className="space-y-4">
-            <motion.div
-              whileHover={{ scale: 1.03 }}
-              whileTap={{ scale: 0.97 }}
+            <AnimatedButton
+              variant="primary"
+              fullWidth
+              onClick={() => navigate('/')}
             >
-              <Link
-                to="/"
-                className="flex items-center justify-center w-full py-3 text-white rounded-lg transition-all duration-300 shadow-md hover:shadow-lg group"
-                style={{ 
-                  background: `linear-gradient(135deg, ${theme.primary}, ${theme.accent})` 
-                }}
-              >
-                <HomeIcon className="h-5 w-5 mr-2 group-hover:animate-pulse" />
-                <span>Kembali ke Beranda</span>
-              </Link>
-            </motion.div>
+              <HomeIcon className="w-5 h-5 mr-2" />
+              Kembali ke Beranda
+            </AnimatedButton>
             
-            <motion.button
+            <AnimatedButton
+              variant="outline"
+              fullWidth
               onClick={handleLogout}
-              className="flex items-center justify-center w-full py-3 text-white rounded-lg transition-all duration-300 shadow-md hover:shadow-lg group"
-              style={{ background: 'linear-gradient(135deg, #ef4444, #f87171)' }}
-              whileHover={{ scale: 1.03 }}
-              whileTap={{ scale: 0.97 }}
             >
-              <ArrowLeftOnRectangleIcon className="h-5 w-5 mr-2 group-hover:translate-x-1 transition-transform" />
-              <span>Logout</span>
-            </motion.button>
+              <ArrowLeftOnRectangleIcon className="w-5 h-5 mr-2" />
+              Logout
+            </AnimatedButton>
           </div>
         </motion.div>
       </div>
@@ -217,179 +193,188 @@ function LoginPage() {
   }
 
   return (
-    <div className="min-h-screen flex items-center justify-center px-4 py-20 pt-36"
-         style={{ 
-           background: `linear-gradient(to bottom right, #f0f9ff, #e1effe)` 
-         }}>
-      {/* Animated background particles */}
-      <div className="absolute inset-0 overflow-hidden pointer-events-none">
-        <div className="absolute h-96 w-96 top-0 -left-48 bg-blue-400 opacity-10 rounded-full blur-3xl floating"></div>
-        <div className="absolute h-96 w-96 bottom-0 -right-48 bg-indigo-400 opacity-10 rounded-full blur-3xl floating" style={{ animationDelay: '1s' }}></div>
-        <div className="absolute h-64 w-64 top-1/4 right-1/4 bg-purple-400 opacity-10 rounded-full blur-3xl floating" style={{ animationDelay: '2s' }}></div>
-      </div>
-      
-      <motion.div
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.6, ease: [0.22, 1, 0.36, 1] }}
-        className="w-full max-w-md p-8 rounded-2xl shadow-2xl relative z-10"
-        style={{ 
-          background: 'rgba(255, 255, 255, 0.9)',
-          backdropFilter: 'blur(16px)',
-          border: '1px solid rgba(255, 255, 255, 0.3)',
-          boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.15)'
-        }}
+    <div className="min-h-screen flex flex-col md:flex-row">
+      {/* Left Column - Animation */}
+      <motion.div 
+        className="md:w-1/2 bg-gradient-to-br flex items-center justify-center p-8 relative overflow-hidden"
+        style={{ background: newTheme.gradients.ocean }}
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        transition={{ duration: 0.8 }}
       >
-        <motion.h2 
-          className="text-3xl font-bold text-center mb-2"
-          initial={{ opacity: 0, y: -10 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.3, duration: 0.5 }}
-          style={{ color: theme.primary }}
-        >
-          Masuk ke <span style={{ 
-            background: `linear-gradient(90deg, ${theme.primary}, ${theme.accent})`,
-            WebkitBackgroundClip: 'text',
-            WebkitTextFillColor: 'transparent',
-          }}>RetinaScan</span>
-        </motion.h2>
+        <ParticlesBackground 
+          color="rgba(6, 182, 212, 0.6)"
+          count={40}
+          speed={0.6}
+        />
         
-        <motion.p
-          className="text-center text-gray-600 text-sm mb-6"
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ delay: 0.4, duration: 0.5 }}
-        >
-          Masukkan kredensial admin untuk mengakses dashboard
-        </motion.p>
-        
-        {error && (
-          <motion.div
-            initial={{ opacity: 0, height: 0 }}
-            animate={{ opacity: 1, height: 'auto' }}
-            className="bg-red-600/20 backdrop-blur-md border border-red-700/30 text-white p-3 rounded-lg mb-6 flex items-center"
+        <div className="relative z-10 max-w-md w-full">
+          <motion.div 
+            className="mb-8 text-center"
+            initial={enhancedAnimations.fadeInDown.hidden}
+            animate={enhancedAnimations.fadeInDown.visible(0.2)}
           >
-            <svg className="w-5 h-5 mr-2 text-red-300" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
-            </svg>
-            <span>{error}</span>
+            <h1 className="text-3xl md:text-4xl font-bold mb-4" style={{ color: newTheme.text.light }}>
+              Selamat Datang Kembali
+            </h1>
+            <p className="text-lg opacity-90" style={{ color: newTheme.text.light }}>
+              Masuk ke akun Anda untuk mengakses layanan RetinaScan
+            </p>
           </motion.div>
-        )}
-        
-        <motion.form 
-          onSubmit={handleSubmit}
-          variants={formVariants}
-          initial="hidden"
-          animate="visible"
-          className="space-y-6"
-        >
-          <motion.div variants={itemVariants}>
-            <label htmlFor="email" className="block text-sm font-medium text-gray-700 mb-1">
-              Email
-            </label>
-            <div className="relative">
-              <input
+          
+          <motion.div 
+            className="w-full h-64 md:h-80 mx-auto"
+            initial={enhancedAnimations.scaleIn.hidden}
+            animate={enhancedAnimations.scaleIn.visible(0.4)}
+          >
+            <LottieAnimation 
+              animationData={lottieConfig.animations.login}
+              loop={true}
+            />
+          </motion.div>
+          
+          <motion.div 
+            className="mt-8 text-center"
+            initial={enhancedAnimations.fadeInUp.hidden}
+            animate={enhancedAnimations.fadeInUp.visible(0.6)}
+          >
+            <p className="text-white text-opacity-90">
+              Belum memiliki akun?
+            </p>
+            <Link 
+              to="/register" 
+              className="inline-block mt-2 text-white font-medium underline hover:text-cyan-200 transition-colors"
+            >
+              Daftar Sekarang
+            </Link>
+          </motion.div>
+        </div>
+      </motion.div>
+      
+      {/* Right Column - Login Form */}
+      <motion.div 
+        className="md:w-1/2 flex items-center justify-center p-6 md:p-12"
+        style={{ background: newTheme.background.light }}
+        initial={{ opacity: 0, x: 20 }}
+        animate={{ opacity: 1, x: 0 }}
+        transition={{ duration: 0.5, delay: 0.3 }}
+      >
+        <div className="w-full max-w-md">
+          <motion.div 
+            className="text-center mb-8"
+            initial={enhancedAnimations.fadeInDown.hidden}
+            animate={enhancedAnimations.fadeInDown.visible(0.3)}
+          >
+            <h2 className="text-3xl font-bold mb-2" style={{ color: newTheme.text.primary }}>
+              Login
+            </h2>
+            <p style={{ color: newTheme.text.secondary }}>
+              Masukkan email dan kata sandi Anda
+            </p>
+          </motion.div>
+          
+          {error && (
+            <motion.div 
+              className="mb-6 p-4 rounded-lg"
+              style={{ 
+                backgroundColor: 'rgba(239, 68, 68, 0.1)',
+                borderLeft: `4px solid ${newTheme.danger}` 
+              }}
+              initial={{ opacity: 0, y: -10 }}
+              animate={{ opacity: 1, y: 0 }}
+            >
+              <p style={{ color: newTheme.danger }}>{error}</p>
+            </motion.div>
+          )}
+          
+          <motion.form 
+            onSubmit={handleSubmit}
+            className="space-y-6"
+            variants={enhancedAnimations.container}
+            initial="hidden"
+            animate="visible"
+          >
+            <motion.div variants={enhancedAnimations.item}>
+              <AnimatedInput
                 type="email"
+                name="email"
                 id="email"
+                label="Email"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
-                className="mt-1 block w-full p-3 pl-4 rounded-lg border-gray-200 border focus:ring-2 focus:ring-blue-500 focus:border-blue-500 focus:outline-none text-gray-700 placeholder-gray-400 transition-all duration-200"
                 required
-                placeholder="nama@email.com"
               />
-            </div>
-          </motion.div>
-          
-          <motion.div variants={itemVariants}>
-            <label htmlFor="password" className="block text-sm font-medium text-gray-700 mb-1">
-              Kata Sandi
-            </label>
-            <div className="relative">
-              <input
-                type={showPassword ? 'text' : 'password'}
+            </motion.div>
+            
+            <motion.div variants={enhancedAnimations.item}>
+              <AnimatedInput
+                type="password"
+                name="password"
                 id="password"
+                label="Kata Sandi"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
-                className="mt-1 block w-full p-3 pl-4 pr-10 rounded-lg border-gray-200 border focus:ring-2 focus:ring-blue-500 focus:border-blue-500 focus:outline-none text-gray-700 placeholder-gray-400 transition-all duration-200"
                 required
-                placeholder="••••••••"
               />
-              <button
-                type="button"
-                onClick={() => setShowPassword(!showPassword)}
-                className="absolute inset-y-0 right-0 flex items-center pr-3 text-gray-500 hover:text-gray-700 transition"
-              >
-                {showPassword ? (
-                  <EyeSlashIcon className="h-5 w-5" />
-                ) : (
-                  <EyeIcon className="h-5 w-5" />
-                )}
-              </button>
-            </div>
-          </motion.div>
-          
-          <motion.div variants={itemVariants}>
-            <motion.button
-              type="submit"
-              disabled={isLoading}
-              whileHover={{ scale: 1.03 }}
-              whileTap={{ scale: 0.95 }}
-              className="w-full py-3 px-4 rounded-lg text-white font-semibold transition-all duration-300 flex items-center justify-center"
-              style={{
-                background: isLoading 
-                  ? 'rgba(59, 130, 246, 0.5)'
-                  : `linear-gradient(90deg, ${theme.primary}, ${theme.accent})`,
-                boxShadow: '0 10px 15px -3px rgba(59, 130, 246, 0.3)',
-                cursor: isLoading ? 'not-allowed' : 'pointer'
-              }}
+            </motion.div>
+            
+            <motion.div 
+              className="flex justify-between items-center text-sm"
+              variants={enhancedAnimations.item}
             >
-              {isLoading ? (
-                <span className="flex items-center justify-center">
-                  <svg className="animate-spin h-5 w-5 mr-2 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                    <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-                    <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                  </svg>
-                  Memproses...
-                </span>
-              ) : (
-                <span className="flex items-center">
-                  Masuk
-                  <ArrowRightIcon className="h-5 w-5 ml-2 group-hover:translate-x-1 transition-transform" />
-                </span>
-              )}
-            </motion.button>
-          </motion.div>
-        </motion.form>
-        
-        <motion.div 
-          className="mt-8 text-center space-y-4"
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ delay: 0.8, duration: 0.5 }}
-        >
-          <motion.p 
-            className="text-blue-200"
-            whileHover={{ scale: 1.03 }}
-          >
-            Lupa kata sandi?{' '}
-            <Link to="/forgot-password" className="text-blue-300 hover:text-white font-medium transition-colors duration-200 underline decoration-2 decoration-blue-400/30 hover:decoration-blue-400">
-              Pulihkan
-            </Link>
-          </motion.p>
-          
-          <motion.p 
-            className="text-blue-200"
-            whileHover={{ scale: 1.03 }}
-          >
-            Belum punya akun?{' '}
-            <Link to="/register" className="text-blue-300 hover:text-white font-medium transition-colors duration-200 underline decoration-2 decoration-blue-400/30 hover:decoration-blue-400">
-              Daftar
-            </Link>
-          </motion.p>
-        </motion.div>
+              <div className="flex items-center">
+                <input
+                  type="checkbox"
+                  id="remember"
+                  className="mr-2 h-4 w-4 rounded border-gray-300 text-indigo-600 focus:ring-indigo-500"
+                />
+                <label htmlFor="remember" style={{ color: newTheme.text.secondary }}>
+                  Ingat saya
+                </label>
+              </div>
+              <Link 
+                to="/forgot-password" 
+                className="font-medium hover:underline transition-all"
+                style={{ color: newTheme.primary }}
+              >
+                Lupa kata sandi?
+              </Link>
+            </motion.div>
+            
+            <motion.div variants={enhancedAnimations.item}>
+              <AnimatedButton
+                type="submit"
+                variant="primary"
+                fullWidth
+                disabled={isLoading}
+              >
+                {isLoading ? 'Memproses...' : (
+                  <>
+                    Masuk
+                    <ArrowRightIcon className="w-5 h-5 ml-2" />
+                  </>
+                )}
+              </AnimatedButton>
+            </motion.div>
+            
+            <motion.div 
+              className="text-center mt-8"
+              variants={enhancedAnimations.item}
+            >
+              <Link 
+                to="/" 
+                className="inline-flex items-center text-sm font-medium hover:underline"
+                style={{ color: newTheme.text.secondary }}
+              >
+                <HomeIcon className="w-4 h-4 mr-2" />
+                Kembali ke Beranda
+              </Link>
+            </motion.div>
+          </motion.form>
+        </div>
       </motion.div>
     </div>
   );
-}
+};
 
-export default LoginPage;
+export default withPageTransition(LoginPage);
