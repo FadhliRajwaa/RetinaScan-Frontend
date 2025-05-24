@@ -8,7 +8,18 @@ export const ThemeContext = createContext();
 // Theme Provider Component
 export const ThemeProvider = ({ children }) => {
   const [isMobile, setIsMobile] = useState(false);
-  const [theme, setTheme] = useState(globalTheme);
+  const [theme, setTheme] = useState(() => {
+    // Cek local storage untuk tema yang tersimpan
+    const savedTheme = localStorage.getItem('theme');
+    return savedTheme || 'dark'; // Default ke dark mode jika tidak ada tema tersimpan
+  });
+
+  // Toggle theme function
+  const toggleTheme = () => {
+    const newTheme = theme === 'dark' ? 'light' : 'dark';
+    setTheme(newTheme);
+    localStorage.setItem('theme', newTheme);
+  };
 
   // Deteksi perangkat mobile
   useEffect(() => {
@@ -24,8 +35,17 @@ export const ThemeProvider = ({ children }) => {
     };
   }, []);
 
+  // Update document class untuk tema
+  useEffect(() => {
+    if (theme === 'dark') {
+      document.documentElement.classList.add('dark');
+    } else {
+      document.documentElement.classList.remove('dark');
+    }
+  }, [theme]);
+
   return (
-    <ThemeContext.Provider value={{ theme, setTheme, isMobile }}>
+    <ThemeContext.Provider value={{ theme, setTheme, toggleTheme, isMobile }}>
       {children}
     </ThemeContext.Provider>
   );

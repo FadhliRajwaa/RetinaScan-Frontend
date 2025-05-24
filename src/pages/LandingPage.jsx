@@ -73,7 +73,7 @@ const LandingPage = () => {
   return (
     <div className="relative min-h-screen overflow-hidden">
       {/* Background animasi Vanta.js */}
-      {isMounted && <VantaBackground color={0x0} waveHeight={20} waveSpeed={0.3} zoom={1} />}
+      {isMounted && <VantaBackground waveHeight={20} waveSpeed={0.3} zoom={1} />}
       
       {/* Overlay gradient untuk meningkatkan kontras teks */}
       <div className="absolute inset-0 bg-gradient-to-b from-black/40 via-transparent to-black/60 z-0"></div>

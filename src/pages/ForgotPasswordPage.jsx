@@ -70,7 +70,7 @@ const ForgotPasswordPage = () => {
   return (
     <div className="min-h-screen flex items-center justify-center px-4 py-20 pt-36 relative overflow-hidden">
       {/* Background animasi Vanta.js */}
-      {isMounted && <VantaBackground color={0x0} waveHeight={15} waveSpeed={0.3} />}
+      {isMounted && <VantaBackground waveHeight={15} waveSpeed={0.3} />}
       
       {/* Overlay gradient */}
       <div className="absolute inset-0 bg-gradient-to-b from-black/40 via-transparent to-black/60 z-0"></div>
