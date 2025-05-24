@@ -25,7 +25,9 @@ import {
   ChartBarSquareIcon,
   SunIcon,
   MoonIcon,
-  ChevronDownIcon
+  ChevronDownIcon,
+  ShieldCheckIcon,
+  InformationCircleIcon
 } from '@heroicons/react/24/outline';
 import { newTheme } from '../../utils/newTheme';
 
@@ -415,9 +417,10 @@ function Navbar() {
             </Link>
 
             {/* Desktop Navigation */}
-            <div className="hidden md:flex items-center space-x-1">
+            <div className="hidden md:flex items-center space-x-2">
               <NavLink to="/" label="Beranda" icon={<HomeIcon className="h-5 w-5" />} />
-              <NavLink to="/retina-scan" label="Scan Retina" icon={<EyeIcon className="h-5 w-5" />} />
+              <NavLink to="/about" label="Tentang" icon={<InformationCircleIcon className="h-5 w-5" />} />
+              <NavLink to="/privacy" label="Privasi" icon={<ShieldCheckIcon className="h-5 w-5" />} />
               
               {/* Tombol tema */}
               <motion.button
@@ -436,13 +439,14 @@ function Navbar() {
               
               {/* User Menu atau Login/Register */}
               {isAuthenticated ? (
-                <div className="relative">
+                <div className="relative user-menu-container">
                   <motion.button
                     whileHover={{ scale: 1.05 }}
                     whileTap={{ scale: 0.95 }}
                     onClick={toggleUserMenu}
                     className="flex items-center px-3 py-2 rounded-lg text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"
                   >
+                    <UserCircleIcon className="h-6 w-6 mr-2 text-indigo-600 dark:text-indigo-400" />
                     <span className="mr-1">{userName}</span>
                     <ChevronDownIcon className="h-4 w-4" />
                   </motion.button>
@@ -453,8 +457,14 @@ function Navbar() {
                         initial={{ opacity: 0, y: -10 }}
                         animate={{ opacity: 1, y: 0 }}
                         exit={{ opacity: 0, y: -10 }}
-                        className="absolute right-0 mt-2 w-48 rounded-lg shadow-lg py-1 bg-white dark:bg-gray-800 ring-1 ring-gray-200 dark:ring-gray-700"
+                        className="absolute right-0 mt-2 w-56 rounded-xl shadow-xl py-2 bg-white dark:bg-gray-800 ring-1 ring-gray-200 dark:ring-gray-700 border border-gray-100 dark:border-gray-700"
                       >
+                        <div className="px-4 py-3 border-b border-gray-100 dark:border-gray-700">
+                          <p className="text-sm font-medium text-gray-900 dark:text-white">{userName}</p>
+                          <p className="text-xs text-gray-500 dark:text-gray-400 mt-1 truncate">
+                            {user?.email || 'user@example.com'}
+                          </p>
+                        </div>
                         <Link 
                           to={`${DASHBOARD_URL}/#/?token=${token}`} 
                           className="block px-4 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700"
@@ -541,7 +551,7 @@ function Navbar() {
               initial={{ opacity: 0, height: 0 }}
               animate={{ opacity: 1, height: 'auto' }}
               exit={{ opacity: 0, height: 0 }}
-              className="md:hidden bg-white dark:bg-gray-900 shadow-lg"
+              className="md:hidden bg-white dark:bg-gray-900 shadow-lg rounded-b-2xl mx-4 mt-2 overflow-hidden"
             >
               <div className="container mx-auto px-4 py-3 space-y-1">
                 <Link 
@@ -552,13 +562,23 @@ function Navbar() {
                   <HomeIcon className="h-5 w-5 mr-3" />
                   <span>Beranda</span>
                 </Link>
+                
                 <Link 
-                  to="/retina-scan"
+                  to="/about"
                   onClick={toggleMenu}
                   className="flex items-center p-3 rounded-lg text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"
                 >
-                  <EyeIcon className="h-5 w-5 mr-3" />
-                  <span>Scan Retina</span>
+                  <InformationCircleIcon className="h-5 w-5 mr-3" />
+                  <span>Tentang</span>
+                </Link>
+                
+                <Link 
+                  to="/privacy"
+                  onClick={toggleMenu}
+                  className="flex items-center p-3 rounded-lg text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"
+                >
+                  <ShieldCheckIcon className="h-5 w-5 mr-3" />
+                  <span>Privasi</span>
                 </Link>
                 
                 {isAuthenticated ? (

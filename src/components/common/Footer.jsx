@@ -10,7 +10,11 @@ import {
   PhoneIcon, 
   MapPinIcon,
   GlobeAltIcon,
-  HeartIcon
+  HeartIcon,
+  ShieldCheckIcon,
+  DocumentTextIcon,
+  QuestionMarkCircleIcon,
+  ArrowTopRightOnSquareIcon
 } from '@heroicons/react/24/outline';
 import ScrollReveal from '../ScrollReveal';
 
@@ -53,134 +57,193 @@ function Footer() {
   }, [API_URL]);
 
   return (
-    <footer className="relative bg-white dark:bg-gray-900 pt-12 pb-8 overflow-hidden border-t border-gray-200 dark:border-gray-800">
+    <footer className="relative bg-gradient-to-br from-gray-50 to-gray-100 dark:from-gray-900 dark:to-gray-950 pt-16 pb-10 overflow-hidden border-t border-gray-200 dark:border-gray-800">
       {/* Efek dekoratif */}
-      <div className="absolute top-0 inset-x-0 h-px bg-gradient-to-r from-transparent via-indigo-300 dark:via-indigo-700 to-transparent opacity-70"></div>
-      <div className="absolute -top-24 -right-20 w-64 h-64 rounded-full bg-indigo-100 dark:bg-indigo-900/20 blur-3xl opacity-30"></div>
-      <div className="absolute -bottom-32 -left-20 w-80 h-80 rounded-full bg-purple-100 dark:bg-purple-900/20 blur-3xl opacity-30"></div>
+      <div className="absolute top-0 inset-x-0 h-1 bg-gradient-to-r from-indigo-500 via-purple-500 to-pink-500 opacity-80"></div>
+      <div className="absolute -top-40 -right-40 w-80 h-80 rounded-full bg-indigo-100 dark:bg-indigo-900/20 blur-3xl opacity-30"></div>
+      <div className="absolute -bottom-40 -left-40 w-96 h-96 rounded-full bg-purple-100 dark:bg-purple-900/20 blur-3xl opacity-30"></div>
       
       <div className="container mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8 mb-12">
-          {/* Kolom 1: Tentang RetinaScan */}
-          <ScrollReveal>
-            <div className="space-y-4">
-              <div className="flex items-center mb-4">
-                <EyeIcon className="h-8 w-8 text-indigo-600 dark:text-indigo-400" />
-                <h3 className="text-xl font-bold ml-2 bg-gradient-to-r from-indigo-600 to-purple-600 bg-clip-text text-transparent">
-                  RetinaScan
-                </h3>
+        <div className="grid grid-cols-1 md:grid-cols-12 gap-10 mb-12">
+          {/* Kolom 1: Tentang RetinaScan - Lebih lebar */}
+          <div className="md:col-span-5">
+            <ScrollReveal>
+              <div className="space-y-6">
+                <div className="flex items-center mb-4">
+                  <div className="bg-gradient-to-r from-indigo-600 to-purple-600 p-2 rounded-lg shadow-lg">
+                    <EyeIcon className="h-8 w-8 text-white" />
+                  </div>
+                  <h3 className="text-2xl font-bold ml-3 bg-gradient-to-r from-indigo-600 to-purple-600 bg-clip-text text-transparent">
+                    RetinaScan
+                  </h3>
+                </div>
+                
+                <p className="text-gray-600 dark:text-gray-300 text-base leading-relaxed">
+                  RetinaScan menghadirkan teknologi AI terdepan untuk deteksi dini retinopati diabetik, 
+                  membantu mencegah kebutaan akibat diabetes dengan diagnosis yang cepat, akurat, dan terjangkau.
+                </p>
+                
+                <div className="flex space-x-4 mt-6">
+                  <SocialButton icon="facebook" />
+                  <SocialButton icon="twitter" />
+                  <SocialButton icon="instagram" />
+                  <SocialButton icon="linkedin" />
+                </div>
               </div>
-              
-              <p className="text-gray-600 dark:text-gray-300 text-sm">
-                Sistem deteksi dini Diabetic Retinopathy menggunakan teknologi AI untuk membantu pencegahan kebutaan akibat diabetes.
-              </p>
-              
-              <div className="flex space-x-3 mt-6">
-                <SocialButton icon="facebook" />
-                <SocialButton icon="twitter" />
-                <SocialButton icon="instagram" />
-                <SocialButton icon="linkedin" />
-              </div>
-            </div>
-          </ScrollReveal>
+            </ScrollReveal>
+          </div>
           
           {/* Kolom 2: Link Cepat */}
-          <ScrollReveal delay={0.1}>
-            <div className="space-y-4">
-              <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">
-                Link Cepat
-              </h3>
-              
-              <ul className="space-y-2">
-                <FooterLink to="/" label="Beranda" />
-                <FooterLink to="/retina-scan" label="Scan Retina" />
-                {isAuthenticated ? (
-                  <>
-                    <FooterLink to={`${DASHBOARD_URL}/#/?token=${token}`} label="Dashboard" external />
-                    <FooterLink to="/login" label="Logout" onClick={() => localStorage.removeItem('token')} />
-                  </>
-                ) : (
-                  <>
-                    <FooterLink to="/login" label="Login" />
-                    <FooterLink to="/register" label="Register" />
-                  </>
-                )}
-              </ul>
-            </div>
-          </ScrollReveal>
+          <div className="md:col-span-2">
+            <ScrollReveal delay={0.1}>
+              <div className="space-y-6">
+                <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-4 relative">
+                  <span className="relative z-10">Link Cepat</span>
+                  <span className="absolute bottom-0 left-0 h-1 w-10 bg-indigo-500 rounded-full"></span>
+                </h3>
+                
+                <ul className="space-y-3">
+                  <FooterLink to="/" label="Beranda" />
+                  <FooterLink to="/about" label="Tentang" />
+                  <FooterLink to="/privacy" label="Privasi" />
+                  {isAuthenticated ? (
+                    <>
+                      <FooterLink to={`${DASHBOARD_URL}/#/?token=${token}`} label="Dashboard" external />
+                      <FooterLink to="/login" label="Logout" onClick={() => localStorage.removeItem('token')} />
+                    </>
+                  ) : (
+                    <>
+                      <FooterLink to="/login" label="Login" />
+                      <FooterLink to="/register" label="Register" />
+                    </>
+                  )}
+                </ul>
+              </div>
+            </ScrollReveal>
+          </div>
           
           {/* Kolom 3: Layanan */}
-          <ScrollReveal delay={0.2}>
-            <div className="space-y-4">
-              <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">
-                Layanan
-              </h3>
-              
-              <ul className="space-y-2">
-                <FooterLink to="#" label="Deteksi Diabetic Retinopathy" />
-                <FooterLink to="#" label="Analisis Kesehatan Mata" />
-                <FooterLink to="#" label="Konsultasi Online" />
-                <FooterLink to="#" label="Riwayat Pemeriksaan" />
-                <FooterLink to="#" label="Laporan Kesehatan" />
-              </ul>
-            </div>
-          </ScrollReveal>
+          <div className="md:col-span-2">
+            <ScrollReveal delay={0.2}>
+              <div className="space-y-6">
+                <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-4 relative">
+                  <span className="relative z-10">Layanan</span>
+                  <span className="absolute bottom-0 left-0 h-1 w-10 bg-purple-500 rounded-full"></span>
+                </h3>
+                
+                <ul className="space-y-3">
+                  <FooterLink to="#" label="Deteksi Retinopati" />
+                  <FooterLink to="#" label="Analisis Kesehatan" />
+                  <FooterLink to="#" label="Konsultasi Online" />
+                  <FooterLink to="#" label="Riwayat Medis" />
+                  <FooterLink to="#" label="Laporan Kesehatan" />
+                </ul>
+              </div>
+            </ScrollReveal>
+          </div>
           
           {/* Kolom 4: Kontak */}
-          <ScrollReveal delay={0.3}>
-            <div className="space-y-4">
-              <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">
-                Kontak
-              </h3>
-              
-              <ul className="space-y-3">
-                <li className="flex items-start">
-                  <MapPinIcon className="h-5 w-5 text-indigo-500 dark:text-indigo-400 mt-0.5 mr-3 flex-shrink-0" />
-                  <span className="text-gray-600 dark:text-gray-300 text-sm">
-                    Jl. Kesehatan No. 123, Jakarta Selatan, Indonesia
-                  </span>
-                </li>
-                <li className="flex items-center">
-                  <PhoneIcon className="h-5 w-5 text-indigo-500 dark:text-indigo-400 mr-3 flex-shrink-0" />
-                  <span className="text-gray-600 dark:text-gray-300 text-sm">
-                    +62 21 1234 5678
-                  </span>
-                </li>
-                <li className="flex items-center">
-                  <EnvelopeIcon className="h-5 w-5 text-indigo-500 dark:text-indigo-400 mr-3 flex-shrink-0" />
-                  <span className="text-gray-600 dark:text-gray-300 text-sm">
-                    info@retinascan.id
-                  </span>
-                </li>
-                <li className="flex items-center">
-                  <GlobeAltIcon className="h-5 w-5 text-indigo-500 dark:text-indigo-400 mr-3 flex-shrink-0" />
-                  <span className="text-gray-600 dark:text-gray-300 text-sm">
-                    www.retinascan.id
-                  </span>
-                </li>
-              </ul>
-            </div>
-          </ScrollReveal>
+          <div className="md:col-span-3">
+            <ScrollReveal delay={0.3}>
+              <div className="space-y-6">
+                <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-4 relative">
+                  <span className="relative z-10">Kontak</span>
+                  <span className="absolute bottom-0 left-0 h-1 w-10 bg-pink-500 rounded-full"></span>
+                </h3>
+                
+                <ul className="space-y-4">
+                  <li className="flex items-start">
+                    <div className="bg-indigo-100 dark:bg-indigo-900/30 p-2 rounded-lg mr-3 flex-shrink-0">
+                      <MapPinIcon className="h-5 w-5 text-indigo-600 dark:text-indigo-400" />
+                    </div>
+                    <span className="text-gray-600 dark:text-gray-300 text-sm">
+                      Jl. Kesehatan No. 123, Jakarta Selatan, Indonesia
+                    </span>
+                  </li>
+                  <li className="flex items-center">
+                    <div className="bg-indigo-100 dark:bg-indigo-900/30 p-2 rounded-lg mr-3 flex-shrink-0">
+                      <PhoneIcon className="h-5 w-5 text-indigo-600 dark:text-indigo-400" />
+                    </div>
+                    <span className="text-gray-600 dark:text-gray-300 text-sm">
+                      +62 21 1234 5678
+                    </span>
+                  </li>
+                  <li className="flex items-center">
+                    <div className="bg-indigo-100 dark:bg-indigo-900/30 p-2 rounded-lg mr-3 flex-shrink-0">
+                      <EnvelopeIcon className="h-5 w-5 text-indigo-600 dark:text-indigo-400" />
+                    </div>
+                    <span className="text-gray-600 dark:text-gray-300 text-sm">
+                      info@retinascan.id
+                    </span>
+                  </li>
+                  <li className="flex items-center">
+                    <div className="bg-indigo-100 dark:bg-indigo-900/30 p-2 rounded-lg mr-3 flex-shrink-0">
+                      <GlobeAltIcon className="h-5 w-5 text-indigo-600 dark:text-indigo-400" />
+                    </div>
+                    <span className="text-gray-600 dark:text-gray-300 text-sm">
+                      www.retinascan.id
+                    </span>
+                  </li>
+                </ul>
+              </div>
+            </ScrollReveal>
+          </div>
         </div>
         
-        {/* Garis pemisah */}
-        <div className="border-t border-gray-200 dark:border-gray-800 my-8"></div>
+        {/* Newsletter */}
+        <div className="border-t border-gray-200 dark:border-gray-800 pt-10 pb-8 mb-8">
+          <div className="max-w-3xl mx-auto">
+            <ScrollReveal>
+              <div className="bg-gradient-to-r from-indigo-600/10 to-purple-600/10 dark:from-indigo-900/30 dark:to-purple-900/30 rounded-2xl p-8 shadow-lg">
+                <div className="text-center mb-6">
+                  <h3 className="text-xl font-bold text-gray-900 dark:text-white mb-2">
+                    Dapatkan Berita Terbaru
+                  </h3>
+                  <p className="text-gray-600 dark:text-gray-300 text-sm">
+                    Berlangganan newsletter kami untuk mendapatkan informasi terbaru tentang kesehatan retina
+                  </p>
+                </div>
+                
+                <form className="flex flex-col sm:flex-row gap-3">
+                  <input 
+                    type="email" 
+                    placeholder="Masukkan email Anda" 
+                    className="flex-1 px-4 py-3 rounded-lg border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-800 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-indigo-500 dark:focus:ring-indigo-400"
+                  />
+                  <motion.button
+                    whileHover={{ scale: 1.02 }}
+                    whileTap={{ scale: 0.98 }}
+                    className="px-6 py-3 bg-gradient-to-r from-indigo-600 to-purple-600 text-white font-medium rounded-lg shadow-md hover:shadow-lg transition-all"
+                  >
+                    Berlangganan
+                  </motion.button>
+                </form>
+              </div>
+            </ScrollReveal>
+          </div>
+        </div>
         
-        {/* Copyright */}
-        <div className="flex flex-col md:flex-row justify-between items-center">
-          <p className="text-gray-600 dark:text-gray-400 text-sm text-center md:text-left mb-4 md:mb-0">
-            © {currentYear} RetinaScan. All rights reserved.
-          </p>
+        {/* Copyright & Links */}
+        <div className="flex flex-col md:flex-row justify-between items-center border-t border-gray-200 dark:border-gray-800 pt-8">
+          <div className="flex items-center mb-4 md:mb-0">
+            <HeartIcon className="h-4 w-4 text-red-500 mr-2" />
+            <p className="text-gray-600 dark:text-gray-400 text-sm">
+              © {currentYear} RetinaScan. Dibuat dengan <span className="text-red-500">♥</span> di Indonesia.
+            </p>
+          </div>
           
-          <div className="flex space-x-6">
-            <Link to="#" className="text-gray-600 dark:text-gray-400 text-sm hover:text-indigo-600 dark:hover:text-indigo-400 transition-colors">
-              Kebijakan Privasi
+          <div className="flex flex-wrap gap-6">
+            <Link to="/privacy" className="text-gray-600 dark:text-gray-400 text-sm hover:text-indigo-600 dark:hover:text-indigo-400 transition-colors flex items-center">
+              <ShieldCheckIcon className="h-4 w-4 mr-1" />
+              <span>Kebijakan Privasi</span>
             </Link>
-            <Link to="#" className="text-gray-600 dark:text-gray-400 text-sm hover:text-indigo-600 dark:hover:text-indigo-400 transition-colors">
-              Syarat & Ketentuan
+            <Link to="/terms" className="text-gray-600 dark:text-gray-400 text-sm hover:text-indigo-600 dark:hover:text-indigo-400 transition-colors flex items-center">
+              <DocumentTextIcon className="h-4 w-4 mr-1" />
+              <span>Syarat & Ketentuan</span>
             </Link>
-            <Link to="#" className="text-gray-600 dark:text-gray-400 text-sm hover:text-indigo-600 dark:hover:text-indigo-400 transition-colors">
-              FAQ
+            <Link to="/faq" className="text-gray-600 dark:text-gray-400 text-sm hover:text-indigo-600 dark:hover:text-indigo-400 transition-colors flex items-center">
+              <QuestionMarkCircleIcon className="h-4 w-4 mr-1" />
+              <span>FAQ</span>
             </Link>
           </div>
         </div>
@@ -197,7 +260,7 @@ const FooterLink = ({ to, label, external = false, onClick }) => {
         <a 
           href={to}
           onClick={onClick}
-          className="text-gray-600 dark:text-gray-300 hover:text-indigo-600 dark:hover:text-indigo-400 transition-colors text-sm flex items-center"
+          className="text-gray-600 dark:text-gray-300 hover:text-indigo-600 dark:hover:text-indigo-400 transition-colors text-sm flex items-center group"
           target="_blank"
           rel="noopener noreferrer"
         >
@@ -205,8 +268,10 @@ const FooterLink = ({ to, label, external = false, onClick }) => {
             initial={{ x: 0 }}
             whileHover={{ x: 3 }}
             transition={{ duration: 0.2 }}
+            className="flex items-center"
           >
             {label}
+            <ArrowTopRightOnSquareIcon className="h-3.5 w-3.5 ml-1 opacity-0 group-hover:opacity-100 transition-opacity" />
           </motion.span>
         </a>
       </li>
@@ -270,7 +335,7 @@ const SocialButton = ({ icon }) => {
       href="#"
       whileHover={{ scale: 1.1, y: -3 }}
       whileTap={{ scale: 0.95 }}
-      className="w-8 h-8 rounded-full bg-white dark:bg-gray-800 flex items-center justify-center shadow-sm hover:shadow-md text-indigo-600 dark:text-indigo-400 transition-all"
+      className="w-10 h-10 rounded-full bg-gradient-to-br from-indigo-600 to-purple-600 flex items-center justify-center shadow-md hover:shadow-lg text-white transition-all"
     >
       {getIcon()}
     </motion.a>

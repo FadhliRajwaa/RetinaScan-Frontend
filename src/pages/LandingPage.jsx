@@ -354,30 +354,11 @@ const LandingPage = () => {
               {/* Main animation with glassmorphism effect */}
               <div className="relative h-64 sm:h-80 md:h-96 lg:h-[500px] backdrop-blur-sm bg-white/10 dark:bg-gray-900/10 rounded-2xl p-1">
                 <div className="w-full h-full rounded-xl overflow-hidden backdrop-blur-md bg-white/30 dark:bg-gray-800/30 shadow-xl">
-              <LottieAnimation
+                  <LottieAnimation
                     animationData={lottieConfig.animations.eyeScan}
-                loop={true}
-              />
+                    loop={true}
+                  />
                 </div>
-                
-                {/* Floating badges */}
-                <motion.div 
-                  className="absolute -top-4 -right-4 bg-white dark:bg-gray-800 rounded-lg shadow-lg p-2 flex items-center"
-                  animate={{ y: [0, -8, 0] }}
-                  transition={{ repeat: Infinity, duration: 3, ease: "easeInOut" }}
-                >
-                  <EyeIcon className="h-6 w-6 text-indigo-600 dark:text-indigo-400 mr-2" />
-                  <span className="font-medium text-gray-900 dark:text-white">AI Scan</span>
-                </motion.div>
-                
-                <motion.div 
-                  className="absolute -bottom-4 -left-4 bg-white dark:bg-gray-800 rounded-lg shadow-lg p-2 flex items-center"
-                  animate={{ y: [0, 8, 0] }}
-                  transition={{ repeat: Infinity, duration: 3, ease: "easeInOut", delay: 1 }}
-                >
-                  <LightBulbIcon className="h-6 w-6 text-amber-500 mr-2" />
-                  <span className="font-medium text-gray-900 dark:text-white">Smart Diagnosis</span>
-                </motion.div>
               </div>
             </motion.div>
           </div>

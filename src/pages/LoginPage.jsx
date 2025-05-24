@@ -301,23 +301,25 @@ const LoginPage = () => {
           </motion.div>
           
           <div className="space-y-4">
-            <AnimatedButton
-              variant="primary"
-              fullWidth
-              onClick={() => navigate('/')}
+            <div className="flex flex-col sm:flex-row gap-4 justify-center">
+              <Link to="/">
+                <motion.button
+                  whileHover={{ scale: 1.05 }}
+                  whileTap={{ scale: 0.95 }}
+                  className="flex items-center px-4 py-2 rounded-lg bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-300 transition-colors"
+                >
+                  <HomeIcon className="h-5 w-5 mr-2" />
+                  Kembali ke Beranda
+                </motion.button>
+              </Link>
+              <button 
+                onClick={handleLogout}
+                className="flex items-center px-4 py-2 rounded-lg bg-red-100 dark:bg-red-900/30 text-red-600 dark:text-red-400 transition-colors"
               >
-              <HomeIcon className="w-5 h-5 mr-2" />
-              Kembali ke Beranda
-            </AnimatedButton>
-            
-            <AnimatedButton
-              variant="outline"
-              fullWidth
-              onClick={handleLogout}
-            >
-              <ArrowLeftOnRectangleIcon className="w-5 h-5 mr-2" />
-              Logout
-            </AnimatedButton>
+                <ArrowLeftOnRectangleIcon className="h-5 w-5 mr-2" />
+                Logout
+              </button>
+            </div>
           </div>
         </motion.div>
       </div>
@@ -325,190 +327,193 @@ const LoginPage = () => {
   }
 
   return (
-    <div className="min-h-screen flex flex-col items-center justify-center w-full relative overflow-hidden">
-      {/* Background animasi partikel yang dioptimalkan */}
+    <div className="min-h-screen flex items-center justify-center px-4 py-20 pt-36 bg-gradient-to-br from-indigo-50 to-purple-50 dark:from-gray-950 dark:to-indigo-950">
+      {/* Animated background particles */}
       <ParticlesBackground 
-        color={theme === 'dark' ? 'rgba(139, 92, 246, 0.3)' : 'rgba(79, 70, 229, 0.3)'} 
-        count={isMobile ? 30 : 50}
+        color={theme === 'dark' ? "rgba(129, 140, 248, 0.3)" : "rgba(99, 102, 241, 0.2)"}
+        count={40}
         speed={0.5}
-        type="pulse"
+        type="wave"
         connected={true}
         interactive={true}
       />
       
-      {/* Container utama dengan efek glass yang ditingkatkan */}
-      <ScrollReveal>
-        <div className="w-full max-w-md px-4 py-6 relative z-10">
-          {/* Logo dan judul */}
-          <div className="text-center mb-8">
-            <motion.div
-              initial={{ scale: 0.8, opacity: 0 }}
-              animate={{ scale: 1, opacity: 1 }}
-              transition={{ duration: 0.6, ease: "easeOut" }}
-              className="mb-4 inline-block"
-            >
-              <LottieAnimation 
-                animationData={lottieConfig.eyeScan}
-                style={{ width: 120, height: 120 }}
-              />
-            </motion.div>
-            <motion.h1
-              initial={{ y: -20, opacity: 0 }}
-              animate={{ y: 0, opacity: 1 }}
-              transition={{ delay: 0.3, duration: 0.6 }}
-              className="text-3xl md:text-4xl font-bold text-gray-900 dark:text-white drop-shadow-md"
-            >
-              RetinaScan
-            </motion.h1>
-            <motion.p
-              initial={{ y: 20, opacity: 0 }}
-              animate={{ y: 0, opacity: 1 }}
-              transition={{ delay: 0.4, duration: 0.6 }}
-              className="mt-2 text-gray-600 dark:text-gray-300"
-            >
-              Masuk ke akun Anda
-            </motion.p>
-          </div>
-          
-          {/* Form login dengan efek glass */}
-          <motion.div
-            ref={formRef}
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.5, duration: 0.6 }}
-            onFocus={handleFormFocus}
-            onBlur={handleFormBlur}
-            className={`bg-white dark:bg-gray-800 rounded-2xl shadow-xl overflow-hidden transition-all duration-300 ${
-              formFocused ? 'shadow-2xl transform scale-[1.01]' : ''
-            }`}
-          >
-            <div className="p-8">
-              <form onSubmit={handleSubmit} className="space-y-6">
-                {/* Email input */}
-                <div className="space-y-2">
-                  <label htmlFor="email" className="block text-sm font-medium text-gray-700 dark:text-gray-300">
-                    Email
-                  </label>
-                  <AnimatedInput 
-                    id="email"
-                    type="email"
-                    value={email}
-                    onChange={(e) => setEmail(e.target.value)}
-                    placeholder="Masukkan email Anda"
-                    icon={<EnvelopeIcon className="h-5 w-5 text-gray-400" />}
-                    error={error && error.includes('email')}
-                    className="w-full"
-                  />
+      <div className="container mx-auto max-w-md relative z-10">
+        {/* Decorative elements */}
+        <div className="absolute -top-20 -left-20 w-40 h-40 bg-gradient-to-br from-indigo-400/20 to-purple-400/20 dark:from-indigo-500/10 dark:to-purple-500/10 rounded-full blur-3xl"></div>
+        <div className="absolute -bottom-20 -right-20 w-40 h-40 bg-gradient-to-br from-purple-400/20 to-pink-400/20 dark:from-purple-500/10 dark:to-pink-500/10 rounded-full blur-3xl"></div>
+        
+        <ScrollReveal>
+          <div className="w-full max-w-md px-4 relative z-10">
+            {/* Logo dan judul */}
+            <div className="text-center mb-8">
+              <motion.div
+                initial={{ scale: 0.8, opacity: 0 }}
+                animate={{ scale: 1, opacity: 1 }}
+                transition={{ duration: 0.6, ease: "easeOut" }}
+                className="mb-6 inline-block"
+              >
+                <div className="w-24 h-24 mx-auto bg-gradient-to-br from-indigo-600 to-purple-600 rounded-2xl shadow-lg p-5">
+                  <EyeIcon className="w-full h-full text-white" />
                 </div>
-                
-                {/* Password input */}
-                <div className="space-y-2">
-                  <label htmlFor="password" className="block text-sm font-medium text-gray-700 dark:text-gray-300">
-                    Password
-                  </label>
-                  <div className="relative">
-                    <AnimatedInput 
-                      id="password"
-                      type={showPassword ? "text" : "password"}
-                      value={password}
-                      onChange={(e) => setPassword(e.target.value)}
-                      placeholder="Masukkan password Anda"
-                      icon={<LockClosedIcon className="h-5 w-5 text-gray-400" />}
-                      error={error && error.includes('password')}
-                      className="w-full pr-10"
-                    />
-                    <button
-                      type="button"
-                      onClick={togglePasswordVisibility}
-                      className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-600 dark:hover:text-gray-200 transition-colors"
-                    >
-                      {showPassword ? (
-                        <EyeSlashIcon className="h-5 w-5" />
-                      ) : (
-                        <EyeIcon className="h-5 w-5" />
-                      )}
-                    </button>
-                  </div>
-                </div>
-                
-                {/* Error message */}
-                <AnimatePresence>
-                  {error && (
-                    <motion.div
-                      initial={{ opacity: 0, y: -10 }}
-                      animate={{ opacity: 1, y: 0 }}
-                      exit={{ opacity: 0, y: -10 }}
-                      className="flex items-center text-red-600 dark:text-red-400 text-sm"
-                    >
-                      <ExclamationCircleIcon className="h-5 w-5 mr-2 flex-shrink-0" />
-                      <span>{error}</span>
-                    </motion.div>
-                  )}
-                </AnimatePresence>
-                
-                {/* Forgot password link */}
-                <div className="flex justify-end">
-                  <Link 
-                    to="/forgot-password" 
-                    className="text-sm text-indigo-600 hover:text-indigo-800 dark:text-indigo-400 dark:hover:text-indigo-300 transition-colors"
-                  >
-                    Lupa password?
-                  </Link>
-                </div>
-                
-                {/* Login button */}
-                <div>
-                  <AnimatedButton
-                    type="submit"
-                    disabled={isLoading}
-                    className="w-full py-3 bg-gradient-to-r from-indigo-600 to-purple-600 text-white rounded-lg shadow-md hover:shadow-lg transition-all"
-                    animate={controls}
-                  >
-                    {isLoading ? (
-                      <div className="flex items-center justify-center">
-                        <svg className="animate-spin -ml-1 mr-2 h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                          <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-                          <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                        </svg>
-                        <span>Memproses...</span>
-                      </div>
-                    ) : (
-                      <span className="flex items-center justify-center">
-                        Login
-                        <ArrowRightIcon className="h-5 w-5 ml-2" />
-                      </span>
-                    )}
-                  </AnimatedButton>
-                </div>
-              </form>
-              
-              {/* Register link */}
-              <div className="mt-8 text-center">
-                <p className="text-sm text-gray-600 dark:text-gray-400">
-                  Belum memiliki akun?{' '}
-                  <Link 
-                    to="/register" 
-                    className="font-medium text-indigo-600 hover:text-indigo-800 dark:text-indigo-400 dark:hover:text-indigo-300 transition-colors"
-                  >
-                    Daftar sekarang
-                  </Link>
-                </p>
-              </div>
-              
-              {/* Kembali ke beranda */}
-              <div className="mt-6 text-center">
-                <Link 
-                  to="/" 
-                  className="inline-flex items-center text-sm text-gray-600 hover:text-indigo-600 dark:text-gray-400 dark:hover:text-indigo-400 transition-colors"
-                >
-                  <HomeIcon className="h-4 w-4 mr-1" />
-                  <span>Kembali ke Beranda</span>
-                </Link>
-              </div>
+              </motion.div>
+              <motion.h1
+                initial={{ y: -20, opacity: 0 }}
+                animate={{ y: 0, opacity: 1 }}
+                transition={{ delay: 0.3, duration: 0.6 }}
+                className="text-3xl md:text-4xl font-bold text-gray-900 dark:text-white"
+              >
+                Selamat Datang
+              </motion.h1>
+              <motion.p
+                initial={{ y: 20, opacity: 0 }}
+                animate={{ y: 0, opacity: 1 }}
+                transition={{ delay: 0.4, duration: 0.6 }}
+                className="mt-2 text-gray-600 dark:text-gray-300"
+              >
+                Masuk ke akun RetinaScan Anda
+              </motion.p>
             </div>
-          </motion.div>
-        </div>
-      </ScrollReveal>
+            
+            {/* Form login dengan efek glass */}
+            <motion.div
+              ref={formRef}
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.5, duration: 0.6 }}
+              onFocus={handleFormFocus}
+              onBlur={handleFormBlur}
+              className={`bg-white/80 dark:bg-gray-800/80 backdrop-blur-xl rounded-2xl shadow-xl overflow-hidden transition-all duration-300 border border-gray-200/50 dark:border-gray-700/50 ${
+                formFocused ? 'shadow-2xl transform scale-[1.01] border-indigo-300 dark:border-indigo-700' : ''
+              }`}
+            >
+              <div className="p-8">
+                <form onSubmit={handleSubmit} className="space-y-6">
+                  {/* Email input */}
+                  <div className="space-y-2">
+                    <label htmlFor="email" className="block text-sm font-medium text-gray-700 dark:text-gray-300">
+                      Email
+                    </label>
+                    <div className="relative">
+                      <AnimatedInput 
+                        id="email"
+                        type="email"
+                        value={email}
+                        onChange={(e) => setEmail(e.target.value)}
+                        placeholder="Masukkan email Anda"
+                        icon={<EnvelopeIcon className="h-5 w-5 text-gray-400" />}
+                        error={error && error.includes('email')}
+                        className="w-full"
+                      />
+                    </div>
+                  </div>
+                  
+                  {/* Password input */}
+                  <div className="space-y-2">
+                    <label htmlFor="password" className="block text-sm font-medium text-gray-700 dark:text-gray-300">
+                      Password
+                    </label>
+                    <div className="relative">
+                      <AnimatedInput 
+                        id="password"
+                        type={showPassword ? "text" : "password"}
+                        value={password}
+                        onChange={(e) => setPassword(e.target.value)}
+                        placeholder="Masukkan password Anda"
+                        icon={<LockClosedIcon className="h-5 w-5 text-gray-400" />}
+                        error={error && error.includes('password')}
+                        className="w-full pr-10"
+                      />
+                      <button
+                        type="button"
+                        onClick={togglePasswordVisibility}
+                        className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-600 dark:hover:text-gray-200 transition-colors"
+                      >
+                        {showPassword ? (
+                          <EyeSlashIcon className="h-5 w-5" />
+                        ) : (
+                          <EyeIcon className="h-5 w-5" />
+                        )}
+                      </button>
+                    </div>
+                  </div>
+                  
+                  {/* Error message */}
+                  <AnimatePresence>
+                    {error && (
+                      <motion.div
+                        initial={{ opacity: 0, y: -10 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        exit={{ opacity: 0, y: -10 }}
+                        className="flex items-center bg-red-50 dark:bg-red-900/30 text-red-600 dark:text-red-400 text-sm p-3 rounded-lg"
+                      >
+                        <ExclamationCircleIcon className="h-5 w-5 mr-2 flex-shrink-0" />
+                        <span>{error}</span>
+                      </motion.div>
+                    )}
+                  </AnimatePresence>
+                  
+                  {/* Forgot password link */}
+                  <div className="flex justify-end">
+                    <Link 
+                      to="/forgot-password" 
+                      className="text-sm text-indigo-600 hover:text-indigo-800 dark:text-indigo-400 dark:hover:text-indigo-300 transition-colors"
+                    >
+                      Lupa password?
+                    </Link>
+                  </div>
+                  
+                  {/* Login button */}
+                  <div>
+                    <AnimatedButton
+                      type="submit"
+                      disabled={isLoading}
+                      className="w-full py-3 bg-gradient-to-r from-indigo-600 to-purple-600 text-white rounded-lg shadow-md hover:shadow-lg transition-all"
+                      animate={controls}
+                    >
+                      {isLoading ? (
+                        <div className="flex items-center justify-center">
+                          <svg className="animate-spin -ml-1 mr-2 h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                            <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                            <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                          </svg>
+                          <span>Memproses...</span>
+                        </div>
+                      ) : (
+                        <span className="flex items-center justify-center">
+                          Login
+                          <ArrowRightIcon className="h-5 w-5 ml-2" />
+                        </span>
+                      )}
+                    </AnimatedButton>
+                  </div>
+                </form>
+                
+                {/* Register link */}
+                <div className="mt-8 text-center">
+                  <p className="text-sm text-gray-600 dark:text-gray-400">
+                    Belum memiliki akun?{' '}
+                    <Link 
+                      to="/register" 
+                      className="font-medium text-indigo-600 hover:text-indigo-800 dark:text-indigo-400 dark:hover:text-indigo-300 transition-colors"
+                    >
+                      Daftar sekarang
+                    </Link>
+                  </p>
+                </div>
+                
+                {/* Kembali ke beranda */}
+                <div className="mt-6 text-center">
+                  <Link to="/" className="inline-flex items-center text-sm text-gray-500 dark:text-gray-400 hover:text-indigo-600 dark:hover:text-indigo-400 transition-colors">
+                    <HomeIcon className="h-4 w-4 mr-1" />
+                    Kembali ke Beranda
+                  </Link>
+                </div>
+              </div>
+            </motion.div>
+          </div>
+        </ScrollReveal>
+      </div>
     </div>
   );
 };
