@@ -162,11 +162,11 @@ const ForgotPasswordPage = () => {
 
   return (
     <div className="min-h-screen flex flex-col items-center justify-center w-full relative overflow-hidden">
-      {/* Background animasi partikel yang ditingkatkan */}
+      {/* Background animasi partikel yang dioptimalkan */}
       <ParticlesBackground 
-        color={theme === 'dark' ? 'rgba(139, 92, 246, 0.5)' : 'rgba(79, 70, 229, 0.5)'} 
-        count={isMobile ? 40 : 80}
-        speed={0.8}
+        color={theme === 'dark' ? 'rgba(139, 92, 246, 0.3)' : 'rgba(79, 70, 229, 0.3)'} 
+        count={isMobile ? 30 : 50}
+        speed={0.5}
         type="pulse"
         connected={true}
         interactive={true}
@@ -185,7 +185,7 @@ const ForgotPasswordPage = () => {
             >
               <LottieAnimation 
                 animationData={lottieConfig.eyeScan}
-                style={{ width: 120, height: 120 }}
+                style={{ width: 100, height: 100 }}
               />
             </motion.div>
             <motion.h1
@@ -200,132 +200,116 @@ const ForgotPasswordPage = () => {
               initial={{ y: 20, opacity: 0 }}
               animate={{ y: 0, opacity: 1 }}
               transition={{ delay: 0.4, duration: 0.6 }}
-              className="text-gray-600 dark:text-gray-300 mt-2 text-lg drop-shadow-sm"
+              className="mt-2 text-gray-600 dark:text-gray-300"
             >
               Lupa Password
             </motion.p>
           </div>
           
-          {/* Form forgot password dengan efek glass yang ditingkatkan */}
+          {/* Form lupa password */}
           <motion.div
-            initial="hidden"
-            animate="visible"
-            variants={enhancedAnimations.container}
-            className={`bg-white/20 dark:bg-gray-900/30 backdrop-blur-lg rounded-2xl shadow-xl p-6 md:p-8 border border-white/20 dark:border-gray-700/30 transition-all duration-300 ${formFocused ? 'shadow-2xl scale-[1.01]' : ''}`}
-            style={{
-              boxShadow: formFocused 
-                ? '0 25px 50px -12px rgba(0, 0, 0, 0.25), 0 0 15px rgba(79, 70, 229, 0.2)' 
-                : '0 10px 25px -5px rgba(0, 0, 0, 0.1)'
-            }}
+            ref={formRef}
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.5, duration: 0.6 }}
+            onFocus={handleFormFocus}
+            onBlur={handleFormBlur}
+            className={`bg-white dark:bg-gray-800 rounded-2xl shadow-xl overflow-hidden transition-all duration-300 ${
+              formFocused ? 'shadow-2xl transform scale-[1.01]' : ''
+            }`}
           >
-            {/* Form header */}
-            <div className="flex justify-between items-center mb-6">
-              <h2 className="text-xl font-semibold text-gray-900 dark:text-white">Reset Password</h2>
-              <Link 
-                to="/" 
-                className="text-indigo-600 hover:text-indigo-800 dark:text-indigo-400 dark:hover:text-indigo-300 transition-colors duration-200 flex items-center gap-1 text-sm"
-              >
-                <HomeIcon className="w-4 h-4" />
-                <span>Beranda</span>
-              </Link>
+            <div className="p-8">
+              {success ? (
+                <div className="text-center">
+                  <div className="flex justify-center mb-6">
+                    <div className="w-16 h-16 bg-green-100 dark:bg-green-900/30 rounded-full flex items-center justify-center">
+                      <CheckCircleIcon className="h-10 w-10 text-green-600 dark:text-green-400" />
+                    </div>
+                  </div>
+                  <h3 className="text-xl font-bold text-gray-900 dark:text-white mb-4">
+                    Email Terkirim!
+                  </h3>
+                  <p className="text-gray-600 dark:text-gray-300 mb-6">
+                    Instruksi untuk reset password telah dikirim ke email Anda. Silakan periksa kotak masuk Anda.
+                  </p>
+                  <Link to="/login">
+                    <AnimatedButton className="bg-gradient-to-r from-indigo-600 to-purple-600 text-white px-6 py-2 rounded-lg shadow-md hover:shadow-lg transition-all">
+                      Kembali ke Login
+                    </AnimatedButton>
+                  </Link>
+                </div>
+              ) : (
+                <form onSubmit={handleSubmit} className="space-y-6">
+                  <div className="space-y-2">
+                    <label htmlFor="email" className="block text-sm font-medium text-gray-700 dark:text-gray-300">
+                      Email
+                    </label>
+                    <AnimatedInput 
+                      id="email"
+                      type="email"
+                      value={email}
+                      onChange={handleChange}
+                      placeholder="Masukkan email Anda"
+                      icon={<EnvelopeIcon className="h-5 w-5 text-gray-400" />}
+                      error={!!error}
+                      className="w-full"
+                    />
+                  </div>
+                  
+                  {/* Error message */}
+                  <AnimatePresence>
+                    {error && (
+                      <motion.div
+                        initial={{ opacity: 0, y: -10 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        exit={{ opacity: 0, y: -10 }}
+                        className="flex items-center text-red-600 dark:text-red-400 text-sm"
+                      >
+                        <ExclamationCircleIcon className="h-5 w-5 mr-2 flex-shrink-0" />
+                        <span>{error}</span>
+                      </motion.div>
+                    )}
+                  </AnimatePresence>
+                  
+                  <p className="text-sm text-gray-600 dark:text-gray-400">
+                    Masukkan alamat email yang terdaftar. Kami akan mengirimkan instruksi untuk reset password Anda.
+                  </p>
+                  
+                  {/* Submit button */}
+                  <div>
+                    <AnimatedButton
+                      type="submit"
+                      disabled={isLoading}
+                      className="w-full py-3 bg-gradient-to-r from-indigo-600 to-purple-600 text-white rounded-lg shadow-md hover:shadow-lg transition-all"
+                      animate={controls}
+                    >
+                      {isLoading ? (
+                        <div className="flex items-center justify-center">
+                          <svg className="animate-spin -ml-1 mr-2 h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                            <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                            <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                          </svg>
+                          <span>Memproses...</span>
+                        </div>
+                      ) : (
+                        <span>Kirim Link Reset</span>
+                      )}
+                    </AnimatedButton>
+                  </div>
+                  
+                  {/* Back to login */}
+                  <div className="text-center mt-6">
+                    <Link 
+                      to="/login" 
+                      className="inline-flex items-center text-sm text-gray-600 hover:text-indigo-600 dark:text-gray-400 dark:hover:text-indigo-400 transition-colors"
+                    >
+                      <ArrowLeftIcon className="h-4 w-4 mr-1" />
+                      <span>Kembali ke Login</span>
+                    </Link>
+                  </div>
+                </form>
+              )}
             </div>
-            
-            <p className="text-gray-600 dark:text-gray-300 text-sm mb-6">
-              Masukkan email yang terdaftar. Kami akan mengirimkan instruksi untuk reset password.
-            </p>
-            
-            {/* Error message */}
-            <AnimatePresence>
-              {error && (
-                <motion.div
-                  initial={{ opacity: 0, y: -10 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  exit={{ opacity: 0, y: -10 }}
-                  transition={{ duration: 0.3 }}
-                  className="bg-red-100 dark:bg-red-900/40 border border-red-200 dark:border-red-800/50 text-red-800 dark:text-red-200 px-4 py-3 rounded-lg mb-6 flex items-start"
-                >
-                  <ExclamationCircleIcon className="w-5 h-5 mr-2 mt-0.5 flex-shrink-0" />
-                  <span className="text-sm">{error}</span>
-                </motion.div>
-              )}
-            </AnimatePresence>
-            
-            {/* Success message */}
-            <AnimatePresence>
-              {success && (
-                <motion.div
-                  initial={{ opacity: 0, y: -10 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  exit={{ opacity: 0, y: -10 }}
-                  transition={{ duration: 0.3 }}
-                  className="bg-green-100 dark:bg-green-900/40 border border-green-200 dark:border-green-800/50 text-green-800 dark:text-green-200 px-4 py-3 rounded-lg mb-6 flex items-start"
-                >
-                  <CheckCircleIcon className="w-5 h-5 mr-2 mt-0.5 flex-shrink-0" />
-                  <span className="text-sm">{success}</span>
-                </motion.div>
-              )}
-            </AnimatePresence>
-            
-            {/* Form */}
-            <form onSubmit={handleSubmit} ref={formRef} onFocus={handleFormFocus} onBlur={handleFormBlur}>
-              <div className="space-y-5">
-                {/* Email field */}
-                <motion.div variants={enhancedAnimations.item}>
-                  <AnimatedInput
-                    id="email"
-                    type="email"
-                    label="Email"
-                    value={email}
-                    onChange={handleChange}
-                    icon={<EnvelopeIcon className="w-5 h-5 text-gray-500 dark:text-gray-400" />}
-                    placeholder="nama@email.com"
-                    autoComplete="email"
-                    required
-                  />
-                </motion.div>
-                
-                {/* Submit button */}
-                <motion.div variants={enhancedAnimations.item} className="mt-6">
-                  <AnimatedButton
-                    type="submit"
-                    fullWidth
-                    isLoading={isLoading}
-                    disabled={isLoading || success !== ''}
-                    animate={controls}
-                    className="bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-700 hover:to-purple-700"
-                  >
-                    <span className="mr-2">Kirim Instruksi Reset</span>
-                  </AnimatedButton>
-                </motion.div>
-              </div>
-            </form>
-            
-            {/* Login link */}
-            <motion.div 
-              variants={enhancedAnimations.item}
-              className="mt-6 text-center"
-            >
-              <p className="text-sm text-gray-600 dark:text-gray-400">
-                <Link
-                  to="/login"
-                  className="font-medium text-indigo-600 hover:text-indigo-800 dark:text-indigo-400 dark:hover:text-indigo-300 transition-colors duration-200 flex items-center justify-center gap-2"
-                >
-                  <ArrowLeftIcon className="w-4 h-4" />
-                  <span>Kembali ke halaman login</span>
-                </Link>
-              </p>
-            </motion.div>
-          </motion.div>
-          
-          {/* Footer text */}
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            transition={{ delay: 0.8, duration: 0.6 }}
-            className="text-center mt-8 text-xs text-gray-500 dark:text-gray-400"
-          >
-            <p>© {new Date().getFullYear()} RetinaScan. All rights reserved.</p>
-            <p className="mt-1">Sistem Deteksi Diabetic Retinopathy</p>
           </motion.div>
         </div>
       </ScrollReveal>

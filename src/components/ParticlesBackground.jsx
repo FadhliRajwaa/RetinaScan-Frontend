@@ -2,8 +2,8 @@ import { useEffect, useRef, useState } from 'react';
 import PropTypes from 'prop-types';
 
 /**
- * Komponen untuk menampilkan efek partikel di latar belakang dengan performa yang dioptimalkan,
- * efek glow yang lebih kuat, dan interaktivitas yang ditingkatkan
+ * Komponen untuk menampilkan efek partikel di latar belakang dengan performa yang sangat dioptimalkan,
+ * animasi yang smooth, dan efek visual yang ringan untuk menghindari lag
  * 
  * @param {Object} props - Props komponen
  * @param {string} props.color - Warna partikel
@@ -16,12 +16,12 @@ import PropTypes from 'prop-types';
  * @returns {JSX.Element} Komponen ParticlesBackground
  */
 const ParticlesBackground = ({
-  color = 'rgba(79, 70, 229, 0.6)', // Default: Indigo dengan transparansi
-  count = 80,
-  speed = 1,
+  color = 'rgba(79, 70, 229, 0.4)', // Default: Indigo dengan transparansi
+  count = 30, // Mengurangi jumlah default dari 50 ke 30 untuk performa lebih baik
+  speed = 0.3, // Mengurangi kecepatan default dari 0.5 ke 0.3 untuk animasi lebih smooth
   connected = true,
   type = 'default',
-  interactive = true,
+  interactive = false, // Default ke false untuk mengurangi overhead perhitungan
   style = {},
 }) => {
   const canvasRef = useRef(null);
@@ -29,8 +29,8 @@ const ParticlesBackground = ({
   const animationFrameId = useRef(null);
   const mousePosition = useRef({ x: null, y: null });
   const [isVisible, setIsVisible] = useState(true);
-  const mouseRadius = useRef(180); // Radius pengaruh mouse (ditingkatkan dari 150)
-  const mouseForce = useRef(6 * speed); // Kekuatan pengaruh mouse (ditingkatkan dari 5)
+  const mouseRadius = useRef(100); // Mengurangi radius pengaruh mouse dari 120 ke 100
+  const mouseForce = useRef(2 * speed); // Mengurangi kekuatan pengaruh mouse dari 3 ke 2
   const lastMouseMoveTime = useRef(0);
   const mouseActive = useRef(false);
   
@@ -55,13 +55,14 @@ const ParticlesBackground = ({
     };
   }, []);
 
-  // Inisialisasi partikel dengan berbagai jenis
+  // Inisialisasi partikel dengan berbagai jenis - lebih dioptimalkan
   const initParticles = (canvas, ctx) => {
     const particles = [];
     const { width, height } = canvas;
     
-    // Batasi jumlah partikel berdasarkan ukuran layar untuk performa
-    const adjustedCount = Math.min(count, Math.floor((width * height) / 8000));
+    // Batasi jumlah partikel berdasarkan ukuran layar dan performa
+    // Lebih agresif dalam membatasi jumlah partikel
+    const adjustedCount = Math.min(count, Math.floor((width * height) / 18000));
 
     // Ekstrak komponen warna untuk variasi
     let baseColor = color;
@@ -77,47 +78,47 @@ const ParticlesBackground = ({
     }
 
     for (let i = 0; i < adjustedCount; i++) {
-      const size = Math.random() * 4 + 1;
+      const size = Math.random() * 2 + 1; // Mengurangi ukuran maksimum partikel dari 4 ke 3
       const x = Math.random() * width;
       const y = Math.random() * height;
       
-      // Variasi kecepatan dan arah berdasarkan jenis animasi
+      // Variasi kecepatan dan arah berdasarkan jenis animasi - lebih sederhana
       let directionX, directionY;
       
       switch (type) {
         case 'wave':
-          directionX = (Math.random() * 0.5 - 0.25) * speed;
-          directionY = Math.sin(x / 100) * speed * 0.5;
+          directionX = (Math.random() * 0.2 - 0.1) * speed; // Mengurangi kecepatan
+          directionY = Math.sin(x / 100) * speed * 0.2; // Mengurangi amplitudo
           break;
         case 'pulse':
-          directionX = (Math.random() * 2 - 1) * speed * 0.3;
-          directionY = (Math.random() * 2 - 1) * speed * 0.3;
+          directionX = (Math.random() * 1 - 0.5) * speed * 0.15; // Mengurangi kecepatan
+          directionY = (Math.random() * 1 - 0.5) * speed * 0.15;
           break;
         case 'gravity':
-          directionX = (Math.random() * 2 - 1) * speed * 0.5;
-          directionY = Math.random() * speed * 0.2 + 0.1; // Selalu sedikit ke bawah
+          directionX = (Math.random() * 1 - 0.5) * speed * 0.2; // Mengurangi kecepatan
+          directionY = Math.random() * speed * 0.05 + 0.02; // Selalu sedikit ke bawah
           break;
         case 'vortex':
-          directionX = (Math.random() * 2 - 1) * speed * 0.3;
-          directionY = (Math.random() * 2 - 1) * speed * 0.3;
+          directionX = (Math.random() * 1 - 0.5) * speed * 0.15; // Mengurangi kecepatan
+          directionY = (Math.random() * 1 - 0.5) * speed * 0.15;
           break;
         case 'magnetic':
-          directionX = (Math.random() * 2 - 1) * speed * 0.2;
-          directionY = (Math.random() * 2 - 1) * speed * 0.2;
+          directionX = (Math.random() * 1 - 0.5) * speed * 0.08; // Mengurangi kecepatan
+          directionY = (Math.random() * 1 - 0.5) * speed * 0.08;
           break;
         default:
-          directionX = (Math.random() * 2 - 1) * speed;
-          directionY = (Math.random() * 2 - 1) * speed;
+          directionX = (Math.random() * 1 - 0.5) * speed * 0.3; // Mengurangi kecepatan
+          directionY = (Math.random() * 1 - 0.5) * speed * 0.3;
       }
       
-      const opacity = Math.random() * 0.7 + 0.3;
+      const opacity = Math.random() * 0.5 + 0.2; // Mengurangi opasitas maksimum
       const initialSize = size;
       
-      // Variasi warna yang lebih dinamis
+      // Variasi warna yang lebih sederhana
       let particleColor = baseColor;
       if (r !== undefined && g !== undefined && b !== undefined) {
-        // Variasi warna berdasarkan posisi untuk efek gradien
-        const hueShift = Math.random() * 40 - 20; // Variasi hue yang lebih besar (-20 hingga +20)
+        // Variasi warna minimal untuk performa
+        const hueShift = Math.random() * 10 - 5; // Mengurangi variasi warna
         const rNew = Math.min(255, Math.max(0, r + hueShift));
         const gNew = Math.min(255, Math.max(0, g + hueShift));
         const bNew = Math.min(255, Math.max(0, b + hueShift));
@@ -133,50 +134,42 @@ const ParticlesBackground = ({
         directionY,
         opacity,
         color: particleColor, // Warna individual untuk setiap partikel
-        // Properti tambahan untuk animasi
-        angle: Math.random() * 360,
-        spin: Math.random() > 0.5 ? 1 : -1,
+        // Properti tambahan untuk animasi - sangat disederhanakan
         pulseFactor: 0,
         pulseDirection: 1,
         originalX: x, // Untuk efek magnetic
         originalY: y, // Untuk efek magnetic
         vortexAngle: Math.random() * Math.PI * 2, // Untuk efek vortex
-        vortexRadius: Math.random() * 100 + 50, // Untuk efek vortex
+        vortexRadius: Math.random() * 30 + 20, // Mengurangi radius vortex
         // Properti untuk interaktivitas mouse
         targetX: x,
         targetY: y,
         force: 0,
         forceDirectionX: 0,
         forceDirectionY: 0,
-        velocity: Math.random() * 2 + 0.5,
-        dampening: 0.95, // Faktor perlambatan
-        // Properti baru untuk efek glow
-        glowIntensity: Math.random() * 0.5 + 0.5, // Intensitas glow (0.5-1.0)
-        glowSize: Math.random() * 2 + 1.5, // Ukuran glow relatif terhadap ukuran partikel
-        // Properti untuk animasi partikel yang lebih dinamis
-        lifespan: Math.random() * 0.5 + 0.5, // Faktor umur partikel (0.5-1.0)
-        fadeState: 'in', // 'in', 'visible', 'out'
-        fadeProgress: 0, // 0-1
-        fadeSpeed: Math.random() * 0.01 + 0.005 // Kecepatan fade
+        velocity: Math.random() * 1 + 0.3, // Mengurangi velocity
+        dampening: 0.98, // Meningkatkan faktor perlambatan
+        // Properti untuk efek glow - sangat minimal
+        glowIntensity: Math.random() * 0.2 + 0.1, // Mengurangi intensitas glow
       });
     }
 
     return particles;
   };
 
-  // Menggambar partikel dengan optimasi untuk performa dan efek glow yang ditingkatkan
+  // Menggambar partikel dengan optimasi ekstrem untuk performa
   const drawParticles = (ctx, particles, width, height) => {
     ctx.clearRect(0, 0, width, height);
 
     // Batch rendering untuk performa lebih baik
     particles.forEach((particle) => {
-      // Efek glow yang lebih kuat untuk partikel yang berinteraksi dengan mouse
-      if (particle.force > 0 || mouseActive.current) {
+      // Efek glow minimal hanya untuk partikel yang berinteraksi dengan mouse
+      if (interactive && particle.force > 0.3 && mouseActive.current) {
         ctx.beginPath();
         
-        // Ukuran glow berdasarkan interaksi mouse dan properti partikel
-        const glowSize = particle.size * (2 + particle.glowSize * (particle.force > 0 ? 2 : 1));
-        const glowIntensity = particle.glowIntensity * (particle.force > 0 ? 1.5 : 1);
+        // Ukuran glow minimal
+        const glowSize = particle.size * 1.5;
+        const glowIntensity = particle.glowIntensity * 0.7;
         
         const glow = ctx.createRadialGradient(
           particle.x, particle.y, 0,
@@ -193,7 +186,7 @@ const ParticlesBackground = ({
         ctx.fill();
       }
       
-      // Gambar partikel utama
+      // Gambar partikel utama - sangat sederhana
       ctx.beginPath();
       ctx.arc(particle.x, particle.y, particle.size, 0, Math.PI * 2);
       
@@ -208,13 +201,13 @@ const ParticlesBackground = ({
     }
   };
 
-  // Menghubungkan partikel dengan garis - dengan optimasi dan efek yang ditingkatkan
+  // Menghubungkan partikel dengan garis - sangat dioptimalkan
   const connectParticles = (ctx, particles, width, height) => {
     // Optimasi: Sesuaikan maxDistance berdasarkan ukuran layar
-    const maxDistance = Math.min(width, height) * 0.08; // Ditingkatkan dari 0.07
+    const maxDistance = Math.min(width, height) * 0.05; // Mengurangi jarak koneksi
     
     // Batasi jumlah koneksi untuk performa
-    const maxConnections = 3;
+    const maxConnections = 1; // Mengurangi jumlah koneksi maksimum ke 1
     
     // Optimasi: Gunakan quadtree atau grid untuk mengurangi jumlah perbandingan
     // Implementasi sederhana: Bagi partikel ke dalam grid
@@ -239,293 +232,170 @@ const ParticlesBackground = ({
       const gridY = Math.floor(particle.y / gridSize);
       let connections = 0;
       
-      // Periksa grid sekitar
+      // Periksa grid sekitar - mengurangi jumlah grid yang diperiksa
       for (let x = gridX - 1; x <= gridX + 1; x++) {
+        if (connections >= maxConnections) break; // Keluar lebih awal jika sudah mencapai batas koneksi
+        
         for (let y = gridY - 1; y <= gridY + 1; y++) {
+          if (connections >= maxConnections) break; // Keluar lebih awal jika sudah mencapai batas koneksi
+          
           const key = `${x},${y}`;
           if (!grid[key]) continue;
           
           // Periksa partikel dalam grid ini
           for (let j = 0; j < grid[key].length && connections < maxConnections; j++) {
             const index = grid[key][j];
-            if (index <= i) continue; // Hindari koneksi duplikat
+            if (i === index) continue; // Skip diri sendiri
             
-            const otherParticle = particles[index];
-            const dx = otherParticle.x - particle.x;
-            const dy = otherParticle.y - particle.y;
+            const targetParticle = particles[index];
+            const dx = particle.x - targetParticle.x;
+            const dy = particle.y - targetParticle.y;
             const distance = Math.sqrt(dx * dx + dy * dy);
             
             if (distance < maxDistance) {
-              connections++;
-              const opacity = 1 - distance / maxDistance;
+              // Hitung opacity berdasarkan jarak
+              const opacity = 1 - (distance / maxDistance);
               
-              // Gunakan gradient untuk koneksi yang lebih menarik
-              const gradient = ctx.createLinearGradient(
-                particle.x, particle.y, 
-                otherParticle.x, otherParticle.y
-              );
-              
-              const particleColor1 = particle.color || color;
-              const particleColor2 = otherParticle.color || color;
-              
-              gradient.addColorStop(0, particleColor1.replace(')', `, ${opacity * 0.6})`));
-              gradient.addColorStop(1, particleColor2.replace(')', `, ${opacity * 0.6})`));
-              
+              // Gambar garis koneksi - lebih tipis dan transparan
               ctx.beginPath();
-              ctx.strokeStyle = gradient;
-              ctx.lineWidth = Math.min(1.2, 0.8 + opacity * 0.4); // Variasi ketebalan garis
+              ctx.strokeStyle = `rgba(${r || 79}, ${g || 70}, ${b || 229}, ${opacity * 0.1})`; // Mengurangi opasitas garis
+              ctx.lineWidth = Math.min(particle.size, targetParticle.size) * 0.2; // Mengurangi ketebalan garis
+              
               ctx.moveTo(particle.x, particle.y);
-              ctx.lineTo(otherParticle.x, otherParticle.y);
+              ctx.lineTo(targetParticle.x, targetParticle.y);
               ctx.stroke();
+              
+              connections++;
             }
           }
         }
       }
     });
-
-    // Koneksi dengan mouse jika mouse di dalam canvas dan interaktif
-    if (interactive && mousePosition.current.x !== null && mousePosition.current.y !== null) {
-      const mouseMaxConnections = 8; // Lebih banyak koneksi untuk mouse
-      let mouseConnections = 0;
-      
-      // Efek ripple saat mouse bergerak
-      if (mouseActive.current) {
-        ctx.beginPath();
-        const rippleRadius = mouseRadius.current * (1 + Math.sin(Date.now() * 0.005) * 0.2);
-        const gradient = ctx.createRadialGradient(
-          mousePosition.current.x, mousePosition.current.y, 0,
-          mousePosition.current.x, mousePosition.current.y, rippleRadius
-        );
-        gradient.addColorStop(0, 'rgba(255, 255, 255, 0.2)');
-        gradient.addColorStop(0.5, 'rgba(255, 255, 255, 0.1)');
-        gradient.addColorStop(1, 'rgba(255, 255, 255, 0)');
-        
-        ctx.fillStyle = gradient;
-        ctx.arc(mousePosition.current.x, mousePosition.current.y, rippleRadius, 0, Math.PI * 2);
-        ctx.fill();
-      }
-      
-      for (let i = 0; i < particles.length && mouseConnections < mouseMaxConnections; i++) {
-        const particle = particles[i];
-        const dx = mousePosition.current.x - particle.x;
-        const dy = mousePosition.current.y - particle.y;
-        const distance = Math.sqrt(dx * dx + dy * dy);
-
-        if (distance < mouseRadius.current) {
-          mouseConnections++;
-          const opacity = 1 - distance / mouseRadius.current;
-          
-          // Gradient untuk koneksi mouse yang lebih menarik
-          const gradient = ctx.createLinearGradient(
-            mousePosition.current.x, mousePosition.current.y, 
-            particle.x, particle.y
-          );
-          
-          const particleColor = particle.color || color;
-          gradient.addColorStop(0, 'rgba(255, 255, 255, ' + opacity * 0.8 + ')');
-          gradient.addColorStop(1, particleColor.replace(')', `, ${opacity * 0.6})`));
-          
-          ctx.beginPath();
-          ctx.strokeStyle = gradient;
-          ctx.lineWidth = 1.5 * opacity; // Garis lebih tebal untuk koneksi mouse
-          ctx.moveTo(mousePosition.current.x, mousePosition.current.y);
-          ctx.lineTo(particle.x, particle.y);
-          ctx.stroke();
-        }
-      }
-    }
   };
 
-  // Update posisi dan properti partikel dengan animasi yang ditingkatkan
+  // Update posisi dan properti partikel - sangat dioptimalkan
   const updateParticles = (particles, width, height, timestamp) => {
-    const now = timestamp || performance.now();
-    const mouseIsActive = mouseActive.current && (now - lastMouseMoveTime.current < 2000);
+    // Throttle mouse interaction calculations
+    const now = timestamp;
+    const mouseInteractionActive = interactive && mouseActive.current && (now - lastMouseMoveTime.current < 100);
     
-    particles.forEach(particle => {
-      // Update posisi berdasarkan jenis animasi
+    return particles.map(particle => {
+      // Buat salinan partikel untuk diupdate
+      const updatedParticle = { ...particle };
+      
+      // Interaksi mouse jika aktif
+      if (mouseInteractionActive && 
+          mousePosition.current.x !== null && 
+          mousePosition.current.y !== null) {
+        
+        const dx = mousePosition.current.x - updatedParticle.x;
+        const dy = mousePosition.current.y - updatedParticle.y;
+        const distance = Math.sqrt(dx * dx + dy * dy);
+        
+        if (distance < mouseRadius.current) {
+          // Hitung kekuatan berdasarkan jarak dari mouse
+          const force = (mouseRadius.current - distance) / mouseRadius.current;
+          
+          // Arah menjauh dari mouse
+          updatedParticle.forceDirectionX = -dx / distance;
+          updatedParticle.forceDirectionY = -dy / distance;
+          
+          // Terapkan kekuatan
+          updatedParticle.force = force * mouseForce.current;
+          
+          // Update targetX dan targetY untuk efek "menghindar"
+          updatedParticle.targetX = updatedParticle.x + updatedParticle.forceDirectionX * updatedParticle.force;
+          updatedParticle.targetY = updatedParticle.y + updatedParticle.forceDirectionY * updatedParticle.force;
+        } else {
+          // Kurangi force secara bertahap jika tidak dalam radius mouse
+          updatedParticle.force *= 0.95;
+        }
+      } else {
+        // Kurangi force secara bertahap jika mouse tidak aktif
+        updatedParticle.force *= 0.95;
+      }
+      
+      // Update posisi berdasarkan jenis animasi - sangat disederhanakan
       switch (type) {
         case 'wave':
-          // Efek gelombang yang lebih dinamis
-          particle.y += Math.sin((now / 1000) + (particle.x / 100)) * speed * 0.3;
-          particle.x += particle.directionX;
+          // Efek gelombang yang lebih halus
+          updatedParticle.y += Math.sin((updatedParticle.x / 100) + (timestamp / 1500)) * speed * 0.15;
+          updatedParticle.x += updatedParticle.directionX;
           break;
           
         case 'pulse':
-          // Efek pulse yang lebih menarik dengan variasi ukuran
-          particle.pulseFactor += 0.01 * particle.pulseDirection * speed;
-          if (particle.pulseFactor > 1) {
-            particle.pulseFactor = 1;
-            particle.pulseDirection = -1;
-          } else if (particle.pulseFactor < 0) {
-            particle.pulseFactor = 0;
-            particle.pulseDirection = 1;
-          }
-          particle.size = particle.initialSize * (1 + particle.pulseFactor * 0.5);
+          // Efek pulse yang lebih halus
+          updatedParticle.pulseFactor += 0.005 * updatedParticle.pulseDirection * speed;
           
-          particle.x += particle.directionX;
-          particle.y += particle.directionY;
+          if (updatedParticle.pulseFactor > 0.3) {
+            updatedParticle.pulseDirection = -1;
+          } else if (updatedParticle.pulseFactor < -0.3) {
+            updatedParticle.pulseDirection = 1;
+          }
+          
+          updatedParticle.size = updatedParticle.initialSize * (1 + updatedParticle.pulseFactor * 0.2);
+          updatedParticle.x += updatedParticle.directionX;
+          updatedParticle.y += updatedParticle.directionY;
           break;
           
         case 'gravity':
-          // Efek gravitasi yang lebih realistis
-          particle.directionY += 0.01 * speed; // Simulasi gravitasi
-          particle.x += particle.directionX;
-          particle.y += particle.directionY;
-          
-          // Bounce effect di bagian bawah
-          if (particle.y > height) {
-            particle.y = height;
-            particle.directionY = -particle.directionY * 0.6; // Pantulan dengan redaman
-          }
+          // Efek gravitasi yang lebih halus
+          updatedParticle.directionY += 0.005 * speed;
+          updatedParticle.x += updatedParticle.directionX;
+          updatedParticle.y += updatedParticle.directionY;
           break;
           
         case 'vortex':
-          // Efek vortex yang lebih dinamis
-          particle.vortexAngle += 0.01 * speed * (1 + (mouseIsActive ? 0.5 : 0));
+          // Efek vortex yang lebih halus
+          updatedParticle.vortexAngle += 0.005 * speed;
+          const vx = Math.cos(updatedParticle.vortexAngle) * updatedParticle.vortexRadius;
+          const vy = Math.sin(updatedParticle.vortexAngle) * updatedParticle.vortexRadius;
           
-          // Jarak dari pusat vortex (tengah canvas)
-          const centerX = width / 2;
-          const centerY = height / 2;
-          const dx = particle.x - centerX;
-          const dy = particle.y - centerY;
-          const distance = Math.sqrt(dx * dx + dy * dy);
-          
-          // Kecepatan rotasi berdasarkan jarak dari pusat
-          const rotationSpeed = (1 - Math.min(1, distance / Math.max(width, height))) * 0.02 * speed;
-          
-          // Pergerakan melingkar
-          const angle = Math.atan2(dy, dx);
-          const newAngle = angle + rotationSpeed;
-          
-          // Tarikan ke dalam vortex
-          const pullFactor = 0.05 * speed;
-          const newDistance = distance > 50 ? distance - pullFactor : distance;
-          
-          // Update posisi
-          particle.x = centerX + Math.cos(newAngle) * newDistance;
-          particle.y = centerY + Math.sin(newAngle) * newDistance;
+          // Bergerak menuju posisi vortex
+          updatedParticle.x += (updatedParticle.originalX + vx - updatedParticle.x) * 0.005 * speed;
+          updatedParticle.y += (updatedParticle.originalY + vy - updatedParticle.y) * 0.005 * speed;
           break;
           
         case 'magnetic':
-          // Efek magnetic yang lebih responsif
-          // Jarak dari posisi awal
-          const originalDx = particle.x - particle.originalX;
-          const originalDy = particle.y - particle.originalY;
-          const originalDistance = Math.sqrt(originalDx * originalDx + originalDy * originalDy);
+          // Efek magnetic yang lebih halus
+          const dx = updatedParticle.originalX - updatedParticle.x;
+          const dy = updatedParticle.originalY - updatedParticle.y;
           
-          // Kekuatan tarik kembali ke posisi awal
-          const pullStrength = 0.03 * speed;
+          updatedParticle.x += dx * 0.005 * speed;
+          updatedParticle.y += dy * 0.005 * speed;
           
-          // Tambahkan gaya tarik ke posisi awal
-          particle.directionX += -originalDx * pullStrength / (originalDistance + 1);
-          particle.directionY += -originalDy * pullStrength / (originalDistance + 1);
-          
-          // Redaman untuk mencegah osilasi berlebihan
-          particle.directionX *= 0.98;
-          particle.directionY *= 0.98;
-          
-          // Update posisi
-          particle.x += particle.directionX;
-          particle.y += particle.directionY;
+          updatedParticle.x += updatedParticle.directionX;
+          updatedParticle.y += updatedParticle.directionY;
           break;
           
         default:
-          // Gerakan default dengan sedikit variasi
-          particle.x += particle.directionX;
-          particle.y += particle.directionY;
+          // Default movement
+          updatedParticle.x += updatedParticle.directionX;
+          updatedParticle.y += updatedParticle.directionY;
       }
       
-      // Efek interaktif dengan mouse
-      if (interactive && mousePosition.current.x !== null && mousePosition.current.y !== null && mouseIsActive) {
-        const dx = mousePosition.current.x - particle.x;
-        const dy = mousePosition.current.y - particle.y;
-        const distance = Math.sqrt(dx * dx + dy * dy);
-        
-        if (distance < mouseRadius.current) {
-          // Kekuatan interaksi berdasarkan jarak
-          const force = (mouseRadius.current - distance) / mouseRadius.current;
-          const directionX = dx / distance;
-          const directionY = dy / distance;
-          
-          // Efek repulsi (menjauh dari mouse)
-          particle.forceDirectionX = -directionX * force * mouseForce.current;
-          particle.forceDirectionY = -directionY * force * mouseForce.current;
-          particle.force = force;
-          
-          // Tingkatkan ukuran partikel saat berinteraksi dengan mouse
-          particle.size = particle.initialSize * (1 + force * 0.5);
-        } else {
-          // Kurangi kekuatan secara bertahap
-          particle.force *= 0.95;
-          particle.forceDirectionX *= 0.95;
-          particle.forceDirectionY *= 0.95;
-          
-          // Kembalikan ukuran ke normal
-          particle.size = particle.initialSize + (particle.size - particle.initialSize) * 0.95;
-        }
-        
-        // Terapkan kekuatan ke pergerakan partikel
-        particle.x += particle.forceDirectionX;
-        particle.y += particle.forceDirectionY;
-      } else {
-        // Kurangi kekuatan secara bertahap jika mouse tidak aktif
-        particle.force *= 0.95;
-        particle.forceDirectionX *= 0.95;
-        particle.forceDirectionY *= 0.95;
-        
-        // Kembalikan ukuran ke normal
-        particle.size = particle.initialSize + (particle.size - particle.initialSize) * 0.95;
+      // Jika ada force dari interaksi mouse, bergerak menuju target
+      if (updatedParticle.force > 0.01) {
+        updatedParticle.x += (updatedParticle.targetX - updatedParticle.x) * updatedParticle.force * 0.03;
+        updatedParticle.y += (updatedParticle.targetY - updatedParticle.y) * updatedParticle.force * 0.03;
       }
       
-      // Batasi posisi partikel di dalam canvas dengan efek bounce
-      if (particle.x < 0) {
-        particle.x = 0;
-        particle.directionX = Math.abs(particle.directionX);
-      } else if (particle.x > width) {
-        particle.x = width;
-        particle.directionX = -Math.abs(particle.directionX);
+      // Pantulkan partikel jika mencapai batas canvas
+      if (updatedParticle.x < 0 || updatedParticle.x > width) {
+        updatedParticle.directionX *= -1;
+        updatedParticle.x = updatedParticle.x < 0 ? 0 : width;
       }
       
-      if (particle.y < 0) {
-        particle.y = 0;
-        particle.directionY = Math.abs(particle.directionY);
-      } else if (particle.y > height) {
-        particle.y = height;
-        particle.directionY = -Math.abs(particle.directionY);
+      if (updatedParticle.y < 0 || updatedParticle.y > height) {
+        updatedParticle.directionY *= -1;
+        updatedParticle.y = updatedParticle.y < 0 ? 0 : height;
       }
       
-      // Animasi fade in/out untuk efek yang lebih dinamis
-      if (particle.fadeState === 'in') {
-        particle.fadeProgress += particle.fadeSpeed;
-        if (particle.fadeProgress >= 1) {
-          particle.fadeProgress = 1;
-          particle.fadeState = 'visible';
-        }
-        particle.opacity = particle.fadeProgress * 0.7 + 0.3;
-      } else if (particle.fadeState === 'out') {
-        particle.fadeProgress -= particle.fadeSpeed;
-        if (particle.fadeProgress <= 0) {
-          particle.fadeProgress = 0;
-          particle.fadeState = 'in';
-          // Reposisi partikel untuk efek regenerasi
-          particle.x = Math.random() * width;
-          particle.y = Math.random() * height;
-        }
-        particle.opacity = particle.fadeProgress * 0.7 + 0.3;
-      }
-      
-      // Secara acak ubah state partikel untuk efek yang lebih dinamis
-      if (Math.random() < 0.001) {
-        if (particle.fadeState === 'visible') {
-          particle.fadeState = 'out';
-        }
-      }
+      return updatedParticle;
     });
-    
-    return particles;
   };
 
-  // Fungsi animasi utama
+  // Animasi utama dengan optimasi
   const animate = (timestamp) => {
     if (!isVisible) {
       animationFrameId.current = requestAnimationFrame(animate);
@@ -533,39 +403,43 @@ const ParticlesBackground = ({
     }
     
     const canvas = canvasRef.current;
-    const ctx = canvas.getContext('2d');
+    if (!canvas) return;
     
-    // Update dan gambar partikel
-    particlesRef.current = updateParticles(particlesRef.current, canvas.width, canvas.height, timestamp);
+    const ctx = canvas.getContext('2d');
+    const particles = particlesRef.current;
+    
+    particlesRef.current = updateParticles(particles, canvas.width, canvas.height, timestamp);
     drawParticles(ctx, particlesRef.current, canvas.width, canvas.height);
     
-    // Lanjutkan loop animasi
     animationFrameId.current = requestAnimationFrame(animate);
   };
 
-  // Handler untuk resize window
+  // Handle resize window dengan throttling
   const handleResize = () => {
     const canvas = canvasRef.current;
     if (!canvas) return;
     
-    // Sesuaikan ukuran canvas dengan ukuran parent
-    const parent = canvas.parentElement;
-    canvas.width = parent.clientWidth;
-    canvas.height = parent.clientHeight;
+    canvas.width = canvas.offsetWidth;
+    canvas.height = canvas.offsetHeight;
     
-    // Reinisialisasi partikel dengan ukuran baru
     const ctx = canvas.getContext('2d');
     particlesRef.current = initParticles(canvas, ctx);
   };
 
-  // Handler untuk mouse move dengan throttle
-  const handleMouseMove = (e) => {
-    if (!interactive) return;
-    
-    const now = performance.now();
-    lastMouseMoveTime.current = now;
-    mouseActive.current = true;
-    
+  // Throttle function untuk event handlers
+  const throttle = (callback, delay) => {
+    let previousCall = 0;
+    return function(...args) {
+      const now = Date.now();
+      if (now - previousCall >= delay) {
+        previousCall = now;
+        callback(...args);
+      }
+    };
+  };
+
+  // Handle mouse move dengan throttling yang lebih agresif untuk performa
+  const handleMouseMove = throttle((e) => {
     const canvas = canvasRef.current;
     if (!canvas) return;
     
@@ -574,81 +448,78 @@ const ParticlesBackground = ({
       x: e.clientX - rect.left,
       y: e.clientY - rect.top
     };
-  };
+    
+    mouseActive.current = true;
+    lastMouseMoveTime.current = Date.now();
+  }, 32); // Lebih lambat ~30fps untuk performa
 
-  // Handler untuk mouse leave
   const handleMouseLeave = () => {
     mousePosition.current = { x: null, y: null };
     mouseActive.current = false;
   };
 
-  // Throttle function untuk mengoptimalkan event handler
-  const throttle = (callback, delay) => {
-    let lastCall = 0;
-    return function(...args) {
-      const now = new Date().getTime();
-      if (now - lastCall < delay) {
-        return;
-      }
-      lastCall = now;
-      return callback(...args);
-    };
-  };
-
-  // Setup canvas dan event listeners
+  // Setup canvas dan animasi dengan cleanup yang lebih baik
   useEffect(() => {
     const canvas = canvasRef.current;
     if (!canvas) return;
     
+    // Set ukuran canvas
+    canvas.width = canvas.offsetWidth;
+    canvas.height = canvas.offsetHeight;
+    
     const ctx = canvas.getContext('2d');
-    
-    // Sesuaikan ukuran canvas dengan ukuran parent
-    handleResize();
-    
-    // Inisialisasi partikel
     particlesRef.current = initParticles(canvas, ctx);
     
-    // Setup event listeners
-    const throttledMouseMove = throttle(handleMouseMove, 16); // ~60fps
-    const throttledResize = throttle(handleResize, 200);
-    
-    window.addEventListener('resize', throttledResize);
-    canvas.addEventListener('mousemove', throttledMouseMove);
-    canvas.addEventListener('touchmove', (e) => {
-      e.preventDefault();
-      const touch = e.touches[0];
-      throttledMouseMove({
-        clientX: touch.clientX,
-        clientY: touch.clientY
-      });
-    }, { passive: false });
-    canvas.addEventListener('mouseleave', handleMouseLeave);
-    canvas.addEventListener('touchend', handleMouseLeave);
-    
-    // Mulai animasi
+    // Start animation
     animationFrameId.current = requestAnimationFrame(animate);
+    
+    // Event listeners dengan throttling
+    const throttledResize = throttle(handleResize, 200);
+    window.addEventListener('resize', throttledResize);
+    
+    // Hanya tambahkan event listener jika interactive = true
+    if (interactive) {
+      canvas.addEventListener('mousemove', handleMouseMove);
+      canvas.addEventListener('mouseleave', handleMouseLeave);
+      
+      // Touch events for mobile
+      canvas.addEventListener('touchmove', (e) => {
+        e.preventDefault();
+        handleMouseMove({
+          clientX: e.touches[0].clientX,
+          clientY: e.touches[0].clientY
+        });
+      });
+      
+      canvas.addEventListener('touchend', handleMouseLeave);
+    }
     
     // Cleanup
     return () => {
-      window.removeEventListener('resize', throttledResize);
-      canvas.removeEventListener('mousemove', throttledMouseMove);
-      canvas.removeEventListener('touchmove', throttledMouseMove);
-      canvas.removeEventListener('mouseleave', handleMouseLeave);
-      canvas.removeEventListener('touchend', handleMouseLeave);
-      
       if (animationFrameId.current) {
         cancelAnimationFrame(animationFrameId.current);
       }
+      
+      window.removeEventListener('resize', throttledResize);
+      if (interactive && canvas) {
+        canvas.removeEventListener('mousemove', handleMouseMove);
+        canvas.removeEventListener('mouseleave', handleMouseLeave);
+        canvas.removeEventListener('touchmove', handleMouseMove);
+        canvas.removeEventListener('touchend', handleMouseLeave);
+      }
     };
-  }, [color, count, speed, connected, type, interactive]); // Re-init jika props berubah
+  }, [color, count, speed, connected, type, interactive, isVisible]);
 
   return (
-    <div className="particles-container" style={{ position: 'absolute', top: 0, left: 0, width: '100%', height: '100%', zIndex: -1, ...style }}>
-      <canvas
-        ref={canvasRef}
-        style={{ display: 'block', width: '100%', height: '100%' }}
-      />
-    </div>
+    <canvas
+      ref={canvasRef}
+      className="absolute inset-0 w-full h-full z-0"
+      style={{
+        ...style,
+        opacity: isVisible ? 1 : 0,
+        transition: 'opacity 0.3s ease'
+      }}
+    />
   );
 };
 
