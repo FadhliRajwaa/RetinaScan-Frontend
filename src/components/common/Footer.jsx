@@ -4,7 +4,6 @@ import { useTheme } from '../../context/ThemeContext';
 import { useState, useEffect } from 'react';
 import { useInView } from 'react-intersection-observer';
 import axios from 'axios';
-import DotPattern from '../../components/DotPattern';
 import { 
   EyeIcon, 
   EnvelopeIcon, 
@@ -148,16 +147,9 @@ function Footer() {
 
   return (
     <footer className="relative bg-gray-950 pt-16 pb-10 overflow-hidden border-t border-gray-800">
-      {/* Dot Pattern Background */}
-      <div className="absolute inset-0 pointer-events-none">
-        <DotPattern 
-          className="opacity-10"
-          width={20}
-          height={20}
-          color="#a5b4fc"
-          cr={1}
-          glow={true}
-        />
+      {/* Background with gradient overlay instead of DotPattern */}
+      <div className="absolute inset-0 pointer-events-none bg-gray-950">
+        <div className="absolute inset-0 opacity-10 bg-[radial-gradient(#a5b4fc_1px,transparent_1px)] [background-size:20px_20px]"></div>
       </div>
       
       {/* Gradients */}
