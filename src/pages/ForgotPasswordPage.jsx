@@ -74,7 +74,7 @@ const ForgotPasswordPage = () => {
 
   return (
     <div className="min-h-screen flex items-center justify-center px-4 py-20 pt-36 relative overflow-hidden">
-      {/* Background */}
+      {/* Background - selalu render tanpa kondisi */}
       <WavesBackground />
       
       {/* Forgot Password Form */}

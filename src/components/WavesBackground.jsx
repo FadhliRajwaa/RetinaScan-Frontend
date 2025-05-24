@@ -29,16 +29,24 @@ function WavesBackground({
   // Pastikan komponen dimount sebelum inisialisasi Vanta
   useEffect(() => {
     setIsMounted(true);
-    return () => setIsMounted(false);
+    return () => {
+      setIsMounted(false);
+      // Pastikan efek dihancurkan saat komponen unmount
+      if (vantaEffect) {
+        console.log('Destroying Vanta.js effect on unmount');
+        vantaEffect.destroy();
+      }
+    };
   }, []);
 
+  // Inisialisasi efek Vanta
   useEffect(() => {
+    // Hanya inisialisasi jika komponen dimount dan efek belum dibuat
     if (!vantaEffect && isMounted && vantaRef.current) {
-      // Log untuk debugging
       console.log('Initializing Vanta.js effect');
       
       // Delay sedikit untuk memastikan DOM sudah sepenuhnya dirender
-      setTimeout(() => {
+      const initTimer = setTimeout(() => {
         try {
           // Initialize Vanta.js effect dengan tinggi yang cukup
           const effect = WAVES({
@@ -64,16 +72,10 @@ function WavesBackground({
         } catch (error) {
           console.error('Error initializing Vanta.js effect:', error);
         }
-      }, 100);
+      }, 200); // Meningkatkan delay untuk memberikan waktu lebih pada DOM
+      
+      return () => clearTimeout(initTimer);
     }
-
-    // Cleanup function
-    return () => {
-      if (vantaEffect) {
-        console.log('Destroying Vanta.js effect');
-        vantaEffect.destroy();
-      }
-    };
   }, [options, isMounted]);
 
   // Update effect when theme changes
@@ -87,6 +89,20 @@ function WavesBackground({
       vantaEffect.setOptions(themeOptions);
     }
   }, [theme, vantaEffect]);
+
+  // Handle window resize
+  useEffect(() => {
+    const handleResize = () => {
+      if (vantaEffect) {
+        // Hancurkan dan buat ulang efek untuk mencegah masalah sizing
+        console.log('Window resize detected, recreating Vanta effect');
+        vantaEffect.resize();
+      }
+    };
+
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, [vantaEffect]);
 
   return (
     <div 

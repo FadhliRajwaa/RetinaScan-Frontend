@@ -130,7 +130,7 @@ const RegisterPage = () => {
 
   return (
     <div className="min-h-screen flex items-center justify-center px-4 py-20 pt-36 relative overflow-hidden">
-      {/* Background animasi */}
+      {/* Background animasi - Pastikan selalu dirender tanpa kondisi */}
       <WavesBackground />
       
       {/* Registration Form */}

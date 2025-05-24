@@ -143,7 +143,20 @@ export const getHashParams = () => {
  * @returns {void}
  */
 export const cleanHashParams = () => {
-  const hashPath = window.location.hash.split('?')[0] || '#/';
-  window.history.replaceState({}, document.title, hashPath);
-  console.log('Parameters removed from URL, new hash:', hashPath);
+  try {
+    // Pastikan window.location.hash tidak undefined dan tidak kosong
+    if (!window.location.hash || typeof window.location.hash !== 'string') {
+      console.warn('Hash tidak ada atau bukan string saat membersihkan params');
+      return;
+    }
+    
+    // Pisahkan path dari parameter dengan aman
+    const hashParts = window.location.hash.split('?');
+    const hashPath = hashParts[0] || '#/';
+    
+    window.history.replaceState({}, document.title, hashPath);
+    console.log('Parameters removed from URL, new hash:', hashPath);
+  } catch (error) {
+    console.error('Error saat membersihkan hash params:', error);
+  }
 };
