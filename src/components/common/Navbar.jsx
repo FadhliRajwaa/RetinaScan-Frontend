@@ -175,6 +175,8 @@ function Navbar() {
       }
     } catch (error) {
       console.error('Error saat memproses URL:', error);
+      // Coba periksa autentikasi meskipun ada error saat memproses URL
+      checkAuth(false);
     }
   }, [location]);
   
