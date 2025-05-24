@@ -132,46 +132,49 @@ function Navbar() {
       // Proses parameter logout menggunakan utility function dengan defensive programming
       const logoutParams = processLogoutParams(query || new URLSearchParams(''));
     
-    // Jika parameter logout=true, paksa logout
-    if (logoutParams.isLogout) {
-      console.log('Forcing logout due to query parameter');
-      
-      // Bersihkan data setelah logout
-      cleanupAfterLogout();
-      
-      // Reset state
-      setIsAuthenticated(false);
-      setUserName('');
-      setToken('');
-      
-      // Dapatkan pesan logout yang sesuai
-      const message = getLogoutMessage(logoutParams);
-      if (message) {
-        console.log('Logout message:', message);
+      // Jika parameter logout=true, paksa logout
+      if (logoutParams.isLogout) {
+        console.log('Forcing logout due to query parameter');
+        
+        // Bersihkan data setelah logout
+        cleanupAfterLogout();
+        
+        // Reset state
+        setIsAuthenticated(false);
+        setUserName('');
+        setToken('');
+        
+        // Dapatkan pesan logout yang sesuai
+        const message = getLogoutMessage(logoutParams);
+        if (message) {
+          console.log('Logout message:', message);
+          setNotification({
+            show: true,
+            message,
+            type: logoutParams.hasError ? 'error' : 'success'
+          });
+        }
+        
+        // Hapus parameter logout dari URL (sesuai dengan HashRouter)
+        cleanHashParams();
+      } else if (query.get('auth') === 'failed' && query.get('from') === 'dashboard') {
+        console.log('Authentication failed from dashboard');
+        // Hapus parameter dari URL (sesuai dengan HashRouter)
+        cleanHashParams();
+        
+        // Tambahkan notifikasi error login
+        const message = 'Sesi login Anda telah berakhir. Silakan login kembali.';
         setNotification({
           show: true,
           message,
-          type: logoutParams.hasError ? 'error' : 'success'
+          type: 'error'
         });
+      } else {
+        // Hanya periksa autentikasi jika tidak sedang logout
+        checkAuth(false);
       }
-      
-      // Hapus parameter logout dari URL (sesuai dengan HashRouter)
-      cleanHashParams();
-    } else if (query.get('auth') === 'failed' && query.get('from') === 'dashboard') {
-      console.log('Authentication failed from dashboard');
-      // Hapus parameter dari URL (sesuai dengan HashRouter)
-      cleanHashParams();
-      
-      // Tambahkan notifikasi error login
-      const message = 'Sesi login Anda telah berakhir. Silakan login kembali.';
-      setNotification({
-        show: true,
-        message,
-        type: 'error'
-      });
-    } else {
-      // Hanya periksa autentikasi jika tidak sedang logout
-      checkAuth(false);
+    } catch (error) {
+      console.error('Error saat memproses URL:', error);
     }
   }, [location]);
   
