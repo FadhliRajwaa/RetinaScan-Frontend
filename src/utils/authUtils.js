@@ -107,15 +107,30 @@ export const handleFrontendLogout = (setIsAuthenticated, setUserName, setToken, 
  * @returns {URLSearchParams} - URL search params from hash
  */
 export const getHashParams = () => {
-  // Pastikan window.location.hash tidak undefined dan tidak kosong
-  if (!window.location.hash || typeof window.location.hash !== 'string') {
-    console.warn('Hash tidak ada atau bukan string');
-    return new URLSearchParams('');
-  }
-  
   try {
+    // Pastikan window.location.hash tidak undefined dan tidak kosong
+    if (!window.location.hash || typeof window.location.hash !== 'string') {
+      console.warn('Hash tidak ada atau bukan string');
+      return new URLSearchParams('');
+    }
+    
+    // Pisahkan path dari parameter
     const hashParts = window.location.hash.split('?');
-    const hashParams = hashParts.length > 1 ? hashParts[1] : '';
+    
+    // Jika tidak ada parameter (tidak ada '?'), return URLSearchParams kosong
+    if (hashParts.length <= 1) {
+      return new URLSearchParams('');
+    }
+    
+    // Ambil parameter (bagian setelah '?')
+    const hashParams = hashParts[1];
+    
+    // Pastikan hashParams adalah string
+    if (typeof hashParams !== 'string') {
+      console.warn('Format hash params tidak valid');
+      return new URLSearchParams('');
+    }
+    
     return new URLSearchParams(hashParams);
   } catch (error) {
     console.error('Error saat parsing hash params:', error);

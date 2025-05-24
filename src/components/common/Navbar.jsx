@@ -12,7 +12,6 @@ import {
   cleanHashParams,
   isLoggedIn
 } from '../../utils/authUtils';
-import DotPattern from '../../components/DotPattern';
 import {
   Bars3Icon,
   XMarkIcon,
@@ -333,16 +332,6 @@ function Navbar() {
         }`}
       >
         <div className="relative">
-          {/* Dot Pattern Background */}
-          <DotPattern 
-            className="opacity-30"
-            width={20}
-            height={20}
-            color="#6366f1"
-            cr={1}
-            maskImage="linear-gradient(to right, transparent, rgba(255,255,255,0.5) 30%, rgba(255,255,255,0.5) 70%, transparent)"
-          />
-          
           <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 relative z-10">
             <div className="flex h-16 items-center justify-between">
               {/* Logo */}
