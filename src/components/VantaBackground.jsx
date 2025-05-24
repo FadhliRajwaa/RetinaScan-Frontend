@@ -78,7 +78,6 @@ const VantaBackground = ({
       zoom: zoom,
       color: color,
       shininess: 30,
-      waveSpeed: waveSpeed,
       minHeight: 200.00,
       minWidth: 200.00,
       scale: 1.00,

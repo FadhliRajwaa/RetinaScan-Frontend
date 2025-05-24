@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
-import { requestPasswordReset } from '../services/authService';
+import { forgotPassword as requestPasswordReset } from '../services/authService';
 import { withPageTransition } from '../context/ThemeContext';
 import { 
   HomeIcon, 

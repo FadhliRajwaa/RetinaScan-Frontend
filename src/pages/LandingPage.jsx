@@ -1,6 +1,5 @@
 import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
-import { motion } from 'framer-motion';
 import { useInView } from 'react-intersection-observer';
 import VantaBackground from '../components/VantaBackground';
 
