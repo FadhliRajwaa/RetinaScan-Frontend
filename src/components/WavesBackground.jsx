@@ -113,7 +113,7 @@ function WavesBackground({
   return (
     <div 
       ref={vantaRef} 
-      className={`fixed inset-0 -z-10 h-full w-full overflow-hidden ${className}`}
+      className={`fixed inset-0 -z-10 h-full w-full overflow-hidden pointer-events-none ${className}`}
       aria-hidden="true"
       style={{ 
         position: 'fixed',

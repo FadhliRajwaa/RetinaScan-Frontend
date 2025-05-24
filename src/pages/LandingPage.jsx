@@ -1,8 +1,8 @@
 import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
-import { motion } from 'framer-motion';
-import { useInView } from 'react-intersection-observer';
-import WavesBackground from '../components/WavesBackground';
+import { motion, useInView } from 'framer-motion';
+import { useRef } from 'react';
+import { withPageTransition } from '../context/ThemeContext';
 import AnimatedText from '../components/AnimatedText';
 import AnimatedButton from '../components/AnimatedButton';
 

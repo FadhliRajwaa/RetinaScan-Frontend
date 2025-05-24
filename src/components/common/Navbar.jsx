@@ -204,7 +204,7 @@ function Navbar() {
     console.log('Logging out from frontend'); 
     
     // Gunakan fungsi utility untuk logout
-    handleFrontendLogout();
+    handleFrontendLogout(setIsAuthenticated, setUserName, setToken, navigate);
     
     // Reset state
     setIsAuthenticated(false);

@@ -15,7 +15,6 @@ import {
   CheckCircleIcon
 } from '@heroicons/react/24/outline';
 import AnimatedInput from '../components/AnimatedInput';
-import WavesBackground from '../components/WavesBackground';
 
 const RegisterPage = () => {
   const [name, setName] = useState('');

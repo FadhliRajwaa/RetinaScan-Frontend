@@ -18,7 +18,6 @@ import {
 import AnimatedButton from '../components/AnimatedButton';
 import AnimatedInput from '../components/AnimatedInput';
 import AnimatedText from '../components/AnimatedText';
-import WavesBackground from '../components/WavesBackground';
 
 const LoginPage = () => {
   const [email, setEmail] = useState('');
