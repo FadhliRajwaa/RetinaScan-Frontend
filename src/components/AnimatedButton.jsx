@@ -1,185 +1,96 @@
 import { motion } from 'framer-motion';
 import PropTypes from 'prop-types';
-import { enhancedAnimations } from '../utils/newTheme';
+import { useState } from 'react';
 
 /**
- * Komponen tombol dengan animasi
+ * Komponen tombol dengan animasi modern
  * 
  * @param {Object} props - Props komponen
- * @param {string} props.type - Tipe tombol (button, submit, reset)
- * @param {string} props.variant - Variant tombol (primary, secondary, accent, success, warning, danger, outline, ghost)
- * @param {string} props.size - Ukuran tombol (sm, md, lg)
- * @param {boolean} props.fullWidth - Apakah tombol full width
+ * @param {string} props.children - Konten tombol
+ * @param {string} props.className - Kelas CSS tambahan
+ * @param {function} props.onClick - Fungsi callback untuk klik
+ * @param {boolean} props.primary - Apakah menggunakan style primary
  * @param {boolean} props.disabled - Apakah tombol dinonaktifkan
- * @param {Function} props.onClick - Handler untuk event onClick
- * @param {React.ReactNode} props.children - Konten tombol
- * @param {string} props.className - Class tambahan
+ * @param {boolean} props.isLoading - Apakah tombol sedang loading
+ * @param {string} props.type - Tipe tombol HTML
+ * @param {string} props.gradientFrom - Warna awal gradient (jika primary)
+ * @param {string} props.gradientTo - Warna akhir gradient (jika primary)
  * @returns {JSX.Element} Komponen AnimatedButton
  */
-const AnimatedButton = ({
-  type = 'button',
-  variant = 'primary',
-  size = 'md',
-  fullWidth = false,
-  disabled = false,
-  onClick,
+function AnimatedButton({
   children,
   className = '',
-  ...props
-}) => {
-  // Definisi style berdasarkan variant
-  const getVariantStyles = () => {
-    switch (variant) {
-      case 'primary':
-        return {
-          background: 'linear-gradient(135deg, #4F46E5, #6366F1)',
-          color: 'white',
-          border: 'none',
-          boxShadow: '0 4px 6px -1px rgba(79, 70, 229, 0.2), 0 2px 4px -1px rgba(79, 70, 229, 0.1)',
-        };
-      case 'secondary':
-        return {
-          background: 'linear-gradient(135deg, #06B6D4, #22D3EE)',
-          color: 'white',
-          border: 'none',
-          boxShadow: '0 4px 6px -1px rgba(6, 182, 212, 0.2), 0 2px 4px -1px rgba(6, 182, 212, 0.1)',
-        };
-      case 'accent':
-        return {
-          background: 'linear-gradient(135deg, #8B5CF6, #A78BFA)',
-          color: 'white',
-          border: 'none',
-          boxShadow: '0 4px 6px -1px rgba(139, 92, 246, 0.2), 0 2px 4px -1px rgba(139, 92, 246, 0.1)',
-        };
-      case 'success':
-        return {
-          background: 'linear-gradient(135deg, #10B981, #34D399)',
-          color: 'white',
-          border: 'none',
-          boxShadow: '0 4px 6px -1px rgba(16, 185, 129, 0.2), 0 2px 4px -1px rgba(16, 185, 129, 0.1)',
-        };
-      case 'warning':
-        return {
-          background: 'linear-gradient(135deg, #F59E0B, #FBBF24)',
-          color: 'white',
-          border: 'none',
-          boxShadow: '0 4px 6px -1px rgba(245, 158, 11, 0.2), 0 2px 4px -1px rgba(245, 158, 11, 0.1)',
-        };
-      case 'danger':
-        return {
-          background: 'linear-gradient(135deg, #EF4444, #F87171)',
-          color: 'white',
-          border: 'none',
-          boxShadow: '0 4px 6px -1px rgba(239, 68, 68, 0.2), 0 2px 4px -1px rgba(239, 68, 68, 0.1)',
-        };
-      case 'outline':
-        return {
-          background: 'transparent',
-          color: '#4F46E5',
-          border: '2px solid #4F46E5',
-          boxShadow: 'none',
-        };
-      case 'ghost':
-        return {
-          background: 'transparent',
-          color: '#4F46E5',
-          border: 'none',
-          boxShadow: 'none',
-        };
-      default:
-        return {
-          background: 'linear-gradient(135deg, #4F46E5, #6366F1)',
-          color: 'white',
-          border: 'none',
-          boxShadow: '0 4px 6px -1px rgba(79, 70, 229, 0.2), 0 2px 4px -1px rgba(79, 70, 229, 0.1)',
-        };
-    }
-  };
+  onClick,
+  primary = true,
+  disabled = false,
+  isLoading = false,
+  type = 'button',
+  gradientFrom = 'from-blue-600',
+  gradientTo = 'to-purple-600',
+}) {
+  const [isHovered, setIsHovered] = useState(false);
 
-  // Definisi style berdasarkan size
-  const getSizeStyles = () => {
-    switch (size) {
-      case 'sm':
-        return {
-          padding: '0.5rem 1rem',
-          fontSize: '0.875rem',
-          borderRadius: '0.375rem',
-        };
-      case 'md':
-        return {
-          padding: '0.625rem 1.25rem',
-          fontSize: '1rem',
-          borderRadius: '0.5rem',
-        };
-      case 'lg':
-        return {
-          padding: '0.75rem 1.5rem',
-          fontSize: '1.125rem',
-          borderRadius: '0.625rem',
-        };
-      default:
-        return {
-          padding: '0.625rem 1.25rem',
-          fontSize: '1rem',
-          borderRadius: '0.5rem',
-        };
-    }
-  };
+  // Base style untuk semua tombol
+  const baseStyle = 'relative overflow-hidden rounded-xl px-6 py-3 font-medium transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-opacity-50';
 
-  // Style untuk disabled state
-  const getDisabledStyles = () => {
-    if (disabled) {
-      return {
-        opacity: 0.6,
-        cursor: 'not-allowed',
-        boxShadow: 'none',
-      };
-    }
-    return {};
-  };
+  // Style untuk tombol primary (dengan gradient)
+  const primaryStyle = `bg-gradient-to-r ${gradientFrom} ${gradientTo} text-white focus:ring-blue-500 hover:shadow-lg hover:shadow-blue-500/25`;
 
-  // Gabungkan semua style
-  const buttonStyles = {
-    display: 'inline-flex',
-    alignItems: 'center',
-    justifyContent: 'center',
-    fontWeight: '600',
-    transition: 'all 0.2s ease',
-    cursor: disabled ? 'not-allowed' : 'pointer',
-    width: fullWidth ? '100%' : 'auto',
-    ...getVariantStyles(),
-    ...getSizeStyles(),
-    ...getDisabledStyles(),
-  };
+  // Style untuk tombol secondary (dengan border)
+  const secondaryStyle = 'bg-white/10 backdrop-blur-sm border border-white/20 text-white hover:bg-white/20 focus:ring-white';
+
+  // Style untuk tombol disabled
+  const disabledStyle = 'opacity-60 cursor-not-allowed';
+
+  // Gabungkan style berdasarkan props
+  const buttonStyle = `${baseStyle} ${primary ? primaryStyle : secondaryStyle} ${disabled ? disabledStyle : ''} ${className}`;
 
   return (
     <motion.button
       type={type}
-      className={className}
-      style={buttonStyles}
-      onClick={disabled ? undefined : onClick}
-      disabled={disabled}
-      whileHover={disabled ? {} : enhancedAnimations.button.hover}
-      whileTap={disabled ? {} : enhancedAnimations.button.tap}
-      initial={{ opacity: 0, y: 10 }}
-      animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.3 }}
-      {...props}
+      className={buttonStyle}
+      onClick={onClick}
+      disabled={disabled || isLoading}
+      whileHover={{ scale: disabled ? 1 : 1.05 }}
+      whileTap={{ scale: disabled ? 1 : 0.95 }}
+      onHoverStart={() => setIsHovered(true)}
+      onHoverEnd={() => setIsHovered(false)}
     >
-      {children}
+      {/* Loading spinner */}
+      {isLoading && (
+        <div className="absolute inset-0 flex items-center justify-center bg-inherit">
+          <svg className="h-5 w-5 animate-spin text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+            <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+            <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+          </svg>
+        </div>
+      )}
+
+      {/* Efek shimmer */}
+      {primary && !disabled && isHovered && (
+        <motion.div
+          className="absolute inset-0 -translate-x-full bg-gradient-to-r from-transparent via-white/20 to-transparent"
+          animate={{ x: ['0%', '200%'] }}
+          transition={{ repeat: Infinity, duration: 1.5, ease: 'linear' }}
+        />
+      )}
+
+      {/* Konten tombol */}
+      <span className={isLoading ? 'invisible' : 'relative z-10'}>{children}</span>
     </motion.button>
   );
-};
+}
 
 AnimatedButton.propTypes = {
-  type: PropTypes.oneOf(['button', 'submit', 'reset']),
-  variant: PropTypes.oneOf(['primary', 'secondary', 'accent', 'success', 'warning', 'danger', 'outline', 'ghost']),
-  size: PropTypes.oneOf(['sm', 'md', 'lg']),
-  fullWidth: PropTypes.bool,
-  disabled: PropTypes.bool,
-  onClick: PropTypes.func,
   children: PropTypes.node.isRequired,
   className: PropTypes.string,
+  onClick: PropTypes.func,
+  primary: PropTypes.bool,
+  disabled: PropTypes.bool,
+  isLoading: PropTypes.bool,
+  type: PropTypes.string,
+  gradientFrom: PropTypes.string,
+  gradientTo: PropTypes.string,
 };
 
 export default AnimatedButton; 

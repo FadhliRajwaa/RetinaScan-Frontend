@@ -15,7 +15,7 @@ import {
   CheckCircleIcon
 } from '@heroicons/react/24/outline';
 import AnimatedInput from '../components/AnimatedInput';
-import VantaBackground from '../components/VantaBackground';
+import DotPattern from '../components/DotPattern';
 
 const RegisterPage = () => {
   const [name, setName] = useState('');
@@ -126,8 +126,20 @@ const RegisterPage = () => {
 
   return (
     <div className="min-h-screen flex items-center justify-center px-4 py-20 pt-36 relative overflow-hidden">
-      {/* Background animasi Vanta.js */}
-      {isMounted && <VantaBackground waveHeight={15} waveSpeed={0.3} />}
+      {/* Background dengan pola dot */}
+      {isMounted && (
+        <div className="absolute inset-0">
+          <DotPattern
+            className="opacity-50"
+            width={20}
+            height={20}
+            color="#3b82f6"
+            cr={1}
+            glow={true}
+            maskImage="radial-gradient(circle at center, transparent, black 80%)"
+          />
+        </div>
+      )}
       
       {/* Overlay gradient */}
       <div className="absolute inset-0 bg-gradient-to-b from-black/40 via-transparent to-black/60 z-0"></div>

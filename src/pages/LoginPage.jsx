@@ -17,7 +17,7 @@ import {
 } from '@heroicons/react/24/outline';
 import AnimatedButton from '../components/AnimatedButton';
 import AnimatedInput from '../components/AnimatedInput';
-import VantaBackground from '../components/VantaBackground';
+import DotPattern from '../components/DotPattern';
 
 const LoginPage = () => {
   const [email, setEmail] = useState('');
@@ -224,27 +224,29 @@ const LoginPage = () => {
   if (isAuthenticated) {
     return (
       <div className="min-h-screen flex items-center justify-center px-4 py-20 pt-36 relative overflow-hidden">
-        {/* Background animasi Vanta.js */}
+        {/* Background dengan pola dot */}
         {isMounted && (
-          <VantaBackground 
-            points={17} 
-            maxDistance={25} 
-            spacing={20}
-            mouseControls={true}
-          />
+          <div className="absolute inset-0">
+            <DotPattern
+              className="opacity-50"
+              width={20}
+              height={20}
+              color="#3b82f6"
+              cr={1}
+              glow={true}
+              maskImage="radial-gradient(circle at center, transparent, black 80%)"
+            />
+          </div>
         )}
         
         {/* Overlay gradient */}
-        <div className="absolute inset-0 bg-gradient-to-b from-black/30 via-transparent to-black/40 z-0"></div>
+        <div className="absolute inset-0 bg-gradient-to-b from-black/40 via-transparent to-black/60 z-0"></div>
         
         <motion.div
           initial={{ opacity: 0, scale: 0.9 }}
           animate={{ opacity: 1, scale: 1 }}
           transition={{ duration: 0.5 }}
-          className="w-full max-w-md p-8 rounded-2xl relative z-10 backdrop-blur-xl border border-white/10"
-          style={{
-            background: 'rgba(30, 30, 46, 0.5)'
-          }}
+          className="w-full max-w-md p-8 rounded-2xl relative z-10 bg-black/50 backdrop-blur-xl border border-white/10"
         >
           <motion.div
             initial={{ opacity: 0, y: -10 }}
@@ -252,7 +254,7 @@ const LoginPage = () => {
             transition={{ delay: 0.2, duration: 0.5 }}
             className="text-center mb-6"
           >
-            <div className="w-20 h-20 mx-auto bg-gradient-to-br from-[#03DAC6] to-[#BB86FC] rounded-2xl shadow-lg p-5 mb-4">
+            <div className="w-20 h-20 mx-auto bg-gradient-to-br from-cyan-600 to-blue-600 rounded-2xl shadow-lg p-5 mb-4">
               <EyeIcon className="w-full h-full text-white" />
             </div>
             <h2 className="text-3xl font-bold text-white mb-2">
@@ -269,11 +271,7 @@ const LoginPage = () => {
                 <motion.button
                   whileHover={{ scale: 1.05 }}
                   whileTap={{ scale: 0.95 }}
-                  className="flex items-center px-4 py-2 rounded-lg backdrop-blur-sm text-white transition-colors"
-                  style={{
-                    background: 'rgba(3, 218, 198, 0.2)',
-                    border: '1px solid rgba(3, 218, 198, 0.3)'
-                  }}
+                  className="flex items-center px-4 py-2 rounded-lg bg-white/10 backdrop-blur-sm text-white transition-colors hover:bg-white/20"
                 >
                   <HomeIcon className="h-5 w-5 mr-2" />
                   Kembali ke Beranda
@@ -281,11 +279,7 @@ const LoginPage = () => {
               </Link>
               <button 
                 onClick={handleLogout}
-                className="flex items-center px-4 py-2 rounded-lg text-red-400 transition-colors hover:bg-red-500/30"
-                style={{
-                  background: 'rgba(239, 68, 68, 0.2)',
-                  border: '1px solid rgba(239, 68, 68, 0.3)'
-                }}
+                className="flex items-center px-4 py-2 rounded-lg bg-red-500/20 text-red-400 transition-colors hover:bg-red-500/30"
               >
                 <ArrowLeftOnRectangleIcon className="h-5 w-5 mr-2" />
                 Logout
@@ -299,23 +293,28 @@ const LoginPage = () => {
 
   return (
     <div className="min-h-screen flex items-center justify-center px-4 py-20 pt-36 relative overflow-hidden">
-      {/* Background animasi Vanta.js */}
+      {/* Background dengan pola dot */}
       {isMounted && (
-        <VantaBackground 
-          points={17} 
-          maxDistance={25} 
-          spacing={20}
-          mouseControls={true}
-        />
+        <div className="absolute inset-0">
+          <DotPattern
+            className="opacity-50"
+            width={20}
+            height={20}
+            color="#3b82f6"
+            cr={1}
+            glow={true}
+            maskImage="radial-gradient(circle at center, transparent, black 80%)"
+          />
+        </div>
       )}
       
       {/* Overlay gradient */}
-      <div className="absolute inset-0 bg-gradient-to-b from-black/30 via-transparent to-black/40 z-0"></div>
+      <div className="absolute inset-0 bg-gradient-to-b from-black/40 via-transparent to-black/60 z-0"></div>
       
       <div className="container mx-auto max-w-md relative z-10">
         {/* Decorative elements */}
-        <div className="absolute -top-20 -left-20 w-40 h-40 bg-gradient-to-br from-[#03DAC6]/20 to-[#BB86FC]/20 rounded-full blur-3xl"></div>
-        <div className="absolute -bottom-20 -right-20 w-40 h-40 bg-gradient-to-br from-[#BB86FC]/20 to-[#03DAC6]/20 rounded-full blur-3xl"></div>
+        <div className="absolute -top-20 -left-20 w-40 h-40 bg-gradient-to-br from-cyan-500/20 to-blue-500/20 rounded-full blur-3xl"></div>
+        <div className="absolute -bottom-20 -right-20 w-40 h-40 bg-gradient-to-br from-blue-500/20 to-purple-500/20 rounded-full blur-3xl"></div>
         
         <div className="w-full max-w-md px-4 relative z-10">
           {/* Logo dan judul */}
@@ -326,7 +325,7 @@ const LoginPage = () => {
               transition={{ duration: 0.6, ease: "easeOut" }}
               className="mb-6 inline-block"
             >
-              <div className="w-24 h-24 mx-auto bg-gradient-to-br from-[#03DAC6] to-[#BB86FC] rounded-2xl shadow-lg p-5">
+              <div className="w-24 h-24 mx-auto bg-gradient-to-br from-cyan-600 to-blue-600 rounded-2xl shadow-lg p-5">
                 <EyeIcon className="w-full h-full text-white" />
               </div>
             </motion.div>
@@ -356,12 +355,9 @@ const LoginPage = () => {
             transition={{ delay: 0.5, duration: 0.6 }}
             onFocus={handleFormFocus}
             onBlur={handleFormBlur}
-            className={`backdrop-blur-xl rounded-2xl shadow-xl overflow-hidden transition-all duration-300 border ${
-              formFocused ? 'shadow-[#03DAC6]/30 border-[#03DAC6]/30' : 'border-white/10'
+            className={`bg-black/50 backdrop-blur-xl rounded-2xl shadow-xl overflow-hidden transition-all duration-300 border border-white/10 ${
+              formFocused ? 'shadow-cyan-500/20 border-cyan-500/30' : ''
             }`}
-            style={{
-              background: 'rgba(30, 30, 46, 0.5)'
-            }}
           >
             <div className="p-8">
               <form onSubmit={handleSubmit} className="space-y-6">
@@ -433,7 +429,7 @@ const LoginPage = () => {
                 <div className="flex justify-end">
                   <Link 
                     to="/forgot-password" 
-                    className="text-sm text-[#03DAC6] hover:text-[#03DAC6]/80 transition-colors"
+                    className="text-sm text-cyan-400 hover:text-cyan-300 transition-colors"
                   >
                     Lupa password?
                   </Link>
@@ -444,10 +440,7 @@ const LoginPage = () => {
                   <AnimatedButton
                     type="submit"
                     disabled={isLoading}
-                    className="w-full py-3 text-white rounded-lg shadow-md hover:shadow-[#03DAC6]/20 transition-all"
-                    style={{
-                      background: 'linear-gradient(to right, #03DAC6, #BB86FC)'
-                    }}
+                    className="w-full py-3 bg-gradient-to-r from-cyan-600 to-blue-600 text-white rounded-lg shadow-md hover:shadow-cyan-500/20 transition-all"
                     animate={controls}
                   >
                     {isLoading ? (
@@ -474,11 +467,19 @@ const LoginPage = () => {
                   Belum memiliki akun?{' '}
                   <Link 
                     to="/register" 
-                    className="font-medium text-[#BB86FC] hover:text-[#BB86FC]/80 transition-colors"
+                    className="font-medium text-cyan-400 hover:text-cyan-300 transition-colors"
                   >
                     Daftar sekarang
                   </Link>
                 </p>
+              </div>
+              
+              {/* Kembali ke beranda */}
+              <div className="mt-6 text-center">
+                <Link to="/" className="inline-flex items-center text-sm text-gray-400 hover:text-cyan-400 transition-colors">
+                  <HomeIcon className="h-4 w-4 mr-1" />
+                  Kembali ke Beranda
+                </Link>
               </div>
             </div>
           </motion.div>

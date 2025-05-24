@@ -3,9 +3,7 @@ import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { motion, useAnimation } from 'framer-motion';
 import { useInView } from 'react-intersection-observer';
 import { withPageTransition } from '../context/ThemeContext';
-import { newTheme, enhancedAnimations, lottieConfig } from '../utils/newTheme';
-import LottieAnimation from '../components/LottieAnimation';
-import VantaBackground from '../components/VantaBackground';
+import DotPattern from '../components/DotPattern';
 import AnimatedButton from '../components/AnimatedButton';
 import AnimatedInput from '../components/AnimatedInput';
 import { HomeIcon, ArrowLeftIcon, ShieldCheckIcon, ExclamationCircleIcon, LockClosedIcon } from '@heroicons/react/24/outline';
@@ -244,9 +242,22 @@ const ResetPasswordPage = () => {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center px-4 py-12 bg-gradient-to-br from-amber-50 to-orange-50 dark:from-gray-900 dark:to-amber-900">
-      {/* Background */}
-      <VantaBackground />
+    <div className="min-h-screen flex items-center justify-center px-4 py-20 pt-36 relative overflow-hidden">
+      {/* Background dengan pola dot */}
+      <div className="absolute inset-0">
+        <DotPattern
+          className="opacity-50"
+          width={20}
+          height={20}
+          color="#3b82f6"
+          cr={1}
+          glow={true}
+          maskImage="radial-gradient(circle at center, transparent, black 80%)"
+        />
+      </div>
+      
+      {/* Overlay gradient */}
+      <div className="absolute inset-0 bg-gradient-to-b from-black/40 via-transparent to-black/60 z-0"></div>
       
       <motion.div
         className="w-full max-w-md relative z-10"

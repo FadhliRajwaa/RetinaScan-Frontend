@@ -1,48 +1,86 @@
 import { useState } from 'react';
 import { motion } from 'framer-motion';
 import PropTypes from 'prop-types';
-import { newTheme } from '../utils/newTheme';
 
 /**
- * Komponen input dengan animasi
+ * Komponen input form dengan animasi
  * 
  * @param {Object} props - Props komponen
- * @param {string} props.type - Tipe input (text, password, email, dll)
+ * @param {string} props.id - ID untuk input
  * @param {string} props.name - Nama input
- * @param {string} props.id - ID input
- * @param {string} props.label - Label input
- * @param {string} props.placeholder - Placeholder input
+ * @param {string} props.type - Tipe input (text, email, password, dll)
  * @param {string} props.value - Nilai input
- * @param {Function} props.onChange - Handler untuk event onChange
- * @param {Function} props.onBlur - Handler untuk event onBlur
+ * @param {function} props.onChange - Handler untuk perubahan nilai
+ * @param {string} props.label - Label untuk input
+ * @param {string} props.placeholder - Placeholder untuk input
+ * @param {string} props.error - Pesan error (jika ada)
  * @param {boolean} props.required - Apakah input wajib diisi
+ * @param {function} props.onBlur - Handler untuk event blur
+ * @param {function} props.onFocus - Handler untuk event focus
  * @param {boolean} props.disabled - Apakah input dinonaktifkan
- * @param {string} props.error - Pesan error
- * @param {React.ReactNode} props.icon - Icon untuk input
- * @param {string} props.className - Class tambahan
+ * @param {string} props.className - Kelas CSS tambahan
+ * @param {React.ReactNode} props.icon - Ikon untuk input
+ * @param {React.ReactNode} props.endIcon - Ikon di akhir input
  * @returns {JSX.Element} Komponen AnimatedInput
  */
-const AnimatedInput = ({
-  type = 'text',
-  name,
+function AnimatedInput({
   id,
-  label,
-  placeholder = '',
+  name,
+  type = 'text',
   value,
   onChange,
-  onBlur,
-  required = false,
-  disabled = false,
+  label,
+  placeholder,
   error,
-  icon,
+  required = false,
+  onBlur,
+  onFocus,
+  disabled = false,
   className = '',
-  ...props
-}) => {
+  icon,
+  endIcon,
+}) {
   const [isFocused, setIsFocused] = useState(false);
-  const [isPasswordVisible, setIsPasswordVisible] = useState(false);
 
-  const handleFocus = () => {
+  // Definisi style berdasarkan state
+  const containerClass = `group relative mb-4 ${className}`;
+  
+  const inputBaseClass = `
+    w-full rounded-xl px-4 py-3 transition-all duration-200 ease-in-out
+    bg-white/10 backdrop-blur-md
+    border text-white placeholder-gray-400
+    focus:outline-none focus:ring-2
+  `;
+  
+  const inputStateClass = error
+    ? 'border-red-500 focus:border-red-500 focus:ring-red-500/50'
+    : isFocused
+    ? 'border-blue-500 focus:border-blue-500 focus:ring-blue-500/50'
+    : 'border-gray-700 focus:border-blue-400';
+    
+  const inputClass = `${inputBaseClass} ${inputStateClass} ${icon ? 'pl-10' : ''}`;
+  
+  const labelBaseClass = `
+    absolute left-2 px-1 transition-all duration-200 ease-in-out
+    bg-gradient-to-b from-transparent via-gray-900 to-gray-900
+  `;
+  
+  const labelStateClass = isFocused || value
+    ? '-top-2 text-xs font-medium'
+    : 'top-3 text-base';
+    
+  const labelColorClass = error
+    ? 'text-red-500'
+    : isFocused
+    ? 'text-blue-400'
+    : 'text-gray-400';
+    
+  const labelClass = `${labelBaseClass} ${labelStateClass} ${labelColorClass}`;
+
+  // Handlers
+  const handleFocus = (e) => {
     setIsFocused(true);
+    if (onFocus) onFocus(e);
   };
 
   const handleBlur = (e) => {
@@ -50,167 +88,83 @@ const AnimatedInput = ({
     if (onBlur) onBlur(e);
   };
 
-  const togglePasswordVisibility = () => {
-    setIsPasswordVisible(!isPasswordVisible);
-  };
-
-  // Container style
-  const containerStyle = {
-    position: 'relative',
-    marginBottom: '1.5rem',
-    width: '100%',
-  };
-
-  // Label animation variants
-  const labelVariants = {
-    focused: {
-      top: '-0.75rem',
-      left: '0.75rem',
-      scale: 0.85,
-      color: error ? newTheme.danger : isFocused ? newTheme.primary : newTheme.text.secondary,
-      backgroundColor: 'white',
-      padding: '0 0.5rem',
-    },
-    blurred: {
-      top: value ? '-0.75rem' : '0.75rem',
-      left: '0.75rem',
-      scale: value ? 0.85 : 1,
-      color: error ? newTheme.danger : value ? newTheme.text.secondary : newTheme.text.muted,
-      backgroundColor: value ? 'white' : 'transparent',
-      padding: value ? '0 0.5rem' : '0',
-    },
-  };
-
-  // Input style
-  const inputStyle = {
-    width: '100%',
-    padding: '0.75rem 1rem',
-    paddingRight: (type === 'password' || icon) ? '2.5rem' : '1rem',
-    fontSize: '1rem',
-    lineHeight: '1.5',
-    color: disabled ? newTheme.text.muted : newTheme.text.primary,
-    backgroundColor: disabled ? '#F9FAFB' : 'white',
-    borderRadius: '0.5rem',
-    border: `2px solid ${error ? newTheme.danger : isFocused ? newTheme.primary : '#E5E7EB'}`,
-    outline: 'none',
-    transition: 'all 0.2s ease',
-  };
-
-  // Icon container style
-  const iconContainerStyle = {
-    position: 'absolute',
-    top: '50%',
-    right: '1rem',
-    transform: 'translateY(-50%)',
-    display: 'flex',
-    alignItems: 'center',
-    justifyContent: 'center',
-    cursor: type === 'password' ? 'pointer' : 'default',
-    color: isFocused ? newTheme.primary : newTheme.text.muted,
-  };
-
-  // Error message style
-  const errorStyle = {
-    fontSize: '0.875rem',
-    color: newTheme.danger,
-    marginTop: '0.25rem',
-    marginLeft: '0.75rem',
-  };
-
   return (
-    <div style={containerStyle} className={className}>
+    <div className={containerClass}>
+      {/* Label */}
       {label && (
         <motion.label
-          htmlFor={id || name}
-          initial="blurred"
-          animate={isFocused || value ? 'focused' : 'blurred'}
-          variants={labelVariants}
+          htmlFor={id}
+          className={labelClass}
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
           transition={{ duration: 0.2 }}
-          style={{
-            position: 'absolute',
-            zIndex: 1,
-            pointerEvents: 'none',
-            transformOrigin: 'left',
-            borderRadius: '0.25rem',
-          }}
         >
           {label}
-          {required && <span style={{ color: newTheme.danger, marginLeft: '0.25rem' }}>*</span>}
+          {required && <span className="ml-1 text-red-500">*</span>}
         </motion.label>
       )}
 
-      <motion.input
-        type={type === 'password' ? (isPasswordVisible ? 'text' : 'password') : type}
-        id={id || name}
+      {/* Icon (start) */}
+      {icon && (
+        <div className="absolute left-3 top-3 text-gray-400">
+          {icon}
+        </div>
+      )}
+
+      {/* Input */}
+      <input
+        id={id}
         name={name}
-        placeholder={placeholder}
+        type={type}
         value={value}
         onChange={onChange}
         onFocus={handleFocus}
         onBlur={handleBlur}
-        required={required}
+        placeholder={placeholder}
         disabled={disabled}
-        style={inputStyle}
-        initial={{ opacity: 0, y: 5 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.3 }}
-        {...props}
+        required={required}
+        className={inputClass}
+        aria-invalid={error ? 'true' : 'false'}
       />
 
-      {(type === 'password' || icon) && (
-        <div 
-          style={iconContainerStyle} 
-          onClick={type === 'password' ? togglePasswordVisibility : undefined}
-          role={type === 'password' ? 'button' : undefined}
-          tabIndex={type === 'password' ? 0 : undefined}
-          aria-label={type === 'password' ? 'Toggle password visibility' : undefined}
-        >
-          {type === 'password' ? (
-            isPasswordVisible ? (
-              <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
-                <circle cx="12" cy="12" r="3"></circle>
-              </svg>
-            ) : (
-              <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                <path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"></path>
-                <line x1="1" y1="1" x2="23" y2="23"></line>
-              </svg>
-            )
-          ) : (
-            icon
-          )}
+      {/* Icon (end) */}
+      {endIcon && (
+        <div className="absolute right-3 top-3 text-gray-400">
+          {endIcon}
         </div>
       )}
 
+      {/* Error message */}
       {error && (
-        <motion.div
-          style={errorStyle}
-          initial={{ opacity: 0, y: -5 }}
+        <motion.p
+          className="mt-1 text-sm text-red-500"
+          initial={{ opacity: 0, y: -10 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.2 }}
         >
           {error}
-        </motion.div>
+        </motion.p>
       )}
     </div>
   );
-};
+}
 
 AnimatedInput.propTypes = {
-  type: PropTypes.string,
-  name: PropTypes.string.isRequired,
   id: PropTypes.string,
-  label: PropTypes.string,
-  placeholder: PropTypes.string,
+  name: PropTypes.string,
+  type: PropTypes.string,
   value: PropTypes.oneOfType([PropTypes.string, PropTypes.number]),
   onChange: PropTypes.func.isRequired,
-  onBlur: PropTypes.func,
-  required: PropTypes.bool,
-  disabled: PropTypes.bool,
+  label: PropTypes.string,
+  placeholder: PropTypes.string,
   error: PropTypes.string,
-  icon: PropTypes.node,
+  required: PropTypes.bool,
+  onBlur: PropTypes.func,
+  onFocus: PropTypes.func,
+  disabled: PropTypes.bool,
   className: PropTypes.string,
+  icon: PropTypes.node,
+  endIcon: PropTypes.node,
 };
 
 export default AnimatedInput; 
