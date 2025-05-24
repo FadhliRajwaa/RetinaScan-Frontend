@@ -3,7 +3,7 @@ import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { motion, useAnimation } from 'framer-motion';
 import { useInView } from 'react-intersection-observer';
 import { withPageTransition } from '../context/ThemeContext';
-import DotPattern from '../components/DotPattern';
+import WavesBackground from '../components/WavesBackground';
 import AnimatedButton from '../components/AnimatedButton';
 import AnimatedInput from '../components/AnimatedInput';
 import { HomeIcon, ArrowLeftIcon, ShieldCheckIcon, ExclamationCircleIcon, LockClosedIcon } from '@heroicons/react/24/outline';
@@ -243,238 +243,133 @@ const ResetPasswordPage = () => {
 
   return (
     <div className="min-h-screen flex items-center justify-center px-4 py-20 pt-36 relative overflow-hidden">
-      {/* Background dengan pola dot */}
-      <div className="absolute inset-0">
-        <DotPattern
-          className="opacity-50"
-          width={20}
-          height={20}
-          color="#3b82f6"
-          cr={1}
-          glow={true}
-          maskImage="radial-gradient(circle at center, transparent, black 80%)"
-        />
-      </div>
+      {/* Background */}
+      <WavesBackground />
       
-      {/* Overlay gradient */}
-      <div className="absolute inset-0 bg-gradient-to-b from-black/40 via-transparent to-black/60 z-0"></div>
-      
-      <motion.div
-        className="w-full max-w-md relative z-10"
-        variants={cardVariants}
-        initial="initial"
-        animate="visible"
-        ref={ref}
-      >
-        <div 
-          className="bg-white dark:bg-gray-800 rounded-2xl overflow-hidden shadow-xl"
-          style={{ 
-            boxShadow: newTheme.shadows.xl,
-            backdropFilter: 'blur(10px)',
-            background: 'rgba(255, 255, 255, 0.9)'
-          }}
-        >
-          {/* Header bar */}
-          <div 
-            className="h-2 w-full" 
-            style={{ background: newTheme.gradients.sunset }}
-          ></div>
-          
-          <div className="p-8">
-            {/* Logo and heading */}
-            <div className="text-center mb-8">
-              <motion.div 
-                className="h-40 mb-6 mx-auto"
-                animate={animationState !== 'initial' ? statusAnimations[animationState] : {}}
-              >
-                <LottieAnimation
-                  animationData={
-                    resetSuccess ? lottieConfig.animations.success :
-                    animationState === 'sending' ? lottieConfig.animations.loading :
-                    lottieConfig.animations.resetPassword
-                  }
-                  loop={!resetSuccess}
-                />
-              </motion.div>
-              
-              <motion.h2
-                className="text-3xl font-bold mb-2"
-                style={{ color: newTheme.text.primary }}
-                initial={{ opacity: 0, y: -10 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: 0.2 }}
-              >
-                {resetSuccess ? 'Password Berhasil Diubah!' : 'Reset Password'}
-              </motion.h2>
-              
-              <motion.p
-                className="text-base"
-                style={{ color: newTheme.text.secondary }}
-                initial={{ opacity: 0, y: -5 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: 0.3 }}
-              >
-                {resetSuccess 
-                  ? 'Password Anda telah berhasil diubah'
-                  : 'Buat password baru untuk akun Anda'}
-              </motion.p>
-            </div>
-            
-            {/* Error message */}
-            {resetError && (
-              <motion.div 
-                className="mb-6 p-4 rounded-lg flex items-start"
-                style={{ 
-                  backgroundColor: 'rgba(239, 68, 68, 0.1)',
-                  borderLeft: `4px solid ${newTheme.danger}` 
-                }}
-                initial={{ opacity: 0, y: -10, height: 0 }}
-                animate={{ opacity: 1, y: 0, height: 'auto' }}
-                transition={{ duration: 0.3 }}
-              >
-                <ExclamationCircleIcon className="w-5 h-5 mr-2 mt-0.5 flex-shrink-0" style={{ color: newTheme.danger }} />
-                <p style={{ color: newTheme.danger }}>{resetError}</p>
-              </motion.div>
-            )}
-            
-            {/* Success message */}
-            {resetSuccess ? (
-              <motion.div
-                className="text-center py-4"
-                variants={formVariants}
-                initial="hidden"
-                animate="visible"
-              >
-                <motion.p 
-                  className="mb-6" 
-                  style={{ color: newTheme.text.secondary }}
-                  variants={formVariants}
-                >
-                  Password Anda telah berhasil diubah. Anda akan dialihkan ke halaman login dalam beberapa detik.
-                </motion.p>
-                
-                <div className="space-y-4">
-                  <motion.div variants={formVariants}>
-                    <Link to="/login">
-                      <AnimatedButton variant="warning" fullWidth>
-                        <ShieldCheckIcon className="w-5 h-5 mr-2" />
-                        Login Sekarang
-                      </AnimatedButton>
-                    </Link>
-                  </motion.div>
-                  
-                  <motion.div variants={formVariants}>
-                    <Link to="/">
-                      <AnimatedButton variant="outline" fullWidth>
-                        <HomeIcon className="w-5 h-5 mr-2" />
-                        Kembali ke Beranda
-                      </AnimatedButton>
-                    </Link>
-                  </motion.div>
-                </div>
-              </motion.div>
-            ) : (
-              <motion.form 
-                onSubmit={handleSubmit}
-                className="space-y-6"
-                variants={formVariants}
-                initial="hidden"
-                animate="visible"
-              >
-                <motion.div variants={formVariants}>
-                  <AnimatedInput
-                    type="password"
-                    name="password"
-                    id="password"
-                    label="Password Baru"
-                    value={formData.password}
-                    onChange={handleChange}
-                    required
-                    error={errors.password}
-                    icon={<LockClosedIcon className="w-5 h-5" />}
-                  />
-                  
-                  {/* Password strength indicator */}
-                  {formData.password && (
-                    <motion.div 
-                      className="mt-2"
-                      initial={{ opacity: 0, height: 0 }}
-                      animate={{ opacity: 1, height: 'auto' }}
-                      transition={{ duration: 0.3 }}
-                    >
-                      <div className="flex gap-1 mb-1">
-                        {[1, 2, 3, 4].map((level) => (
-                          <motion.div
-                            key={level}
-                            className="h-1 flex-1 rounded-full"
-                            style={{ 
-                              backgroundColor: level <= passwordStrength 
-                                ? getStrengthColor(passwordStrength) 
-                                : '#E5E7EB' 
-                            }}
-                            initial={{ width: 0 }}
-                            animate={{ width: '100%' }}
-                            transition={{ duration: 0.3, delay: level * 0.1 }}
-                          />
-                        ))}
-                      </div>
-                      <p 
-                        className="text-xs"
-                        style={{ 
-                          color: passwordStrength > 0 
-                            ? getStrengthColor(passwordStrength) 
-                            : newTheme.text.muted 
-                        }}
-                      >
-                        {passwordFeedback || 'Masukkan password'}
-                      </p>
-                    </motion.div>
-                  )}
-                </motion.div>
-                
-                <motion.div variants={formVariants}>
-                  <AnimatedInput
-                    type="password"
-                    name="confirmPassword"
-                    id="confirmPassword"
-                    label="Konfirmasi Password"
-                    value={formData.confirmPassword}
-                    onChange={handleChange}
-                    required
-                    error={errors.confirmPassword}
-                    icon={<LockClosedIcon className="w-5 h-5" />}
-                  />
-                </motion.div>
-                
-                <motion.div variants={formVariants}>
-                  <AnimatedButton
-                    type="submit"
-                    variant="warning"
-                    fullWidth
-                    disabled={isLoading || !token || passwordStrength < 2}
-                  >
-                    {isLoading ? 'Memproses...' : 'Reset Password'}
-                  </AnimatedButton>
-                </motion.div>
-                
-                <motion.div 
-                  className="text-center"
-                  variants={formVariants}
-                >
-                  <Link 
-                    to="/login" 
-                    className="inline-flex items-center text-sm font-medium hover:underline"
-                    style={{ color: newTheme.warning }}
-                  >
-                    <ArrowLeftIcon className="w-4 h-4 mr-2" />
-                    Kembali ke Login
-                  </Link>
-                </motion.div>
-              </motion.form>
-            )}
-          </div>
+      {/* Reset Password Form */}
+      <div className="glass-effect w-full max-w-md p-8 rounded-2xl shadow-xl z-10">
+        {/* Logo & Title */}
+        <div className="text-center mb-8">
+          <motion.div
+            initial={{ scale: 0.9, opacity: 0 }}
+            animate={{ scale: 1, opacity: 1 }}
+            transition={{ duration: 0.5 }}
+            className="mx-auto"
+          >
+            <img 
+              src="/logo-retina.png" 
+              alt="RetinaScan" 
+              className="h-16 mx-auto mb-2"
+            />
+          </motion.div>
+          <h1 className="text-3xl font-bold mb-2">Reset Password</h1>
+          <p className="opacity-70">Buat password baru untuk akun Anda</p>
         </div>
-      </motion.div>
+
+        {/* Success Message */}
+        {resetSuccess && (
+          <motion.div 
+            initial={{ opacity: 0, y: -10 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="bg-green-500/10 border border-green-500/30 text-green-600 rounded-lg p-3 mb-6 flex items-center"
+          >
+            <ShieldCheckIcon className="h-5 w-5 mr-2 flex-shrink-0" />
+            <p>Password Anda telah berhasil diubah</p>
+          </motion.div>
+        )}
+        
+        {/* Error Message */}
+        {resetError && (
+          <motion.div 
+            initial={{ opacity: 0, y: -10 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="bg-red-500/10 border border-red-500/30 text-red-600 rounded-lg p-3 mb-6 flex items-center"
+          >
+            <ExclamationCircleIcon className="h-5 w-5 mr-2 flex-shrink-0" />
+            <p>{resetError}</p>
+          </motion.div>
+        )}
+
+        {/* Form */}
+        <form onSubmit={handleSubmit} className="space-y-5">
+          <AnimatedInput
+            id="password"
+            name="password"
+            type="password"
+            value={formData.password}
+            onChange={handleChange}
+            label="Password Baru"
+            required
+            placeholder="Masukkan password baru anda"
+            icon={<LockClosedIcon className="h-5 w-5" />}
+            error={errors.password}
+          />
+
+          {/* Password strength indicator */}
+          {formData.password && (
+            <div 
+              className="mt-2"
+            >
+              <div className="flex gap-1 mb-1">
+                {[1, 2, 3, 4].map((level) => (
+                  <div
+                    key={level}
+                    className="h-1 flex-1 rounded-full"
+                    style={{ 
+                      backgroundColor: level <= passwordStrength 
+                        ? getStrengthColor(passwordStrength) 
+                        : '#E5E7EB' 
+                    }}
+                  />
+                ))}
+              </div>
+              <p 
+                className="text-xs"
+              >
+                {passwordFeedback || 'Masukkan password'}
+              </p>
+            </div>
+          )}
+
+          <AnimatedInput
+            id="confirmPassword"
+            name="confirmPassword"
+            type="password"
+            value={formData.confirmPassword}
+            onChange={handleChange}
+            label="Konfirmasi Password"
+            required
+            placeholder="Konfirmasi password baru anda"
+            icon={<LockClosedIcon className="h-5 w-5" />}
+            error={errors.confirmPassword}
+          />
+
+          <AnimatedButton
+            type="submit"
+            primary
+            isLoading={isLoading}
+            className="w-full mt-2"
+          >
+            {isLoading ? 'Memproses...' : 'Reset Password'}
+          </AnimatedButton>
+        </form>
+
+        {/* Links */}
+        <div className="mt-8 text-center space-y-4">
+          <Link to="/login" className="text-blue-500 hover:text-blue-600 font-medium flex items-center justify-center">
+            <ArrowLeftIcon className="h-4 w-4 mr-1" />
+            Kembali ke Login
+          </Link>
+          
+          <Link 
+            to="/" 
+            className="inline-flex items-center text-sm hover:text-blue-500"
+          >
+            <HomeIcon className="h-4 w-4 mr-1" />
+            Kembali ke Beranda
+          </Link>
+        </div>
+      </div>
     </div>
   );
 };

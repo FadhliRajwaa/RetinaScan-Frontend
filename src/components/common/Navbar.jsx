@@ -9,7 +9,8 @@ import {
   getLogoutMessage,
   handleFrontendLogout,
   getHashParams,
-  cleanHashParams
+  cleanHashParams,
+  isLoggedIn
 } from '../../utils/authUtils';
 import DotPattern from '../../components/DotPattern';
 import {
@@ -26,6 +27,7 @@ import {
   MoonIcon,
   ChevronDownIcon,
   EyeIcon,
+  ArrowRightOnRectangleIcon
 } from '@heroicons/react/24/outline';
 
 // Komponen notifikasi untuk logout
