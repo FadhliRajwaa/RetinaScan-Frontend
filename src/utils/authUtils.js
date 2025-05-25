@@ -107,9 +107,42 @@ export const handleFrontendLogout = (setIsAuthenticated, setUserName, setToken, 
  * @returns {URLSearchParams} - URL search params from hash
  */
 export const getHashParams = () => {
-  const hashParts = window.location.hash.split('?');
-  const hashParams = hashParts.length > 1 ? hashParts[1] : '';
-  return new URLSearchParams(hashParams);
+  try {
+    // Defensive check untuk window.location
+    if (!window || !window.location) {
+      console.warn('Window location tidak tersedia');
+      return new URLSearchParams('');
+    }
+    
+    // Pastikan window.location.hash tidak undefined dan tidak kosong
+    const hash = window.location.hash;
+    if (!hash || typeof hash !== 'string') {
+      console.warn('Hash tidak ada atau bukan string');
+      return new URLSearchParams('');
+    }
+    
+    // Cari posisi '?' pertama dalam string hash
+    const questionMarkIndex = hash.indexOf('?');
+    
+    // Jika tidak ada '?', return URLSearchParams kosong
+    if (questionMarkIndex === -1) {
+      return new URLSearchParams('');
+    }
+    
+    // Ambil substring setelah '?' dengan cara yang lebih aman
+    const hashParams = hash.substring(questionMarkIndex + 1);
+    
+    // Pastikan hashParams adalah string yang valid
+    if (!hashParams || typeof hashParams !== 'string') {
+      console.warn('Format hash params tidak valid');
+      return new URLSearchParams('');
+    }
+    
+    return new URLSearchParams(hashParams);
+  } catch (error) {
+    console.error('Error saat parsing hash params:', error);
+    return new URLSearchParams('');
+  }
 };
 
 /**
@@ -117,7 +150,38 @@ export const getHashParams = () => {
  * @returns {void}
  */
 export const cleanHashParams = () => {
-  const hashPath = window.location.hash.split('?')[0] || '#/';
-  window.history.replaceState({}, document.title, hashPath);
-  console.log('Parameters removed from URL, new hash:', hashPath);
+  try {
+    // Defensive check untuk window.location
+    if (!window || !window.location) {
+      console.warn('Window location tidak tersedia');
+      return;
+    }
+    
+    // Pastikan window.location.hash tidak undefined dan tidak kosong
+    const hash = window.location.hash;
+    if (!hash || typeof hash !== 'string') {
+      console.warn('Hash tidak ada atau bukan string saat membersihkan params');
+      return;
+    }
+    
+    // Cari posisi '?' pertama dalam string hash
+    const questionMarkIndex = hash.indexOf('?');
+    
+    // Jika tidak ada '?', tidak perlu membersihkan parameter
+    if (questionMarkIndex === -1) {
+      return;
+    }
+    
+    // Ambil bagian path dengan substring yang lebih aman
+    const hashPath = questionMarkIndex > 0 ? hash.substring(0, questionMarkIndex) : '#/';
+    
+    if (window.history && typeof window.history.replaceState === 'function') {
+      window.history.replaceState({}, document.title, hashPath);
+      console.log('Parameters removed from URL, new hash:', hashPath);
+    } else {
+      console.warn('History API tidak didukung browser');
+    }
+  } catch (error) {
+    console.error('Error saat membersihkan hash params:', error);
+  }
 };

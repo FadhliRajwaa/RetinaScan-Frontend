@@ -119,7 +119,25 @@ function LoginPage() {
       }
     } catch (err) {
       console.error('Login error:', err);
-      setError('Email atau kata sandi salah. Silakan periksa kembali informasi login Anda.');
+      
+      // Memberikan pesan error yang lebih spesifik
+      if (err.message && err.message.includes('Network Error')) {
+        setError('Tidak dapat terhubung ke server. Periksa koneksi internet Anda atau coba lagi nanti.');
+      } else if (err.response) {
+        // Error dari server dengan respon
+        if (err.response.status === 401) {
+          setError('Email atau kata sandi salah. Silakan periksa kembali informasi login Anda.');
+        } else if (err.response.status === 403) {
+          setError('Akun Anda tidak memiliki izin untuk mengakses halaman ini.');
+        } else if (err.response.status >= 500) {
+          setError('Terjadi kesalahan pada server. Silakan coba lagi nanti.');
+        } else {
+          setError(err.response.data?.message || 'Terjadi kesalahan saat login. Silakan coba lagi.');
+        }
+      } else {
+        // Error lainnya
+        setError('Terjadi kesalahan saat login. Silakan coba lagi.');
+      }
     } finally {
       setIsLoading(false);
     }
