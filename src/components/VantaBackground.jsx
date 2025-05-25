@@ -2,7 +2,7 @@ import { useEffect, useRef, useState } from 'react';
 import * as THREE from 'three';
 import DOTS from 'vanta/dist/vanta.dots.min';
 
-const VantaBackground = ({ children, options = {}, className = '' }) => {
+const VantaBackground = ({ children, options = {} }) => {
   const [vantaEffect, setVantaEffect] = useState(null);
   const myRef = useRef(null);
 
@@ -17,43 +17,26 @@ const VantaBackground = ({ children, options = {}, className = '' }) => {
           gyroControls: false,
           minHeight: 200.00,
           minWidth: 200.00,
-          scale: options.scale || 1.00,
-          scaleMobile: options.scaleMobile || 1.00,
-          color: options.color || 0x3b82f6, // blue-500
-          color2: options.color2 || 0x1e40af, // blue-800
-          backgroundColor: options.backgroundColor || 0x030712, // gray-950
-          spacing: options.spacing || 30.00,
+          scale: 1.00,
+          scaleMobile: 1.00,
+          color: options.color || 0x8620ff,
+          color2: options.color2 || 0x130b58,
+          backgroundColor: options.backgroundColor || 0x050505,
+          spacing: options.spacing || 25.00,
           showLines: options.showLines || false,
-          size: options.size || 1.50,
-          speed: options.speed || 1.0,
-          points: options.points || 20,
-          maxDistance: options.maxDistance || 25.00
+          size: options.size || 3
         })
       );
     }
 
-    // Untuk menangani resize window
-    const handleResize = () => {
-      if (vantaEffect) {
-        vantaEffect.resize();
-      }
-    };
-    
-    window.addEventListener('resize', handleResize);
-
     // Cleanup
     return () => {
       if (vantaEffect) vantaEffect.destroy();
-      window.removeEventListener('resize', handleResize);
     };
   }, [vantaEffect, options]);
 
   return (
-    <div 
-      ref={myRef} 
-      className={`${className} fixed inset-0 w-full h-full overflow-hidden`}
-      style={{ zIndex: -1 }}
-    >
+    <div ref={myRef} style={{ position: 'absolute', width: '100%', height: '100%', overflow: 'hidden', zIndex: -1 }}>
       {children}
     </div>
   );

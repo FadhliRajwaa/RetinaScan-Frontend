@@ -15,9 +15,9 @@ import {
   EyeIcon,
   EyeSlashIcon
 } from '@heroicons/react/24/outline';
-import ShimmerButton from '../components/ShimmerButton';
+import AnimatedButton from '../components/AnimatedButton';
 import AnimatedInput from '../components/AnimatedInput';
-import AnimatedCard from '../components/AnimatedCard';
+import AnimatedText from '../components/AnimatedText';
 
 const LoginPage = () => {
   const [email, setEmail] = useState('');
@@ -206,6 +206,16 @@ const LoginPage = () => {
       }
     } catch (err) {
       console.error('Login error:', err);
+<<<<<<< HEAD
+      setError('Email atau kata sandi salah. Silakan periksa kembali informasi login Anda.');
+      setLoginAttempts(prev => prev + 1);
+      
+      // Animasi error
+      controls.start({
+        x: [0, -10, 10, -10, 0],
+        transition: { duration: 0.5 }
+      });
+=======
       
       // Memberikan pesan error yang lebih spesifik
       if (err.message && err.message.includes('Network Error')) {
@@ -225,14 +235,7 @@ const LoginPage = () => {
         // Error lainnya
         setError('Terjadi kesalahan saat login. Silakan coba lagi.');
       }
-      
-      setLoginAttempts(prev => prev + 1);
-      
-      // Animasi error
-      controls.start({
-        x: [0, -10, 10, -10, 0],
-        transition: { duration: 0.5 }
-      });
+>>>>>>> 34aacf9 (fix)
     } finally {
       setIsLoading(false);
       setIsSubmitting(false);
@@ -247,71 +250,79 @@ const LoginPage = () => {
   const togglePasswordVisibility = () => {
     setShowPassword(!showPassword);
   };
-  
+
+  // Animasi untuk form focus
   const handleFormFocus = () => {
     setFormFocused(true);
   };
-  
+
   const handleFormBlur = (e) => {
-    if (!formRef.current.contains(e.relatedTarget)) {
+    // Jika klik diluar form, set formFocused ke false
+    if (formRef.current && !formRef.current.contains(e.relatedTarget)) {
       setFormFocused(false);
     }
   };
 
-  // Efek partikel saat login berhasil
-  const [particles, setParticles] = useState([]);
-
-  // Jika sudah terotentikasi, redirect ke dashboard
   if (isAuthenticated) {
-    navigate('/');
-    return null;
+    return (
+      <div className="min-h-screen flex items-center justify-center px-4 py-20 pt-36 relative overflow-hidden">
+        {/* Background tidak perlu lagi karena sudah ada di App.jsx */}
+        
+        <motion.div
+          initial={{ opacity: 0, scale: 0.9 }}
+          animate={{ opacity: 1, scale: 1 }}
+          transition={{ duration: 0.5 }}
+          className="w-full max-w-md p-8 rounded-2xl relative z-10 bg-black/50 backdrop-blur-xl border border-white/10"
+        >
+          <motion.div
+            initial={{ opacity: 0, y: -10 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.2, duration: 0.5 }}
+            className="text-center mb-6"
+          >
+            <div className="w-20 h-20 mx-auto bg-gradient-to-br from-cyan-600 to-blue-600 rounded-2xl shadow-lg p-5 mb-4">
+              <EyeIcon className="w-full h-full text-white" />
+            </div>
+            <h2 className="text-3xl font-bold text-white mb-2">
+              Anda Sudah Login
+            </h2>
+            <p className="text-gray-300 mb-8">
+              Silakan kembali ke beranda atau logout untuk masuk dengan akun lain.
+            </p>
+          </motion.div>
+          
+          <div className="space-y-4">
+            <div className="flex flex-col sm:flex-row gap-4 justify-center">
+              <Link to="/">
+                <motion.button
+                  whileHover={{ scale: 1.05 }}
+                  whileTap={{ scale: 0.95 }}
+                  className="flex items-center px-4 py-2 rounded-lg bg-white/10 backdrop-blur-sm text-white transition-colors hover:bg-white/20"
+                >
+                  <HomeIcon className="h-5 w-5 mr-2" />
+                  Kembali ke Beranda
+                </motion.button>
+              </Link>
+              <button 
+                onClick={handleLogout}
+                className="flex items-center px-4 py-2 rounded-lg bg-red-500/20 text-red-400 transition-colors hover:bg-red-500/30"
+              >
+                <ArrowLeftOnRectangleIcon className="h-5 w-5 mr-2" />
+                Logout
+              </button>
+            </div>
+          </div>
+        </motion.div>
+      </div>
+    );
   }
-  
-  const cardVariants = {
-    hidden: { opacity: 0, y: 20 },
-    visible: { 
-      opacity: 1, 
-      y: 0,
-      transition: { 
-        duration: 0.6,
-        ease: [0.22, 1, 0.36, 1]
-      }
-    },
-    exit: {
-      opacity: 0,
-      y: -20,
-      transition: { duration: 0.3 }
-    }
-  };
 
   return (
-    <div className="min-h-screen flex items-center justify-center py-20 px-4 relative overflow-hidden">
-      <motion.div 
-        className="absolute inset-0 pointer-events-none"
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-        transition={{ duration: 0.5 }}
-      >
-        {particles.map((particle, index) => (
-          <motion.div
-            key={index}
-            className="absolute w-1 h-1 bg-blue-500 rounded-full"
-            initial={{ x: particle.x, y: particle.y, opacity: 1 }}
-            animate={{ y: particle.y - 100, opacity: 0 }}
-            transition={{ duration: 1 }}
-            onAnimationComplete={() => {
-              setParticles(prev => prev.filter((_, i) => i !== index));
-            }}
-          />
-        ))}
-      </motion.div>
-
-      <AnimatedCard
-        className={`w-full max-w-md p-8 shadow-xl backdrop-blur-sm 
-        ${theme === 'dark' 
-          ? 'bg-gray-900/60 border border-gray-800/50' 
-          : 'bg-white/80 border border-gray-200/50'}`}
-      >
+    <div className="min-h-screen flex items-center justify-center px-4 py-20 pt-36 relative overflow-hidden">
+      {/* Background tidak perlu lagi karena sudah ada di App.jsx */}
+      
+      {/* Login Form */}
+      <div className="glass-effect w-full max-w-md p-8 rounded-2xl shadow-xl z-10">
         {/* Logo & Title */}
         <div className="text-center mb-8">
           <motion.div
@@ -324,50 +335,24 @@ const LoginPage = () => {
               <EyeIcon className="h-full w-full text-white" />
             </div>
           </motion.div>
-          <motion.h1 
-            className="text-3xl font-bold mb-2"
-            initial={{ opacity: 0, y: 10 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.5, delay: 0.2 }}
-          >
-            Selamat Datang
-          </motion.h1>
-          <motion.p 
-            className={`${theme === 'dark' ? 'text-gray-400' : 'text-gray-600'}`}
-            initial={{ opacity: 0, y: 10 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.5, delay: 0.3 }}
-          >
-            Login untuk mengakses akun Anda
-          </motion.p>
+          <AnimatedText className="text-3xl font-bold mb-2">Login</AnimatedText>
+          <p className="opacity-70">Silahkan masuk untuk melanjutkan</p>
         </div>
 
         {/* Error Message */}
-        <AnimatePresence>
-          {error && (
-            <motion.div 
-              initial={{ opacity: 0, y: -10 }}
-              animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, y: -10 }}
-              className="bg-red-500/10 border border-red-500/30 text-red-600 rounded-lg p-3 mb-6 flex items-center"
-            >
-              <ExclamationCircleIcon className="h-5 w-5 mr-2 flex-shrink-0" />
-              <p>{error}</p>
-            </motion.div>
-          )}
-        </AnimatePresence>
+        {error && (
+          <motion.div 
+            initial={{ opacity: 0, y: -10 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="bg-red-500/10 border border-red-500/30 text-red-600 rounded-lg p-3 mb-6 flex items-center"
+          >
+            <ExclamationCircleIcon className="h-5 w-5 mr-2 flex-shrink-0" />
+            <p>{error}</p>
+          </motion.div>
+        )}
 
         {/* Login Form */}
-        <motion.form 
-          ref={formRef}
-          onSubmit={handleSubmit} 
-          onFocus={handleFormFocus}
-          onBlur={handleFormBlur}
-          className="space-y-5"
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ duration: 0.5, delay: 0.4 }}
-        >
+        <form onSubmit={handleSubmit} className="space-y-5">
           <AnimatedInput
             id="email"
             name="email"
@@ -406,70 +391,57 @@ const LoginPage = () => {
             error={passwordError}
           />
 
-          {/* Remember Me & Forgot Password */}
-          <div className="flex items-center justify-between text-sm">
-            <label className="flex items-center gap-2">
+          <div className="flex justify-between items-center text-sm">
+            <div className="flex items-center">
               <input
+                id="remember"
+                name="remember"
                 type="checkbox"
-                className="w-4 h-4 rounded border-gray-300 focus:ring-blue-500"
                 checked={remember}
-                onChange={() => setRemember(!remember)}
+                onChange={(e) => setRemember(e.target.checked)}
+                className="h-4 w-4 rounded border-gray-300 focus:ring-blue-500"
               />
-              <span className={theme === 'dark' ? 'text-gray-300' : 'text-gray-700'}>Ingat Saya</span>
-            </label>
-            <Link to="/forgot-password" className="text-blue-500 hover:text-blue-600 font-medium">
-              Lupa Password?
+              <label htmlFor="remember" className="ml-2 block">
+                Ingat saya
+              </label>
+            </div>
+            <Link 
+              to="/forgot-password" 
+              className="text-blue-500 hover:text-blue-600 font-medium"
+            >
+              Lupa password?
             </Link>
           </div>
 
-          <ShimmerButton
+          <AnimatedButton
             type="submit"
-            disabled={isLoading}
-            fullWidth={true}
-            className="mt-6"
+            primary
+            isLoading={isSubmitting}
+            className="w-full"
           >
-            {isLoading ? (
-              <div className="flex items-center justify-center">
-                <svg className="animate-spin -ml-1 mr-2 h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                  <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-                  <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                </svg>
-                <span>Memproses...</span>
-              </div>
-            ) : (
-              <div className="flex items-center justify-center">
-                <span>Login</span>
-                <ArrowRightIcon className="h-5 w-5 ml-1" />
-              </div>
-            )}
-          </ShimmerButton>
-        </motion.form>
+            {isSubmitting ? 'Memproses...' : 'Login'}
+            {!isSubmitting && <ArrowRightIcon className="h-5 w-5 ml-1" />}
+          </AnimatedButton>
+        </form>
 
-        {/* Register link */}
-        <motion.div 
-          className="mt-8 text-center"
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ duration: 0.5, delay: 0.5 }}
-        >
-          <p className={theme === 'dark' ? 'text-gray-400' : 'text-gray-600'}>
-            Belum punya akun?{' '}
-            <Link to="/register" className="text-blue-500 hover:text-blue-600 font-medium transition-colors">
-              Daftar Sekarang
+        {/* Links */}
+        <div className="mt-8 text-center space-y-4">
+          <p>
+            Belum memiliki akun?{' '}
+            <Link to="/register" className="text-blue-500 hover:text-blue-600 font-medium">
+              Daftar sekarang
             </Link>
           </p>
           
           <Link 
             to="/" 
-            className={`inline-flex items-center mt-4 text-sm transition-colors ${
-              theme === 'dark' ? 'text-gray-400 hover:text-white' : 'text-gray-600 hover:text-gray-900'
-            }`}
+            className="inline-flex items-center text-sm hover:text-blue-500"
           >
             <HomeIcon className="h-4 w-4 mr-1" />
             Kembali ke Beranda
           </Link>
-        </motion.div>
-      </AnimatedCard>
+        </div>
+      </div>
     </div>
   );
 };

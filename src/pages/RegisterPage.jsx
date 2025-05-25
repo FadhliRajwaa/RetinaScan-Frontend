@@ -3,7 +3,6 @@ import { Link, useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { register } from '../services/authService';
 import { withPageTransition } from '../context/ThemeContext';
-import { useTheme } from '../context/ThemeContext';
 import { 
   HomeIcon, 
   ArrowRightIcon, 
@@ -16,8 +15,6 @@ import {
   CheckCircleIcon
 } from '@heroicons/react/24/outline';
 import AnimatedInput from '../components/AnimatedInput';
-import AnimatedCard from '../components/AnimatedCard';
-import ShimmerButton from '../components/ShimmerButton';
 
 const RegisterPage = () => {
   const [name, setName] = useState('');
@@ -34,7 +31,6 @@ const RegisterPage = () => {
   const formRef = useRef(null);
   
   const navigate = useNavigate();
-  const { theme } = useTheme();
   
   // Environment variables
   const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000';
@@ -132,13 +128,11 @@ const RegisterPage = () => {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center py-20 px-4 relative overflow-hidden">      
-      <AnimatedCard
-        className={`w-full max-w-md p-8 shadow-xl backdrop-blur-sm 
-        ${theme === 'dark' 
-          ? 'bg-gray-900/60 border border-gray-800/50' 
-          : 'bg-white/80 border border-gray-200/50'}`}
-      >
+    <div className="min-h-screen flex items-center justify-center px-4 py-20 pt-36 relative overflow-hidden">
+      {/* Background tidak perlu lagi karena sudah ada di App.jsx */}
+      
+      {/* Registration Form */}
+      <div className="glass-effect w-full max-w-md p-8 rounded-2xl shadow-xl z-10">
         {/* Logo & Title */}
         <div className="text-center mb-8">
           <motion.div
@@ -151,62 +145,36 @@ const RegisterPage = () => {
               <EyeIcon className="h-full w-full text-white" />
             </div>
           </motion.div>
-          <motion.h1 
-            className="text-3xl font-bold mb-2"
-            initial={{ opacity: 0, y: 10 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.5, delay: 0.2 }}
-          >
-            Daftar Akun
-          </motion.h1>
-          <motion.p 
-            className={`${theme === 'dark' ? 'text-gray-400' : 'text-gray-600'}`}
-            initial={{ opacity: 0, y: 10 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.5, delay: 0.3 }}
-          >
-            Buat akun untuk menggunakan RetinaScan
-          </motion.p>
+          <h1 className="text-3xl font-bold mb-2">Daftar Akun</h1>
+          <p className="opacity-70">Buat akun untuk menggunakan RetinaScan</p>
         </div>
 
         {/* Error Message */}
-        <AnimatePresence>
-          {error && (
-            <motion.div 
-              initial={{ opacity: 0, y: -10 }}
-              animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, y: -10 }}
-              className="bg-red-500/10 border border-red-500/30 text-red-600 rounded-lg p-3 mb-6 flex items-center"
-            >
-              <ExclamationCircleIcon className="h-5 w-5 mr-2 flex-shrink-0" />
-              <p>{error}</p>
-            </motion.div>
-          )}
-        </AnimatePresence>
+        {error && (
+          <motion.div 
+            initial={{ opacity: 0, y: -10 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="bg-red-500/10 border border-red-500/30 text-red-600 rounded-lg p-3 mb-6 flex items-center"
+          >
+            <ExclamationCircleIcon className="h-5 w-5 mr-2 flex-shrink-0" />
+            <p>{error}</p>
+          </motion.div>
+        )}
 
         {/* Success Message */}
-        <AnimatePresence>
-          {success && (
-            <motion.div 
-              initial={{ opacity: 0, y: -10 }}
-              animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, y: -10 }}
-              className="bg-green-500/10 border border-green-500/30 text-green-600 rounded-lg p-3 mb-6 flex items-center"
-            >
-              <CheckCircleIcon className="h-5 w-5 mr-2 flex-shrink-0" />
-              <p>{successMessage}</p>
-            </motion.div>
-          )}
-        </AnimatePresence>
+        {success && (
+          <motion.div 
+            initial={{ opacity: 0, y: -10 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="bg-green-500/10 border border-green-500/30 text-green-600 rounded-lg p-3 mb-6 flex items-center"
+          >
+            <CheckCircleIcon className="h-5 w-5 mr-2 flex-shrink-0" />
+            <p>{successMessage}</p>
+          </motion.div>
+        )}
 
         {/* Registration Form */}
-        <motion.form 
-          onSubmit={handleSubmit} 
-          className="space-y-5"
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ duration: 0.5, delay: 0.4 }}
-        >
+        <form onSubmit={handleSubmit} className="space-y-5">
           <AnimatedInput
             id="name"
             name="name"
@@ -280,57 +248,51 @@ const RegisterPage = () => {
                 }
               </button>
             }
-            error={error && error.includes('Konfirmasi password')}
+            error={error && error.includes('Konfirmasi')}
           />
 
-          <ShimmerButton
-            type="submit"
-            disabled={isLoading}
-            fullWidth={true}
-            className="mt-6"
-          >
-            {isLoading ? (
-              <div className="flex items-center justify-center">
-                <svg className="animate-spin -ml-1 mr-2 h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                  <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-                  <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                </svg>
-                <span>Memproses...</span>
-              </div>
-            ) : (
-              <div className="flex items-center justify-center">
-                <span>Daftar Sekarang</span>
-                <ArrowRightIcon className="h-5 w-5 ml-1" />
-              </div>
-            )}
-          </ShimmerButton>
-        </motion.form>
+          <div className="pt-2">
+            <button
+              type="submit"
+              disabled={isLoading}
+              className="w-full py-3 bg-gradient-to-r from-blue-600 to-indigo-600 text-white rounded-xl shadow-lg hover:shadow-blue-500/25 flex items-center justify-center transition-all disabled:opacity-70 disabled:cursor-not-allowed"
+            >
+              {isLoading ? (
+                <>
+                  <svg className="animate-spin -ml-1 mr-2 h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                    <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                    <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                  </svg>
+                  <span>Memproses...</span>
+                </>
+              ) : (
+                <>
+                  Daftar Sekarang
+                  <ArrowRightIcon className="h-5 w-5 ml-1" />
+                </>
+              )}
+            </button>
+          </div>
+        </form>
 
-        {/* Login link */}
-        <motion.div 
-          className="mt-8 text-center"
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ duration: 0.5, delay: 0.5 }}
-        >
-          <p className={theme === 'dark' ? 'text-gray-400' : 'text-gray-600'}>
-            Sudah punya akun?{' '}
-            <Link to="/login" className="text-blue-500 hover:text-blue-600 font-medium transition-colors">
-              Login Sekarang
+        {/* Links */}
+        <div className="mt-8 text-center space-y-4">
+          <p>
+            Sudah memiliki akun?{' '}
+            <Link to="/login" className="text-blue-500 hover:text-blue-600 font-medium">
+              Login
             </Link>
           </p>
           
           <Link 
             to="/" 
-            className={`inline-flex items-center mt-4 text-sm transition-colors ${
-              theme === 'dark' ? 'text-gray-400 hover:text-white' : 'text-gray-600 hover:text-gray-900'
-            }`}
+            className="inline-flex items-center text-sm hover:text-blue-500"
           >
             <HomeIcon className="h-4 w-4 mr-1" />
             Kembali ke Beranda
           </Link>
-        </motion.div>
-      </AnimatedCard>
+        </div>
+      </div>
     </div>
   );
 };
