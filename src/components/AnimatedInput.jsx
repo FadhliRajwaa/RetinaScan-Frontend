@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from 'react';
-import { motion } from 'framer-motion';
+import { motion, AnimatePresence } from 'framer-motion';
 import PropTypes from 'prop-types';
 import { useTheme } from '../context/ThemeContext';
 
@@ -29,6 +29,7 @@ const AnimatedInput = ({
 }) => {
   const [isFocused, setIsFocused] = useState(false);
   const [hasValue, setHasValue] = useState(!!value);
+  const [isHovered, setIsHovered] = useState(false);
   const inputRef = useRef(null);
   const { theme } = useTheme();
 
@@ -82,7 +83,7 @@ const AnimatedInput = ({
   const getInputBgColor = () => {
     return theme === 'dark' 
       ? 'bg-gray-900/50 backdrop-blur-sm' 
-      : 'bg-white backdrop-blur-sm';
+      : 'bg-white/80 backdrop-blur-sm';
   };
   
   const getInputTextColor = () => {
@@ -97,6 +98,8 @@ const AnimatedInput = ({
         className={`relative group transition-all duration-200 ${
           disabled ? 'opacity-60' : ''
         }`}
+        onMouseEnter={() => setIsHovered(true)}
+        onMouseLeave={() => setIsHovered(false)}
       >
         {/* Label */}
         <motion.label
@@ -106,8 +109,8 @@ const AnimatedInput = ({
             error ? 'error' : showLabel ? 'focused' : 'blurred'
           }
           variants={labelVariants}
-          className={`absolute left-3 px-1 pointer-events-none origin-left ${
-            theme === 'dark' ? 'bg-transparent' : 'bg-white'
+          className={`absolute left-3 px-1 pointer-events-none origin-left z-10 ${
+            theme === 'dark' ? 'bg-gray-900' : 'bg-white'
           } ${
             showLabel
               ? 'text-xs font-medium'
@@ -119,15 +122,35 @@ const AnimatedInput = ({
         </motion.label>
 
         {/* Input Field */}
-        <div className={`flex items-center overflow-hidden rounded-lg border ${getInputBorderColor()} 
-          focus-within:border-indigo-500 focus-within:ring-1 focus-within:ring-indigo-500 
-          ${getInputBgColor()} transition-all`}
+        <motion.div 
+          className={`flex items-center overflow-hidden rounded-lg border ${getInputBorderColor()} 
+            focus-within:border-indigo-500 focus-within:ring-1 focus-within:ring-indigo-500/50 
+            ${getInputBgColor()} transition-all duration-300`}
+          initial={{ y: 0 }}
+          animate={{ 
+            y: [0, isFocused ? -3 : 0],
+            boxShadow: isFocused 
+              ? `0 4px 16px -2px ${theme === 'dark' ? 'rgba(79, 70, 229, 0.2)' : 'rgba(59, 130, 246, 0.2)'}`
+              : (isHovered ? '0 4px 12px -4px rgba(0, 0, 0, 0.1)' : '0 0 0 0 rgba(0, 0, 0, 0)')
+          }}
+          transition={{ duration: 0.3 }}
+          whileHover={{ y: -2 }}
         >
           {/* Icon (if provided) */}
           {icon && (
-            <div className={`pl-3 text-gray-400 ${isFocused ? (theme === 'dark' ? 'text-indigo-500' : 'text-blue-500') : ''}`}>
+            <motion.div 
+              className={`pl-3 transition-colors duration-300 ${
+                isFocused 
+                  ? (theme === 'dark' ? 'text-indigo-500' : 'text-blue-500') 
+                  : 'text-gray-400'
+              }`}
+              animate={{ 
+                scale: isFocused ? [1, 1.15, 1] : 1 
+              }}
+              transition={{ duration: 0.3 }}
+            >
               {icon}
-            </div>
+            </motion.div>
           )}
 
           <input
@@ -149,13 +172,53 @@ const AnimatedInput = ({
           {endIcon && (
             <div className="pr-3 text-gray-400">{endIcon}</div>
           )}
-        </div>
+        </motion.div>
+        
+        {/* Subtle glow effect when focused */}
+        <AnimatePresence>
+          {isFocused && !error && (
+            <motion.div 
+              className={`absolute inset-0 rounded-lg ${
+                theme === 'dark' ? 'bg-indigo-500/10' : 'bg-blue-500/10'
+              }`}
+              initial={{ opacity: 0, scale: 0.95 }}
+              animate={{ opacity: 1, scale: 1.05 }}
+              exit={{ opacity: 0, scale: 1 }}
+              transition={{ duration: 0.3 }}
+              style={{ zIndex: -1 }}
+            />
+          )}
+        </AnimatePresence>
+        
+        {/* Error glow effect */}
+        <AnimatePresence>
+          {error && (
+            <motion.div 
+              className="absolute inset-0 rounded-lg bg-red-500/10"
+              initial={{ opacity: 0, scale: 0.95 }}
+              animate={{ opacity: 1, scale: 1.05 }}
+              exit={{ opacity: 0, scale: 1 }}
+              transition={{ duration: 0.3 }}
+              style={{ zIndex: -1 }}
+            />
+          )}
+        </AnimatePresence>
       </div>
 
       {/* Error Message */}
-      {error && typeof error === 'string' && (
-        <p className="mt-1 text-xs text-red-500">{error}</p>
-      )}
+      <AnimatePresence>
+        {error && typeof error === 'string' && (
+          <motion.p 
+            className="mt-1 text-xs text-red-500 flex items-center"
+            initial={{ opacity: 0, y: -10, height: 0 }}
+            animate={{ opacity: 1, y: 0, height: 'auto' }}
+            exit={{ opacity: 0, y: -10, height: 0 }}
+            transition={{ duration: 0.2 }}
+          >
+            {error}
+          </motion.p>
+        )}
+      </AnimatePresence>
     </div>
   );
 };

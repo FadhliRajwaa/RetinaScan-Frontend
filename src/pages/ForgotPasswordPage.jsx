@@ -1,8 +1,9 @@
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { forgotPassword as requestPasswordReset } from '../services/authService';
 import { withPageTransition } from '../context/ThemeContext';
+import { useTheme } from '../context/ThemeContext';
 import { 
   HomeIcon, 
   ArrowRightIcon, 
@@ -13,13 +14,8 @@ import {
   EyeIcon
 } from '@heroicons/react/24/outline';
 import AnimatedInput from '../components/AnimatedInput';
-import VantaBackground from '../components/VantaBackground';
-import { TextAnimate } from '../components/TextAnimate';
-import { AuroraText } from '../components/AuroraText';
-import { FlipText } from '../components/FlipText';
-import { SparklesText } from '../components/SparklesText';
-import AnimatedButton from '../components/AnimatedButton';
-import ParticlesBackground from '../components/ParticlesBackground';
+import AnimatedCard from '../components/AnimatedCard';
+import ShimmerButton from '../components/ShimmerButton';
 
 const ForgotPasswordPage = () => {
   const [email, setEmail] = useState('');
@@ -28,7 +24,8 @@ const ForgotPasswordPage = () => {
   const [success, setSuccess] = useState(false);
   const [successMessage, setSuccessMessage] = useState('');
   const [isMounted, setIsMounted] = useState(false);
-  const formRef = useRef(null);
+  
+  const { theme } = useTheme();
   
   // Environment variables
   const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000';
@@ -79,251 +76,181 @@ const ForgotPasswordPage = () => {
     }
   };
 
-  // Framer Motion variants
-  const containerVariants = {
-    hidden: { opacity: 0 },
-    visible: { 
-      opacity: 1,
-      transition: {
-        when: "beforeChildren",
-        staggerChildren: 0.2,
-        delayChildren: 0.3
-      }
-    },
-    exit: { 
-      opacity: 0,
-      transition: { 
-        when: "afterChildren",
-        staggerChildren: 0.1,
-        staggerDirection: -1 
-      } 
-    }
-  };
-  
-  const itemVariants = {
-    hidden: { opacity: 0, y: 20 },
-    visible: { 
-      opacity: 1, 
-      y: 0,
-      transition: { duration: 0.5 }
-    },
-    exit: { 
-      opacity: 0, 
-      y: -20,
-      transition: { duration: 0.3 }
-    }
-  };
+  // Efek partikel saat reset password berhasil
+  const [particles, setParticles] = useState([]);
 
-  const formVariants = {
-    hidden: { opacity: 0, scale: 0.95 },
-    visible: { 
-      opacity: 1, 
-      scale: 1,
-      transition: { duration: 0.5, ease: [0.23, 1, 0.32, 1] }
+  useEffect(() => {
+    if (success) {
+      // Generate random particles
+      const newParticles = Array.from({ length: 20 }, () => ({
+        x: Math.random() * window.innerWidth,
+        y: window.innerHeight,
+        color: ['#3b82f6', '#6366f1', '#8b5cf6', '#a855f7'][Math.floor(Math.random() * 4)]
+      }));
+      setParticles(newParticles);
     }
-  };
+  }, [success]);
 
   return (
-    <div className="min-h-screen flex flex-col items-center justify-center relative overflow-hidden py-10">
-      {/* Animated Background with Particles */}
-      <ParticlesBackground 
-        options={{
-          particles: {
-            number: {
-              value: 70,
-              density: {
-                enable: true,
-                value_area: 900
-              }
-            },
-            color: {
-              value: "#4f46e5"
-            },
-            opacity: {
-              value: 0.4,
-              random: true
-            },
-            size: {
-              value: 3,
-              random: true
-            },
-            line_linked: {
-              enable: true,
-              distance: 150,
-              color: "#c4b5fd",
-              opacity: 0.2,
-              width: 1
-            },
-            move: {
-              enable: true,
-              speed: 1
-            }
-          },
-          interactivity: {
-            events: {
-              onhover: {
-                enable: true,
-                mode: "repulse"
-              }
-            }
-          }
-        }}
-      />
-      
-      <motion.div
-        variants={containerVariants}
-        initial="hidden"
-        animate="visible"
-        exit="exit"
-        className="w-full max-w-md relative z-10"
+    <div className="min-h-screen flex items-center justify-center py-20 px-4 relative overflow-hidden">
+      {/* Particles effect */}
+      <motion.div 
+        className="absolute inset-0 pointer-events-none"
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        transition={{ duration: 0.5 }}
+      >
+        {particles.map((particle, index) => (
+          <motion.div
+            key={index}
+            className="absolute w-2 h-2 rounded-full"
+            style={{ backgroundColor: particle.color }}
+            initial={{ x: particle.x, y: particle.y, opacity: 1 }}
+            animate={{ y: particle.y - 300, opacity: 0 }}
+            transition={{ duration: 1.5, delay: index * 0.05 }}
+            onAnimationComplete={() => {
+              setParticles(prev => prev.filter((_, i) => i !== index));
+            }}
+          />
+        ))}
+      </motion.div>
+
+      <AnimatedCard
+        className={`w-full max-w-md p-8 shadow-xl backdrop-blur-sm 
+        ${theme === 'dark' 
+          ? 'bg-gray-900/60 border border-gray-800/50' 
+          : 'bg-white/80 border border-gray-200/50'}`}
       >
         {/* Logo & Title */}
-        <motion.div variants={itemVariants} className="text-center mb-8">
+        <div className="text-center mb-8">
           <motion.div
+            initial={{ scale: 0.9, opacity: 0 }}
+            animate={{ scale: 1, opacity: 1 }}
+            transition={{ duration: 0.5 }}
             className="mx-auto"
-            initial={{ scale: 0.5, opacity: 0 }}
-            animate={{ scale: 1, opacity: 1, rotate: [0, 10, 0] }}
-            transition={{
-              type: "spring",
-              stiffness: 260,
-              damping: 20,
-              delay: 0.2
-            }}
           >
-            <div className="h-20 w-20 bg-gradient-to-r from-violet-600 to-purple-600 rounded-2xl shadow-lg p-4 mx-auto mb-4 flex items-center justify-center relative overflow-hidden">
-              <div className="absolute inset-0 bg-gradient-to-r from-violet-600/80 to-purple-600/80 animate-pulse"></div>
-              <EyeIcon className="h-12 w-12 text-white relative z-10" />
+            <div className="h-16 w-16 bg-gradient-to-r from-blue-600 to-indigo-600 rounded-xl shadow-lg p-3 mx-auto mb-2">
+              <EyeIcon className="h-full w-full text-white" />
             </div>
           </motion.div>
-          
           <motion.h1 
-            className="text-4xl font-bold mb-2 text-white"
-            initial={{ opacity: 0, y: 20 }}
+            className="text-3xl font-bold mb-2"
+            initial={{ opacity: 0, y: 10 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.4, duration: 0.5 }}
+            transition={{ duration: 0.5, delay: 0.2 }}
           >
-            <AuroraText
-              colors={["#a78bfa", "#8b5cf6", "#7c3aed", "#6d28d9"]}
-            >
-              Lupa Password
-            </AuroraText>
+            Lupa Password
           </motion.h1>
-          
           <motion.p 
-            className="text-gray-400"
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            transition={{ delay: 0.6, duration: 0.5 }}
+            className={`${theme === 'dark' ? 'text-gray-400' : 'text-gray-600'}`}
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.5, delay: 0.3 }}
           >
-            <TextAnimate by="word" animation="fadeIn" delay={0.5}>
-              Masukkan email Anda untuk reset password
-            </TextAnimate>
+            Masukkan email Anda untuk reset password
           </motion.p>
-        </motion.div>
+        </div>
 
-        {/* Form Card */}
-        <motion.div
-          variants={formVariants}
-          className="glass-card bg-gray-900/40 backdrop-blur-xl border border-white/10 rounded-2xl p-8 shadow-2xl"
-          style={{
-            boxShadow: "0 10px 40px -10px rgba(0, 0, 0, 0.5), 0 0 80px -10px rgba(109, 40, 217, 0.3)"
-          }}
-        >
-          {/* Success Message */}
-          <AnimatePresence>
-            {success && (
-              <motion.div 
-                initial={{ opacity: 0, y: -10, height: 0 }}
-                animate={{ opacity: 1, y: 0, height: 'auto' }}
-                exit={{ opacity: 0, y: -10, height: 0 }}
-                className="bg-green-500/10 border border-green-500/30 text-green-600 rounded-lg p-3 mb-6 flex items-center"
-              >
-                <CheckCircleIcon className="h-5 w-5 mr-2 flex-shrink-0" />
-                <p>{successMessage}</p>
-              </motion.div>
-            )}
-          </AnimatePresence>
-          
-          {/* Error Message */}
-          <AnimatePresence>
-            {error && (
-              <motion.div 
-                initial={{ opacity: 0, y: -10, height: 0 }}
-                animate={{ opacity: 1, y: 0, height: 'auto' }}
-                exit={{ opacity: 0, y: -10, height: 0 }}
-                className="bg-red-500/10 border border-red-500/30 text-red-600 rounded-lg p-3 mb-6 flex items-center"
-              >
-                <ExclamationCircleIcon className="h-5 w-5 mr-2 flex-shrink-0" />
-                <p>{error}</p>
-              </motion.div>
-            )}
-          </AnimatePresence>
-
-          {/* Form */}
-          <form 
-            ref={formRef}
-            onSubmit={handleSubmit} 
-            className="space-y-5"
-          >
-            <AnimatedInput
-              id="email"
-              name="email"
-              type="email"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              label="Email"
-              required
-              placeholder="Masukkan email anda"
-              icon={<EnvelopeIcon className="h-5 w-5" />}
-              error={error && error.includes('email')}
-            />
-
-            <div className="mt-2">
-              <AnimatedButton
-                type="submit"
-                disabled={isLoading}
-                isLoading={isLoading}
-                loadingText="Memproses..."
-                primary={true}
-                gradientFrom="from-violet-600"
-                gradientTo="to-purple-600"
-                className="w-full py-2.5"
-                icon={<ArrowRightIcon className="h-5 w-5 ml-1" />}
-              >
-                Kirim Link Reset
-              </AnimatedButton>
-            </div>
-          </form>
-          
-          <motion.div 
-            variants={itemVariants}
-            className="mt-6 flex justify-center"
-          >
-            <Link 
-              to="/login"
-              className="inline-flex items-center text-violet-400 hover:text-violet-300 font-medium transition-colors"
+        {/* Success Message */}
+        <AnimatePresence>
+          {success && (
+            <motion.div 
+              initial={{ opacity: 0, y: -10 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -10 }}
+              className="bg-green-500/10 border border-green-500/30 text-green-600 rounded-lg p-3 mb-6 flex items-center"
             >
-              <ArrowLeftIcon className="h-4 w-4 mr-1" />
-              <SparklesText minSize={4} maxSize={8} sparklesCount={3} className="text-violet-400">
-                Kembali ke Login
-              </SparklesText>
-            </Link>
-          </motion.div>
-        </motion.div>
+              <CheckCircleIcon className="h-5 w-5 mr-2 flex-shrink-0" />
+              <p>{successMessage}</p>
+            </motion.div>
+          )}
+        </AnimatePresence>
         
+        {/* Error Message */}
+        <AnimatePresence>
+          {error && (
+            <motion.div 
+              initial={{ opacity: 0, y: -10 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -10 }}
+              className="bg-red-500/10 border border-red-500/30 text-red-600 rounded-lg p-3 mb-6 flex items-center"
+            >
+              <ExclamationCircleIcon className="h-5 w-5 mr-2 flex-shrink-0" />
+              <p>{error}</p>
+            </motion.div>
+          )}
+        </AnimatePresence>
+
+        {/* Form */}
+        <motion.form 
+          onSubmit={handleSubmit} 
+          className="space-y-5"
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ duration: 0.5, delay: 0.4 }}
+        >
+          <AnimatedInput
+            id="email"
+            name="email"
+            type="email"
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+            label="Email"
+            required
+            placeholder="Masukkan email anda"
+            icon={<EnvelopeIcon className="h-5 w-5" />}
+            error={error && error.includes('email')}
+          />
+
+          <ShimmerButton
+            type="submit"
+            disabled={isLoading}
+            fullWidth={true}
+            className="mt-6"
+          >
+            {isLoading ? (
+              <div className="flex items-center justify-center">
+                <svg className="animate-spin -ml-1 mr-2 h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                  <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                  <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                </svg>
+                <span>Memproses...</span>
+              </div>
+            ) : (
+              <div className="flex items-center justify-center">
+                <span>Kirim Link Reset</span>
+                <ArrowRightIcon className="h-5 w-5 ml-1" />
+              </div>
+            )}
+          </ShimmerButton>
+        </motion.form>
+
+        {/* Links */}
         <motion.div 
-          variants={itemVariants} 
-          className="mt-8 text-center"
+          className="mt-8 text-center space-y-4"
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ duration: 0.5, delay: 0.5 }}
         >
           <Link 
+            to="/login" 
+            className="text-blue-500 hover:text-blue-600 font-medium flex items-center justify-center transition-colors"
+          >
+            <ArrowLeftIcon className="h-4 w-4 mr-1" />
+            Kembali ke Login
+          </Link>
+          
+          <Link 
             to="/" 
-            className="inline-flex items-center text-sm text-gray-400 hover:text-violet-400 transition-colors"
+            className={`inline-flex items-center justify-center mt-4 text-sm transition-colors ${
+              theme === 'dark' ? 'text-gray-400 hover:text-white' : 'text-gray-600 hover:text-gray-900'
+            }`}
           >
             <HomeIcon className="h-4 w-4 mr-1" />
             Kembali ke Beranda
           </Link>
         </motion.div>
-      </motion.div>
+      </AnimatedCard>
     </div>
   );
 };

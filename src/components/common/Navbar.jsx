@@ -1,7 +1,7 @@
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import axios from 'axios';
-import { motion, AnimatePresence, useScroll, useTransform } from 'framer-motion';
+import { motion, AnimatePresence } from 'framer-motion';
 import { useTheme } from '../../context/ThemeContext';
 import { 
   processLogoutParams, 
@@ -28,9 +28,6 @@ import {
   EyeIcon,
   ArrowRightOnRectangleIcon
 } from '@heroicons/react/24/outline';
-import VantaBackground from '../VantaBackground';
-import { TextAnimate } from '../TextAnimate';
-import { FlipText } from '../FlipText';
 
 // Komponen notifikasi untuk logout
 const LogoutNotification = ({ message, type = 'success', onClose }) => {
@@ -62,7 +59,7 @@ const LogoutNotification = ({ message, type = 'success', onClose }) => {
       <span className="text-white font-medium">{message}</span>
       <button 
         onClick={onClose} 
-        className="ml-4 hover:bg-white/20 rounded-full p-1 transition-colors duration-200"
+        className="ml-4 hover:bg-white/20 rounded-full p-1"
       >
         <XMarkIcon className="h-4 w-4 text-white" />
       </button>
@@ -80,29 +77,10 @@ function Navbar() {
   const location = useLocation();
   const navigate = useNavigate();
   const { theme, toggleTheme } = useTheme();
-  const navbarRef = useRef(null);
   
   // Environment variables
   const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000';
   const DASHBOARD_URL = import.meta.env.VITE_DASHBOARD_URL || 'http://localhost:3000';
-
-  // Scroll animation
-  const { scrollY } = useScroll();
-  const navbarBackground = useTransform(
-    scrollY,
-    [0, 100],
-    ["rgba(3, 7, 18, 0)", "rgba(3, 7, 18, 0.8)"]
-  );
-  const navbarBlur = useTransform(
-    scrollY,
-    [0, 100],
-    ["blur(0px)", "blur(12px)"]
-  );
-  const navbarBorder = useTransform(
-    scrollY,
-    [0, 100],
-    ["rgba(255, 255, 255, 0)", "rgba(255, 255, 255, 0.1)"]
-  );
 
   const checkAuth = async (forceLogout = false) => {
     if (forceLogout) {
@@ -270,115 +248,90 @@ function Navbar() {
   }, [userMenuOpen]);
   
   const getUserInfo = () => {
-    if (isAuthenticated && userName) {
-      return {
-        name: userName,
-        avatar: userName.charAt(0).toUpperCase(),
-        isAuthenticated: true
-      };
+    try {
+      const user = localStorage.getItem('user');
+      if (user) {
+        const userData = JSON.parse(user);
+        return userData;
+      }
+      return null;
+    } catch (error) {
+      console.error('Error parsing user data:', error);
+      return null;
     }
-    
-    return {
-      name: 'Guest',
-      avatar: 'G',
-      isAuthenticated: false
-    };
   };
+
+  const navbarBgClass = scrolled 
+    ? (theme === 'dark' 
+      ? 'bg-gray-900/80 backdrop-blur-md shadow-lg' 
+      : 'bg-white/80 backdrop-blur-md shadow-md')
+    : (theme === 'dark' 
+      ? 'bg-transparent' 
+      : 'bg-transparent');
+
+  const navbarTextClass = theme === 'dark' ? 'text-white' : 'text-gray-800';
   
-  const userInfo = getUserInfo();
-  const isCurrentPage = (path) => location.pathname === path;
-
-  // Navbar link items
-  const navLinks = [
-    {
-      to: '/',
-      label: 'Beranda',
-      icon: <HomeIcon className="h-5 w-5" />
-    },
-    {
-      to: '/scan',
-      label: 'Scan Retina',
-      icon: <EyeIcon className="h-5 w-5" />
-    }
-  ];
-
-  // Framer motion variants
-  const navbarVariants = {
-    hidden: { opacity: 0, y: -20 },
-    visible: { 
-      opacity: 1, 
-      y: 0,
-      transition: {
-        duration: 0.5,
-        staggerChildren: 0.1,
-        delayChildren: 0.2
-      }
-    }
-  };
-
-  const navItemVariants = {
-    hidden: { opacity: 0, y: -10 },
-    visible: { 
-      opacity: 1, 
-      y: 0,
-      transition: { duration: 0.3 }
-    }
-  };
-
-  const mobileMenuVariants = {
-    hidden: { opacity: 0, height: 0 },
-    visible: { 
-      opacity: 1, 
-      height: 'auto',
-      transition: {
-        duration: 0.3,
-        staggerChildren: 0.1,
-        delayChildren: 0.1
-      }
-    },
-    exit: { 
-      opacity: 0, 
-      height: 0,
-      transition: { duration: 0.3 }
-    }
-  };
-
-  const NavLink = ({ to, label, icon }) => {
-    const isActive = isCurrentPage(to);
-    
-    return (
-      <motion.li 
-        variants={navItemVariants}
+  const LogoComponent = () => (
+    <Link to="/" className="flex items-center">
+      <motion.div
         whileHover={{ scale: 1.05 }}
         whileTap={{ scale: 0.95 }}
+        className="flex items-center"
       >
-        <Link
-          to={to}
-          className={`flex items-center px-4 py-2 rounded-xl transition-all duration-300 group ${
-            isActive 
-              ? 'bg-blue-500/10 text-blue-500' 
-              : 'text-gray-300 hover:text-white hover:bg-white/5'
-          }`}
+        <motion.div
+          className={`w-8 h-8 rounded-lg overflow-hidden mr-2 bg-gradient-to-r ${
+            theme === 'dark'
+              ? 'from-blue-600 to-indigo-600'
+              : 'from-blue-500 to-indigo-500'
+          } flex items-center justify-center`}
+          animate={{
+            rotate: [0, 2, 0, -2, 0],
+          }}
+          transition={{
+            duration: 5,
+            repeat: Infinity,
+            repeatType: "loop",
+            ease: "easeInOut",
+          }}
         >
-          <span className={`mr-2 ${isActive ? 'text-blue-500' : 'text-gray-400 group-hover:text-blue-400'} transition-colors duration-300`}>
-            {icon}
-          </span>
-          <span className="font-medium">
-            <TextAnimate by="letter" animation="slideIn" delay={0.1}>
-              {label}
-            </TextAnimate>
-          </span>
+          <EyeIcon className="h-5 w-5 text-white" />
+        </motion.div>
+        <span className={`font-bold text-xl ${navbarTextClass}`}>RetinaScan</span>
+      </motion.div>
+    </Link>
+  );
+
+  const NavLink = ({ to, label, icon }) => {
+    const isActive = location.pathname === to;
+    
+    return (
+      <Link to={to}>
+        <motion.div
+          className={`relative px-3 py-2 rounded-md transition-all flex items-center ${
+            isActive 
+              ? (theme === 'dark' ? 'text-blue-400' : 'text-blue-600') 
+              : (theme === 'dark' ? 'text-gray-300 hover:text-white' : 'text-gray-700 hover:text-black')
+          }`}
+          whileHover={{ scale: 1.05 }}
+          whileTap={{ scale: 0.95 }}
+        >
+          {icon && <span className="mr-1.5">{icon}</span>}
+          {label}
+          
           {isActive && (
-            <motion.span
-              layoutId="navIndicator" 
-              className="ml-2 h-1.5 w-1.5 rounded-full bg-blue-500"
-              initial={{ scale: 0 }}
-              animate={{ scale: 1 }}
-              transition={{ duration: 0.3 }}
+            <motion.div
+              className={`absolute inset-0 rounded-md ${
+                theme === 'dark' ? 'bg-blue-500/10' : 'bg-blue-500/10'
+              }`}
+              layoutId="nav-highlight"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              transition={{ duration: 0.2 }}
             />
           )}
-        </Link>
-      </motion.li>
+        </motion.div>
+      </Link>
     );
   };
 
@@ -386,326 +339,237 @@ function Navbar() {
     <>
       <AnimatePresence>
         {notification.show && (
-          <LogoutNotification
-            message={notification.message}
-            type={notification.type}
-            onClose={() => setNotification({ ...notification, show: false })}
+          <LogoutNotification 
+            message={notification.message} 
+            type={notification.type} 
+            onClose={() => setNotification({ ...notification, show: false })} 
           />
         )}
       </AnimatePresence>
       
-      {/* Navbar */}
       <motion.header
-        ref={navbarRef}
-        variants={navbarVariants}
-        initial="hidden"
-        animate="visible"
-        className="fixed top-0 left-0 right-0 z-50 transition-all duration-300"
-        style={{
-          background: navbarBackground,
-          backdropFilter: navbarBlur,
-          borderBottom: `1px solid ${navbarBorder}`
-        }}
+        className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${navbarBgClass}`}
+        initial={{ y: -100 }}
+        animate={{ y: 0 }}
+        transition={{ type: 'spring', stiffness: 100, damping: 15 }}
       >
-        <div className="relative overflow-hidden">
-          {/* VantaJS Background untuk Navbar */}
-          <div className="absolute inset-0 pointer-events-none" style={{ height: '100%', zIndex: -1 }}>
-            <VantaBackground options={{
-              color: 0x3b82f6, // blue-500
-              color2: 0x1e40af, // blue-800
-              backgroundColor: 0x030712, // gray-950
-              spacing: 30.00,
-              size: 1.2,
-              showLines: false
-            }} />
-          </div>
-          
-          <div className="container mx-auto px-4 py-4 flex items-center justify-between">
-            {/* Logo dan Brand */}
-            <Link to="/" className="flex items-center space-x-3 group">
-              <motion.div
-                initial={{ scale: 0.8, rotate: -10 }}
-                animate={{ scale: 1, rotate: 0 }}
-                transition={{ duration: 0.5, type: 'spring' }}
-                className="bg-gradient-to-br from-blue-500 to-indigo-600 p-2 rounded-lg shadow-lg"
-                whileHover={{ rotate: [0, -5, 5, -5, 0], transition: { duration: 0.5 } }}
-              >
-                <EyeIcon className="h-6 w-6 text-white" />
-              </motion.div>
-              
-              <div className="flex flex-col">
-                <motion.span 
-                  className="text-xl font-bold text-white tracking-tight"
-                  initial={{ opacity: 0, y: 5 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ delay: 0.2, duration: 0.5 }}
-                >
-                  <FlipText>RetinaScan</FlipText>
-                </motion.span>
-                <motion.span 
-                  className="text-xs text-blue-400/80 font-medium"
-                  initial={{ opacity: 0 }}
-                  animate={{ opacity: 1 }}
-                  transition={{ delay: 0.4, duration: 0.5 }}
-                >
-                  Analisis Retina AI
-                </motion.span>
-              </div>
-            </Link>
-            
-            {/* Navigation Links - Desktop */}
-            <motion.nav 
-              className="hidden md:flex"
-              variants={navbarVariants}
-            >
-              <motion.ul className="flex space-x-2" variants={navbarVariants}>
-                {navLinks.map((link) => (
-                  <NavLink 
-                    key={link.to} 
-                    to={link.to} 
-                    label={link.label} 
-                    icon={link.icon} 
-                  />
-                ))}
-              </motion.ul>
-            </motion.nav>
-            
-            {/* Right side - User menu or Login/Register */}
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="flex justify-between h-16">
             <div className="flex items-center">
-              {/* Theme Toggle */}
+              {/* Logo */}
+              <LogoComponent />
+              
+              {/* Desktop menu */}
+              <nav className="hidden md:ml-8 md:flex md:space-x-2">
+                <NavLink to="/" label="Beranda" icon={<HomeIcon className="h-4 w-4" />} />
+                {isAuthenticated ? (
+                  <NavLink to="/retina-scan" label="Scan Retina" icon={<EyeIcon className="h-4 w-4" />} />
+                ) : (
+                  <>
+                    <NavLink to="/login" label="Login" icon={<ArrowRightOnRectangleIcon className="h-4 w-4" />} />
+                    <NavLink to="/register" label="Register" icon={<UserIcon className="h-4 w-4" />} />
+                  </>
+                )}
+              </nav>
+            </div>
+            
+            {/* Right side controls */}
+            <div className="flex items-center">
+              {/* Theme switcher */}
               <motion.button
+                onClick={toggleTheme}
+                className={`hidden md:flex items-center justify-center h-8 w-8 rounded-full mr-4 ${
+                  theme === 'dark' ? 'bg-gray-800 text-yellow-400' : 'bg-gray-200 text-gray-700'
+                }`}
                 whileHover={{ scale: 1.1 }}
                 whileTap={{ scale: 0.9 }}
-                onClick={toggleTheme}
-                className="relative p-2 rounded-full mr-2 text-gray-300 hover:text-white focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 focus:ring-offset-gray-900 transition-all duration-200"
+                initial={{ rotate: 0 }}
+                animate={{ rotate: [0, 15, 0] }}
+                transition={{ duration: 0.5, delay: 0.1 }}
               >
-                <span className="sr-only">Toggle theme</span>
-                <AnimatePresence mode="wait">
-                  {theme === 'dark' ? (
-                    <motion.span
-                      key="darkMode"
-                      initial={{ opacity: 0, rotate: -90 }}
-                      animate={{ opacity: 1, rotate: 0 }}
-                      exit={{ opacity: 0, rotate: 90 }}
-                      transition={{ duration: 0.3 }}
-                    >
-                      <SunIcon className="h-5 w-5" />
-                    </motion.span>
-                  ) : (
-                    <motion.span
-                      key="lightMode"
-                      initial={{ opacity: 0, rotate: 90 }}
-                      animate={{ opacity: 1, rotate: 0 }}
-                      exit={{ opacity: 0, rotate: -90 }}
-                      transition={{ duration: 0.3 }}
-                    >
-                      <MoonIcon className="h-5 w-5" />
-                    </motion.span>
-                  )}
-                </AnimatePresence>
+                {theme === 'dark' ? (
+                  <SunIcon className="h-5 w-5" />
+                ) : (
+                  <MoonIcon className="h-5 w-5" />
+                )}
               </motion.button>
               
-              {isAuthenticated ? (
-                // User Menu
-                <div className="relative" data-user-menu>
+              {/* User menu (desktop) */}
+              {isAuthenticated && (
+                <div className="hidden md:ml-3 md:relative md:flex md:items-center" data-user-menu>
                   <motion.button
-                    whileHover={{ scale: 1.05 }}
-                    whileTap={{ scale: 0.95 }}
                     onClick={toggleUserMenu}
-                    className={`flex items-center space-x-2 px-3 py-1.5 rounded-xl focus:outline-none ${
-                      userMenuOpen 
-                        ? 'bg-blue-500/10 text-blue-500' 
-                        : 'text-gray-300 hover:bg-white/5 hover:text-white'
-                    } transition-colors duration-200`}
+                    className={`flex items-center gap-1.5 px-3 py-1.5 rounded-full transition-all ${
+                      theme === 'dark' 
+                        ? 'hover:bg-gray-800 border border-gray-700' 
+                        : 'hover:bg-gray-100 border border-gray-200'
+                    }`}
+                    whileHover={{ scale: 1.03 }}
+                    whileTap={{ scale: 0.98 }}
                   >
-                    <div className="w-8 h-8 rounded-full bg-gradient-to-br from-blue-500 to-indigo-600 flex items-center justify-center text-white font-medium">
-                      {userInfo.avatar}
-                    </div>
-                    <span className="font-medium hidden sm:block">{userInfo.name}</span>
-                    <ChevronDownIcon className={`h-4 w-4 transition-transform duration-200 ${userMenuOpen ? 'rotate-180' : ''}`} />
+                    <UserCircleIcon className="h-5 w-5" />
+                    <span className="text-sm font-medium">{userName}</span>
+                    <motion.div
+                      animate={{ rotate: userMenuOpen ? 180 : 0 }}
+                      transition={{ duration: 0.3 }}
+                    >
+                      <ChevronDownIcon className="h-4 w-4" />
+                    </motion.div>
                   </motion.button>
                   
                   <AnimatePresence>
                     {userMenuOpen && (
                       <motion.div
-                        initial={{ opacity: 0, y: 10, scale: 0.95 }}
+                        className={`absolute right-0 mt-2 w-48 py-1 rounded-md shadow-lg origin-top-right z-50 ${
+                          theme === 'dark' ? 'bg-gray-900 border border-gray-800' : 'bg-white border border-gray-200'
+                        }`}
+                        initial={{ opacity: 0, y: -20, scale: 0.95 }}
                         animate={{ opacity: 1, y: 0, scale: 1 }}
-                        exit={{ opacity: 0, y: 10, scale: 0.95 }}
+                        exit={{ opacity: 0, y: -20, scale: 0.95 }}
                         transition={{ duration: 0.2 }}
-                        className="absolute right-0 mt-2 w-48 rounded-xl overflow-hidden bg-gray-900/90 backdrop-blur-lg border border-white/10 shadow-xl z-50"
                       >
-                        <div className="py-1">
-                          <Link
-                            to={`${DASHBOARD_URL}/#/?token=${token}`}
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            className="flex items-center px-4 py-2 text-sm text-gray-300 hover:bg-blue-500/10 hover:text-blue-500 transition-colors duration-200"
-                          >
-                            <ChartBarSquareIcon className="h-5 w-5 mr-2" />
-                            Dashboard
-                          </Link>
-                          <Link
-                            to="/account"
-                            className="flex items-center px-4 py-2 text-sm text-gray-300 hover:bg-blue-500/10 hover:text-blue-500 transition-colors duration-200"
-                          >
-                            <UserIcon className="h-5 w-5 mr-2" />
-                            Profil Saya
-                          </Link>
-                          <button
-                            onClick={handleLogout}
-                            className="w-full flex items-center px-4 py-2 text-sm text-red-400 hover:bg-red-500/10 hover:text-red-500 transition-colors duration-200"
-                          >
-                            <ArrowLeftOnRectangleIcon className="h-5 w-5 mr-2" />
-                            Logout
-                          </button>
+                        <div className="px-4 py-2 text-sm">
+                          <p className="font-medium truncate">{userName}</p>
+                          <p className={`text-xs truncate ${theme === 'dark' ? 'text-gray-400' : 'text-gray-500'}`}>
+                            {getUserInfo()?.email || ''}
+                          </p>
                         </div>
+                        <div className={`border-t ${theme === 'dark' ? 'border-gray-800' : 'border-gray-200'}`}></div>
+                        
+                        <Link to="/retina-scan">
+                          <motion.div
+                            className={`block px-4 py-2 text-sm ${
+                              theme === 'dark' ? 'hover:bg-gray-800' : 'hover:bg-gray-100'
+                            } flex items-center`}
+                            whileHover={{ x: 5 }}
+                          >
+                            <EyeIcon className="h-4 w-4 mr-2" />
+                            Scan Retina
+                          </motion.div>
+                        </Link>
+                        
+                        <a href={`${DASHBOARD_URL}/#/?token=${token}`} target="_blank" rel="noopener noreferrer">
+                          <motion.div
+                            className={`block px-4 py-2 text-sm ${
+                              theme === 'dark' ? 'hover:bg-gray-800' : 'hover:bg-gray-100'
+                            } flex items-center`}
+                            whileHover={{ x: 5 }}
+                          >
+                            <ChartBarSquareIcon className="h-4 w-4 mr-2" />
+                            Dashboard
+                          </motion.div>
+                        </a>
+                        
+                        <div className={`border-t ${theme === 'dark' ? 'border-gray-800' : 'border-gray-200'}`}></div>
+                        
+                        <button
+                          onClick={handleLogout}
+                          className={`block w-full text-left px-4 py-2 text-sm ${
+                            theme === 'dark' ? 'text-red-400 hover:bg-gray-800' : 'text-red-500 hover:bg-gray-100'
+                          } flex items-center`}
+                        >
+                          <motion.div
+                            className="flex items-center w-full"
+                            whileHover={{ x: 5 }}
+                          >
+                            <ArrowLeftOnRectangleIcon className="h-4 w-4 mr-2" />
+                            Logout
+                          </motion.div>
+                        </button>
                       </motion.div>
                     )}
                   </AnimatePresence>
-                </div>
-              ) : (
-                // Login & Register Buttons
-                <div className="flex items-center space-x-2">
-                  <motion.div
-                    initial={{ opacity: 0, x: 20 }}
-                    animate={{ opacity: 1, x: 0 }}
-                    transition={{ delay: 0.3, duration: 0.5 }}
-                  >
-                    <Link
-                      to="/login"
-                      className="hidden md:flex items-center px-4 py-2 text-gray-300 hover:text-white transition-colors duration-200"
-                    >
-                      <ArrowRightOnRectangleIcon className="h-5 w-5 mr-2" />
-                      <span>Login</span>
-                    </Link>
-                  </motion.div>
-                  
-                  <motion.div
-                    initial={{ opacity: 0, x: 20 }}
-                    animate={{ opacity: 1, x: 0 }}
-                    transition={{ delay: 0.4, duration: 0.5 }}
-                    whileHover={{ scale: 1.05 }}
-                    whileTap={{ scale: 0.95 }}
-                  >
-                    <Link
-                      to="/register"
-                      className="flex items-center px-4 py-2 bg-gradient-to-r from-blue-500 to-indigo-600 text-white rounded-xl shadow-md hover:shadow-blue-500/20 transition-all duration-200"
-                    >
-                      <UserCircleIcon className="h-5 w-5 mr-2" />
-                      <span>Register</span>
-                    </Link>
-                  </motion.div>
                 </div>
               )}
               
               {/* Mobile menu button */}
               <motion.button
-                whileHover={{ scale: 1.1 }}
-                whileTap={{ scale: 0.9 }}
                 onClick={toggleMenu}
-                className="md:hidden p-2 ml-2 rounded-full text-gray-300 hover:text-white focus:outline-none"
+                className="md:hidden flex items-center justify-center p-2 rounded-md focus:outline-none"
+                whileTap={{ scale: 0.9 }}
               >
-                <span className="sr-only">Open menu</span>
-                <AnimatePresence mode="wait">
-                  {isOpen ? (
-                    <motion.span
-                      key="close"
-                      initial={{ opacity: 0, rotate: 90 }}
-                      animate={{ opacity: 1, rotate: 0 }}
-                      exit={{ opacity: 0, rotate: 90 }}
-                      transition={{ duration: 0.2 }}
-                    >
-                      <XMarkIcon className="h-6 w-6" />
-                    </motion.span>
-                  ) : (
-                    <motion.span
-                      key="menu"
-                      initial={{ opacity: 0, rotate: -90 }}
-                      animate={{ opacity: 1, rotate: 0 }}
-                      exit={{ opacity: 0, rotate: -90 }}
-                      transition={{ duration: 0.2 }}
-                    >
-                      <Bars3Icon className="h-6 w-6" />
-                    </motion.span>
-                  )}
-                </AnimatePresence>
+                {isOpen ? (
+                  <XMarkIcon className={`h-6 w-6 ${navbarTextClass}`} />
+                ) : (
+                  <Bars3Icon className={`h-6 w-6 ${navbarTextClass}`} />
+                )}
               </motion.button>
             </div>
           </div>
-          
-          {/* Mobile menu */}
-          <AnimatePresence>
-            {isOpen && (
-              <motion.div
-                variants={mobileMenuVariants}
-                initial="hidden"
-                animate="visible"
-                exit="exit"
-                className="md:hidden overflow-hidden"
-              >
-                <div className="container mx-auto px-4 py-3 space-y-1 bg-gray-900/80 backdrop-blur-md border-t border-white/5">
-                  {navLinks.map((link) => (
-                    <motion.div
-                      key={link.to}
-                      variants={navItemVariants}
-                      whileHover={{ scale: 1.02, x: 5 }}
-                      whileTap={{ scale: 0.98 }}
-                    >
-                      <Link
-                        to={link.to}
-                        className={`flex items-center px-4 py-3 rounded-xl ${
-                          isCurrentPage(link.to) 
-                            ? 'bg-blue-500/10 text-blue-500' 
-                            : 'text-gray-300 hover:bg-white/5 hover:text-white'
-                        } transition-colors duration-200`}
-                        onClick={() => setIsOpen(false)}
-                      >
-                        <span className="mr-3 text-blue-400">{link.icon}</span>
-                        <span className="font-medium">{link.label}</span>
-                      </Link>
-                    </motion.div>
-                  ))}
-                  
-                  {!isAuthenticated && (
-                    <motion.div 
-                      variants={navItemVariants}
-                      whileHover={{ scale: 1.02, x: 5 }}
-                      whileTap={{ scale: 0.98 }}
-                    >
-                      <Link
-                        to="/login"
-                        className="flex items-center px-4 py-3 rounded-xl text-gray-300 hover:bg-white/5 hover:text-white transition-colors duration-200"
-                        onClick={() => setIsOpen(false)}
-                      >
-                        <ArrowRightOnRectangleIcon className="h-5 w-5 mr-3 text-blue-400" />
-                        <span className="font-medium">Login</span>
-                      </Link>
-                    </motion.div>
-                  )}
-                  
-                  {isAuthenticated && (
-                    <motion.div 
-                      variants={navItemVariants}
-                      whileHover={{ scale: 1.02, x: 5 }}
-                      whileTap={{ scale: 0.98 }}
-                    >
-                      <button
-                        onClick={() => {
-                          handleLogout();
-                          setIsOpen(false);
-                        }}
-                        className="w-full flex items-center px-4 py-3 rounded-xl text-red-400 hover:bg-red-500/10 hover:text-red-500 transition-colors duration-200"
-                      >
-                        <ArrowLeftOnRectangleIcon className="h-5 w-5 mr-3" />
-                        <span className="font-medium">Logout</span>
-                      </button>
-                    </motion.div>
-                  )}
-                </div>
-              </motion.div>
-            )}
-          </AnimatePresence>
         </div>
+        
+        {/* Mobile menu */}
+        <AnimatePresence>
+          {isOpen && (
+            <motion.div
+              className={`md:hidden ${
+                theme === 'dark' ? 'bg-gray-900' : 'bg-white'
+              } shadow-lg`}
+              initial={{ opacity: 0, height: 0 }}
+              animate={{ opacity: 1, height: 'auto' }}
+              exit={{ opacity: 0, height: 0 }}
+              transition={{ duration: 0.2 }}
+            >
+              <div className="px-4 pt-2 pb-3 space-y-1">
+                <NavLink to="/" label="Beranda" icon={<HomeIcon className="h-4 w-4" />} />
+                
+                {isAuthenticated ? (
+                  <>
+                    <NavLink to="/retina-scan" label="Scan Retina" icon={<EyeIcon className="h-4 w-4" />} />
+                    <a href={`${DASHBOARD_URL}/#/?token=${token}`} target="_blank" rel="noopener noreferrer">
+                      <motion.div
+                        className={`px-3 py-2 rounded-md transition-all flex items-center ${
+                          theme === 'dark' ? 'text-gray-300 hover:text-white' : 'text-gray-700 hover:text-black'
+                        }`}
+                        whileHover={{ scale: 1.05 }}
+                        whileTap={{ scale: 0.95 }}
+                      >
+                        <ChartBarSquareIcon className="h-4 w-4 mr-1.5" />
+                        Dashboard
+                      </motion.div>
+                    </a>
+                    <button
+                      onClick={handleLogout}
+                      className={`px-3 py-2 rounded-md transition-all flex items-center w-full text-left ${
+                        theme === 'dark' ? 'text-red-400' : 'text-red-500'
+                      }`}
+                    >
+                      <ArrowLeftOnRectangleIcon className="h-4 w-4 mr-1.5" />
+                      Logout
+                    </button>
+                  </>
+                ) : (
+                  <>
+                    <NavLink to="/login" label="Login" icon={<ArrowRightOnRectangleIcon className="h-4 w-4" />} />
+                    <NavLink to="/register" label="Register" icon={<UserIcon className="h-4 w-4" />} />
+                  </>
+                )}
+                
+                {/* Theme toggle for mobile */}
+                <div className="pt-2">
+                  <button
+                    onClick={toggleTheme}
+                    className={`flex items-center gap-2 px-3 py-2 rounded-md ${
+                      theme === 'dark' ? 'text-gray-300' : 'text-gray-700'
+                    }`}
+                  >
+                    {theme === 'dark' ? (
+                      <>
+                        <SunIcon className="h-4 w-4 text-yellow-400" />
+                        <span>Light Mode</span>
+                      </>
+                    ) : (
+                      <>
+                        <MoonIcon className="h-4 w-4" />
+                        <span>Dark Mode</span>
+                      </>
+                    )}
+                  </button>
+                </div>
+              </div>
+            </motion.div>
+          )}
+        </AnimatePresence>
       </motion.header>
     </>
   );

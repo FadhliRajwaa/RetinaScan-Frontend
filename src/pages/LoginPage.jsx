@@ -15,15 +15,9 @@ import {
   EyeIcon,
   EyeSlashIcon
 } from '@heroicons/react/24/outline';
-import AnimatedButton from '../components/AnimatedButton';
+import ShimmerButton from '../components/ShimmerButton';
 import AnimatedInput from '../components/AnimatedInput';
-import AnimatedText from '../components/AnimatedText';
-import VantaBackground from '../components/VantaBackground';
-import { TextAnimate } from '../components/TextAnimate';
-import { AuroraText } from '../components/AuroraText';
-import { FlipText } from '../components/FlipText';
-import { SparklesText } from '../components/SparklesText';
-import ParticlesBackground from '../components/ParticlesBackground';
+import AnimatedCard from '../components/AnimatedCard';
 
 const LoginPage = () => {
   const [email, setEmail] = useState('');
@@ -259,327 +253,223 @@ const LoginPage = () => {
   };
   
   const handleFormBlur = (e) => {
-    if (!formRef.current?.contains(e.relatedTarget)) {
+    if (!formRef.current.contains(e.relatedTarget)) {
       setFormFocused(false);
     }
   };
 
-  // Framer Motion variants
-  const containerVariants = {
-    hidden: { opacity: 0 },
-    visible: { 
-      opacity: 1,
-      transition: {
-        when: "beforeChildren",
-        staggerChildren: 0.2,
-        delayChildren: 0.3
-      }
-    },
-    exit: { 
-      opacity: 0,
-      transition: { 
-        when: "afterChildren",
-        staggerChildren: 0.1,
-        staggerDirection: -1 
-      } 
-    }
-  };
+  // Efek partikel saat login berhasil
+  const [particles, setParticles] = useState([]);
+
+  // Jika sudah terotentikasi, redirect ke dashboard
+  if (isAuthenticated) {
+    navigate('/');
+    return null;
+  }
   
-  const itemVariants = {
+  const cardVariants = {
     hidden: { opacity: 0, y: 20 },
     visible: { 
       opacity: 1, 
       y: 0,
-      transition: { duration: 0.5 }
+      transition: { 
+        duration: 0.6,
+        ease: [0.22, 1, 0.36, 1]
+      }
     },
-    exit: { 
-      opacity: 0, 
+    exit: {
+      opacity: 0,
       y: -20,
       transition: { duration: 0.3 }
     }
   };
-  
-  // Render halaman jika sudah login
-  if (isAuthenticated) {
-    return (
-      <div className="min-h-screen flex items-center justify-center p-4">
-        <div className="text-center">
-          <motion.div
-            initial={{ scale: 0.8, opacity: 0 }}
-            animate={{ scale: 1, opacity: 1 }}
-            transition={{ duration: 0.5 }}
-          >
-            <div className="mx-auto bg-green-500 rounded-full p-3 w-16 h-16 mb-4 flex items-center justify-center">
-              <svg xmlns="http://www.w3.org/2000/svg" className="h-8 w-8 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
-              </svg>
-            </div>
-          </motion.div>
-          <h1 className="text-2xl font-bold mb-2">Anda Sudah Login</h1>
-          <p className="text-gray-500 mb-6">Silakan pergi ke dashboard atau logout untuk masuk dengan akun lain.</p>
-          <div className="flex flex-col sm:flex-row space-y-3 sm:space-y-0 sm:space-x-3 justify-center">
-            <Link
-              to={`${DASHBOARD_URL}/#/?token=${localStorage.getItem('token')}`}
-              className="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-lg font-medium flex items-center justify-center"
-            >
-              <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
-              </svg>
-              Dashboard
-            </Link>
-            <button
-              onClick={handleLogout}
-              className="bg-red-500 hover:bg-red-600 text-white px-4 py-2 rounded-lg font-medium flex items-center justify-center"
-            >
-              <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
-              </svg>
-              Logout
-            </button>
-          </div>
-        </div>
-      </div>
-    );
-  }
 
   return (
-    <div className="min-h-screen flex flex-col items-center justify-center relative overflow-hidden py-10">
-      {/* Particles Background */}
-      <ParticlesBackground 
-        options={{
-          particles: {
-            number: {
-              value: 100,
-              density: {
-                enable: true,
-                value_area: 800
-              }
-            },
-            color: {
-              value: "#3b82f6"
-            },
-            opacity: {
-              value: 0.5,
-              random: true
-            },
-            size: {
-              value: 3,
-              random: true
-            },
-            line_linked: {
-              enable: true,
-              distance: 150,
-              color: "#8db2fe",
-              opacity: 0.3,
-              width: 1
-            },
-            move: {
-              enable: true,
-              speed: 1.5
-            }
-          },
-          interactivity: {
-            events: {
-              onhover: {
-                enable: true,
-                mode: "grab"
-              },
-              onclick: {
-                enable: true,
-                mode: "push"
-              }
-            }
-          }
-        }}
-      />
-      
-      <motion.div
-        variants={containerVariants}
-        initial="hidden"
-        animate="visible"
-        exit="exit"
-        className="w-full max-w-md relative z-10"
+    <div className="min-h-screen flex items-center justify-center py-20 px-4 relative overflow-hidden">
+      <motion.div 
+        className="absolute inset-0 pointer-events-none"
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        transition={{ duration: 0.5 }}
+      >
+        {particles.map((particle, index) => (
+          <motion.div
+            key={index}
+            className="absolute w-1 h-1 bg-blue-500 rounded-full"
+            initial={{ x: particle.x, y: particle.y, opacity: 1 }}
+            animate={{ y: particle.y - 100, opacity: 0 }}
+            transition={{ duration: 1 }}
+            onAnimationComplete={() => {
+              setParticles(prev => prev.filter((_, i) => i !== index));
+            }}
+          />
+        ))}
+      </motion.div>
+
+      <AnimatedCard
+        className={`w-full max-w-md p-8 shadow-xl backdrop-blur-sm 
+        ${theme === 'dark' 
+          ? 'bg-gray-900/60 border border-gray-800/50' 
+          : 'bg-white/80 border border-gray-200/50'}`}
       >
         {/* Logo & Title */}
-        <motion.div variants={itemVariants} className="text-center mb-8">
+        <div className="text-center mb-8">
           <motion.div
+            initial={{ scale: 0.9, opacity: 0 }}
+            animate={{ scale: 1, opacity: 1 }}
+            transition={{ duration: 0.5 }}
             className="mx-auto"
-            initial={{ scale: 0.5, opacity: 0 }}
-            animate={{ scale: 1, opacity: 1, rotate: [0, 10, 0] }}
-            transition={{
-              type: "spring",
-              stiffness: 260,
-              damping: 20,
-              delay: 0.2
-            }}
           >
-            <div className="h-20 w-20 bg-gradient-to-r from-blue-600 to-indigo-600 rounded-2xl shadow-lg p-4 mx-auto mb-4 flex items-center justify-center relative overflow-hidden">
-              <div className="absolute inset-0 bg-gradient-to-r from-blue-600/80 to-indigo-600/80 animate-pulse"></div>
-              <EyeIcon className="h-12 w-12 text-white relative z-10" />
+            <div className="h-16 w-16 bg-gradient-to-r from-blue-600 to-indigo-600 rounded-xl shadow-lg p-3 mx-auto mb-2">
+              <EyeIcon className="h-full w-full text-white" />
             </div>
           </motion.div>
-          
           <motion.h1 
-            className="text-4xl font-bold mb-2 text-white"
-            initial={{ opacity: 0, y: 20 }}
+            className="text-3xl font-bold mb-2"
+            initial={{ opacity: 0, y: 10 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.4, duration: 0.5 }}
+            transition={{ duration: 0.5, delay: 0.2 }}
           >
-            <FlipText className="text-transparent bg-clip-text bg-gradient-to-r from-blue-500 to-purple-500">
-              Selamat Datang
-            </FlipText>
+            Selamat Datang
           </motion.h1>
-          
           <motion.p 
-            className="text-gray-400"
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            transition={{ delay: 0.6, duration: 0.5 }}
+            className={`${theme === 'dark' ? 'text-gray-400' : 'text-gray-600'}`}
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.5, delay: 0.3 }}
           >
-            <TextAnimate by="word" animation="fadeIn" delay={0.5}>
-              Masuk ke akun RetinaScan Anda
-            </TextAnimate>
+            Login untuk mengakses akun Anda
           </motion.p>
-        </motion.div>
-        
+        </div>
+
+        {/* Error Message */}
+        <AnimatePresence>
+          {error && (
+            <motion.div 
+              initial={{ opacity: 0, y: -10 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -10 }}
+              className="bg-red-500/10 border border-red-500/30 text-red-600 rounded-lg p-3 mb-6 flex items-center"
+            >
+              <ExclamationCircleIcon className="h-5 w-5 mr-2 flex-shrink-0" />
+              <p>{error}</p>
+            </motion.div>
+          )}
+        </AnimatePresence>
+
         {/* Login Form */}
-        <motion.div
-          variants={itemVariants}
-          className="glass-card bg-gray-900/40 backdrop-blur-xl border border-white/10 rounded-2xl p-8 shadow-2xl"
-          style={{
-            boxShadow: "0 10px 40px -10px rgba(0, 0, 0, 0.5), 0 0 80px -10px rgba(59, 130, 246, 0.3)"
-          }}
-          animate={controls}
+        <motion.form 
+          ref={formRef}
+          onSubmit={handleSubmit} 
+          onFocus={handleFormFocus}
+          onBlur={handleFormBlur}
+          className="space-y-5"
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ duration: 0.5, delay: 0.4 }}
         >
-          {/* Error Message */}
-          <AnimatePresence>
-            {error && (
-              <motion.div 
-                initial={{ opacity: 0, y: -10, height: 0 }}
-                animate={{ opacity: 1, y: 0, height: 'auto' }}
-                exit={{ opacity: 0, y: -10, height: 0 }}
-                className="bg-red-500/10 border border-red-500/30 text-red-600 rounded-lg p-3 mb-6 flex items-center"
+          <AnimatedInput
+            id="email"
+            name="email"
+            type="email"
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+            label="Email"
+            required
+            placeholder="Masukkan email anda"
+            icon={<EnvelopeIcon className="h-5 w-5" />}
+            error={emailError}
+          />
+
+          <AnimatedInput
+            id="password"
+            name="password"
+            type={showPassword ? "text" : "password"}
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
+            label="Password"
+            required
+            placeholder="Masukkan password anda"
+            icon={<LockClosedIcon className="h-5 w-5" />}
+            endIcon={
+              <button 
+                type="button" 
+                onClick={togglePasswordVisibility}
+                className="focus:outline-none"
               >
-                <ExclamationCircleIcon className="h-5 w-5 mr-2 flex-shrink-0" />
-                <p>{error}</p>
-              </motion.div>
-            )}
-          </AnimatePresence>
-          
-          <form 
-            ref={formRef} 
-            onSubmit={handleSubmit} 
-            onFocus={handleFormFocus} 
-            onBlur={handleFormBlur}
-            className="space-y-6"
-          >
-            <AnimatedInput
-              id="email"
-              name="email"
-              type="email"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              label="Email"
-              required
-              placeholder="Masukkan email anda"
-              icon={<EnvelopeIcon className="h-5 w-5" />}
-              error={emailError}
-              errorMessage={emailError}
-            />
-            
-            <AnimatedInput
-              id="password"
-              name="password"
-              type={showPassword ? "text" : "password"}
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              label="Password"
-              required
-              placeholder="Masukkan password anda"
-              icon={<LockClosedIcon className="h-5 w-5" />}
-              endIcon={
-                <button 
-                  type="button" 
-                  onClick={togglePasswordVisibility}
-                  className="focus:outline-none"
-                >
-                  {showPassword ? 
-                    <EyeSlashIcon className="h-5 w-5" /> : 
-                    <EyeIcon className="h-5 w-5" />
-                  }
-                </button>
-              }
-              error={passwordError}
-              errorMessage={passwordError}
-            />
-            
-            <div className="flex items-center justify-between text-sm">
-              <div className="flex items-center">
-                <input
-                  id="remember-me"
-                  name="remember-me"
-                  type="checkbox"
-                  checked={remember}
-                  onChange={(e) => setRemember(e.target.checked)}
-                  className="h-4 w-4 rounded border-gray-700 bg-gray-800 text-blue-500 focus:ring-blue-500 focus:ring-offset-gray-900"
-                />
-                <label htmlFor="remember-me" className="ml-2 block text-gray-400">
-                  Ingat saya
-                </label>
-              </div>
-              <Link
-                to="/forgot-password"
-                className="font-medium text-blue-500 hover:text-blue-400 transition-colors"
-              >
-                Lupa password?
-              </Link>
-            </div>
-            
-            <div>
-              <AnimatedButton
-                type="submit"
-                disabled={isLoading}
-                isLoading={isLoading}
-                loadingText="Memproses..."
-                primary={true}
-                gradientFrom="from-blue-600"
-                gradientTo="to-indigo-600"
-                className="w-full py-2.5"
-                icon={<ArrowRightIcon className="h-5 w-5 ml-1" />}
-              >
-                Login
-              </AnimatedButton>
-            </div>
-          </form>
-          
-          <div className="mt-6 text-center">
-            <p className="text-gray-400">
-              Belum memiliki akun?{' '}
-              <Link
-                to="/register"
-                className="font-medium text-blue-500 hover:text-blue-400 transition-colors"
-              >
-                <SparklesText minSize={5} maxSize={10} sparklesCount={5}>
-                  Daftar sekarang
-                </SparklesText>
-              </Link>
-            </p>
+                {showPassword ? 
+                  <EyeSlashIcon className="h-5 w-5" /> : 
+                  <EyeIcon className="h-5 w-5" />
+                }
+              </button>
+            }
+            error={passwordError}
+          />
+
+          {/* Remember Me & Forgot Password */}
+          <div className="flex items-center justify-between text-sm">
+            <label className="flex items-center gap-2">
+              <input
+                type="checkbox"
+                className="w-4 h-4 rounded border-gray-300 focus:ring-blue-500"
+                checked={remember}
+                onChange={() => setRemember(!remember)}
+              />
+              <span className={theme === 'dark' ? 'text-gray-300' : 'text-gray-700'}>Ingat Saya</span>
+            </label>
+            <Link to="/forgot-password" className="text-blue-500 hover:text-blue-600 font-medium">
+              Lupa Password?
+            </Link>
           </div>
-        </motion.div>
-        
+
+          <ShimmerButton
+            type="submit"
+            disabled={isLoading}
+            fullWidth={true}
+            className="mt-6"
+          >
+            {isLoading ? (
+              <div className="flex items-center justify-center">
+                <svg className="animate-spin -ml-1 mr-2 h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                  <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                  <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                </svg>
+                <span>Memproses...</span>
+              </div>
+            ) : (
+              <div className="flex items-center justify-center">
+                <span>Login</span>
+                <ArrowRightIcon className="h-5 w-5 ml-1" />
+              </div>
+            )}
+          </ShimmerButton>
+        </motion.form>
+
+        {/* Register link */}
         <motion.div 
-          variants={itemVariants} 
           className="mt-8 text-center"
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ duration: 0.5, delay: 0.5 }}
         >
+          <p className={theme === 'dark' ? 'text-gray-400' : 'text-gray-600'}>
+            Belum punya akun?{' '}
+            <Link to="/register" className="text-blue-500 hover:text-blue-600 font-medium transition-colors">
+              Daftar Sekarang
+            </Link>
+          </p>
+          
           <Link 
             to="/" 
-            className="inline-flex items-center text-sm text-gray-400 hover:text-blue-500 transition-colors"
+            className={`inline-flex items-center mt-4 text-sm transition-colors ${
+              theme === 'dark' ? 'text-gray-400 hover:text-white' : 'text-gray-600 hover:text-gray-900'
+            }`}
           >
             <HomeIcon className="h-4 w-4 mr-1" />
             Kembali ke Beranda
           </Link>
         </motion.div>
-      </motion.div>
+      </AnimatedCard>
     </div>
   );
 };
