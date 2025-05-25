@@ -1,32 +1,38 @@
+import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
-import { motion } from 'framer-motion';
-import { useTheme } from '../context/ThemeContext';
-import { 
-  ArrowRightIcon, 
-  ShieldCheckIcon, 
-  CogIcon, 
-  ChartBarIcon, 
-  UserGroupIcon,
-  BoltIcon,
-  ArrowDownIcon
-} from '@heroicons/react/24/outline';
+import { motion, useInView } from 'framer-motion';
+import { useRef } from 'react';
+import { withPageTransition } from '../context/ThemeContext';
+import AnimatedText from '../components/AnimatedText';
+import AnimatedButton from '../components/AnimatedButton';
+import VantaBackground from '../components/VantaBackground';
+import { TextAnimate } from '../components/TextAnimate';
+import { AuroraText } from '../components/AuroraText';
+import { SparklesText } from '../components/SparklesText';
+import { FlipText } from '../components/FlipText';
 
-function LandingPage() {
-  const { theme, animations } = useTheme();
+const LandingPage = () => {
+  const [isMounted, setIsMounted] = useState(false);
   
-  const fadeInUp = {
+  // Intersection observer hooks untuk animasi scroll
+  const [heroRef, heroInView] = useInView({ threshold: 0.1, triggerOnce: true });
+  const [featuresRef, featuresInView] = useInView({ threshold: 0.1, triggerOnce: true });
+  const [processRef, processInView] = useInView({ threshold: 0.1, triggerOnce: true });
+  const [ctaRef, ctaInView] = useInView({ threshold: 0.1, triggerOnce: true });
+  
+  useEffect(() => {
+    setIsMounted(true);
+    return () => setIsMounted(false);
+  }, []);
+  
+  // Animasi
+  const fadeIn = {
     hidden: { opacity: 0, y: 20 },
-    visible: (custom) => ({
-      opacity: 1,
+    visible: { 
+      opacity: 1, 
       y: 0,
-      transition: { 
-        type: 'spring',
-        damping: 15,
-        stiffness: 100,
-        delay: custom * 0.2,
-        duration: 0.8
-      }
-    })
+      transition: { duration: 0.8, ease: "easeOut" }
+    }
   };
   
   const staggerContainer = {
@@ -39,394 +45,280 @@ function LandingPage() {
       }
     }
   };
+  
+  const features = [
+    {
+      title: "Deteksi Retina Akurat",
+      description: "Analisis retina dengan akurasi tinggi menggunakan algoritma AI terbaru",
+      icon: (
+        <svg xmlns="http://www.w3.org/2000/svg" className="h-10 w-10 text-blue-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+        </svg>
+      )
+    },
+    {
+      title: "Diagnosa Cepat",
+      description: "Dapatkan hasil diagnosa dalam hitungan detik dengan teknologi pemrosesan real-time",
+      icon: (
+        <svg xmlns="http://www.w3.org/2000/svg" className="h-10 w-10 text-indigo-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M13 10V3L4 14h7v7l9-11h-7z" />
+        </svg>
+      )
+    },
+    {
+      title: "Keamanan Data",
+      description: "Data pasien terenkripsi dan terlindungi dengan standar keamanan tertinggi",
+      icon: (
+        <svg xmlns="http://www.w3.org/2000/svg" className="h-10 w-10 text-purple-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
+        </svg>
+      )
+    }
+  ];
+  
+  const process = [
+    {
+      step: "1",
+      title: "Unggah Gambar Retina",
+      description: "Cukup unggah gambar retina melalui aplikasi kami"
+    },
+    {
+      step: "2",
+      title: "Analisis AI",
+      description: "Sistem AI kami akan menganalisis gambar retina secara otomatis"
+    },
+    {
+      step: "3",
+      title: "Dapatkan Hasil",
+      description: "Hasil analisis dan rekomendasi tersedia dalam hitungan detik"
+    }
+  ];
 
   return (
-    <div className="pt-16">
+    <div className="relative min-h-screen overflow-hidden bg-gray-950">
+      <VantaBackground options={{
+        color: 0x3b82f6, // blue-500
+        color2: 0x1e40af, // blue-800
+        backgroundColor: 0x030712, // gray-950
+        spacing: 30.00,
+        size: 1.2
+      }} />
+      
       {/* Hero Section */}
-      <section className="relative overflow-hidden">
-        {/* Background gradient with animated pattern */}
-        <div className="absolute inset-0 opacity-90 z-0" style={{
-          background: `linear-gradient(to right, ${theme.primary}, ${theme.accent})`,
-        }}>
-          <div className="absolute inset-0 bg-[url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNjAwIiBoZWlnaHQ9IjYwMCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48cGF0aCBzdHJva2U9IiNmZmYiIHN0cm9rZS13aWR0aD0iMiIgZD0iTTAgMGw2MDAgNjAwTTYwMCAwTDAgNjAwIiBmaWxsPSJub25lIiBvcGFjaXR5PSIuMSIvPjwvc3ZnPg==')] animate-[spin_90s_linear_infinite] opacity-10" />
-        </div>
-        
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-20 md:py-28 relative z-10">
-          <div className="text-center">
-            <motion.h1 
-              className="text-4xl md:text-6xl font-bold mb-6 text-white text-shadow"
-              initial={{ opacity: 0, y: -20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.8, ease: "easeOut" }}
-            >
-              Deteksi Dini 
-              <span className="block md:inline md:ml-2" style={{
-                background: 'linear-gradient(90deg, white, rgba(255,255,255,0.8))',
-                WebkitBackgroundClip: 'text',
-                WebkitTextFillColor: 'transparent',
-              }}>Retinopati Diabetik</span>
-            </motion.h1>
-            
-            <motion.p 
-              className="text-lg md:text-xl mb-10 text-blue-100 max-w-3xl mx-auto"
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              transition={{ duration: 0.8, delay: 0.4 }}
-            >
-              Gunakan RetinaScan untuk menganalisis citra fundus retina dengan teknologi 
-              AI canggih dan deteksi dini untuk pencegahan kebutaan.
-            </motion.p>
-            
-            <motion.div
-              className="flex flex-col sm:flex-row justify-center gap-4 mb-12"
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.5, delay: 0.8 }}
-            >
-              <Link to="/register">
-                <motion.button
-                  className="px-8 py-4 rounded-full text-white font-bold shadow-lg hover:shadow-xl transition duration-300 flex items-center justify-center w-full sm:w-auto ripple"
-                  style={{
-                    background: `linear-gradient(to right, ${theme.accent}, ${theme.primary})`,
-                    boxShadow: '0 10px 25px -5px rgba(59, 130, 246, 0.5)'
-                  }}
-                  whileHover={{ scale: 1.05, boxShadow: "0 15px 30px -5px rgba(59, 130, 246, 0.7)" }}
-                  whileTap={{ scale: 0.95 }}
+      <section ref={heroRef} className="relative min-h-screen flex items-center justify-center px-4 sm:px-6 lg:px-8 z-10 pt-20">
+        <div className="container mx-auto text-center">
+          <motion.div
+            initial="hidden"
+            animate={heroInView ? "visible" : "hidden"}
+            variants={staggerContainer}
+            className="max-w-3xl mx-auto"
           >
-            Mulai Sekarang
-                  <ArrowRightIcon className="w-5 h-5 ml-2" />
-                </motion.button>
-              </Link>
-              <Link to="/login">
-                <motion.button
-                  className="px-8 py-4 rounded-full text-white font-bold transition duration-300 flex items-center justify-center w-full sm:w-auto"
-                  style={{ ...theme.glassEffect }}
-                  whileHover={{ scale: 1.05 }}
-                  whileTap={{ scale: 0.95 }}
-                >
-                  Login
-                </motion.button>
-          </Link>
-            </motion.div>
-            
-            <motion.div
-              initial={{ opacity: 0, y: 10 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 1.2, duration: 0.5 }}
-              className="flex justify-center"
-            >
-              <motion.div 
-                className="animate-bounce cursor-pointer"
-                whileHover={{ scale: 1.2 }}
+            <motion.div variants={fadeIn} className="mb-6">
+              <motion.span 
+                className="inline-block py-1 px-3 rounded-full bg-blue-500/20 text-blue-400 text-sm font-medium mb-4"
+                initial={{ x: -50, opacity: 0 }}
+                animate={{ x: 0, opacity: 1 }}
+                transition={{ duration: 0.5, delay: 0.3 }}
               >
-                <ArrowDownIcon className="h-8 w-8 text-white opacity-80" />
-              </motion.div>
-            </motion.div>
-          </div>
-        </div>
-        
-        {/* Wave separator */}
-        <div className="absolute bottom-0 left-0 right-0">
-          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1440 320" className="w-full">
-            <path fill="#ffffff" fillOpacity="1" d="M0,256L48,234.7C96,213,192,171,288,154.7C384,139,480,149,576,165.3C672,181,768,203,864,197.3C960,192,1056,160,1152,154.7C1248,149,1344,171,1392,181.3L1440,192L1440,320L1392,320C1344,320,1248,320,1152,320C1056,320,960,320,864,320C768,320,672,320,576,320C480,320,384,320,288,320C192,320,96,320,48,320L0,320Z"></path>
-          </svg>
-        </div>
-      </section>
-
-      {/* Features Section */}
-      <section className="py-20 bg-white">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <motion.div
-            className="text-center mb-16"
-            initial="hidden"
-            whileInView="visible"
-            viewport={{ once: true, amount: 0.2 }}
-            variants={fadeInUp}
-            custom={0}
-          >
-            <h2 className="text-3xl md:text-4xl font-bold text-gray-900 mb-4">Fitur Utama</h2>
-            <p className="text-xl text-gray-600 max-w-3xl mx-auto">
-              RetinaScan menyediakan solusi komprehensif untuk deteksi retinopati diabetik
-              dengan fitur-fitur canggih.
-            </p>
-          </motion.div>
-
-          <motion.div 
-            className="grid grid-cols-1 md:grid-cols-3 gap-8"
-            variants={staggerContainer}
-            initial="hidden"
-            whileInView="visible"
-            viewport={{ once: true, amount: 0.1 }}
-          >
-            <motion.div 
-              className="bg-white p-8 rounded-2xl hover-scale"
-              style={{ boxShadow: theme.mediumShadow }}
-              variants={fadeInUp}
-              whileHover={{ y: -10, boxShadow: theme.largeShadow }}
-            >
-              <div className="w-14 h-14 rounded-xl flex items-center justify-center mb-6"
-                   style={{ background: `${theme.primary}20`, color: theme.primary }}>
-                <BoltIcon className="w-8 h-8" />
-              </div>
-              <h3 className="text-xl font-semibold mb-4 text-gray-900">Unggah Citra</h3>
-              <p className="text-gray-600">Unggah citra fundus retina dengan mudah dan aman melalui sistem canggih kami.</p>
-            </motion.div>
-
-            <motion.div 
-              className="bg-white p-8 rounded-2xl hover-scale"
-              style={{ boxShadow: theme.mediumShadow }}
-              variants={fadeInUp}
-              whileHover={{ y: -10, boxShadow: theme.largeShadow }}
-            >
-              <div className="w-14 h-14 rounded-xl flex items-center justify-center mb-6"
-                   style={{ background: `${theme.accent}20`, color: theme.accent }}>
-                <CogIcon className="w-8 h-8" />
-              </div>
-              <h3 className="text-xl font-semibold mb-4 text-gray-900">Analisis AI</h3>
-              <p className="text-gray-600">Dapatkan prediksi tingkat keparahan retinopati diabetik secara instan dan akurat.</p>
-            </motion.div>
-
-            <motion.div 
-              className="bg-white p-8 rounded-2xl hover-scale"
-              style={{ boxShadow: theme.mediumShadow }}
-              variants={fadeInUp}
-              whileHover={{ y: -10, boxShadow: theme.largeShadow }}
-            >
-              <div className="w-14 h-14 rounded-xl flex items-center justify-center mb-6"
-                   style={{ background: `${theme.secondary}20`, color: theme.secondary }}>
-                <ChartBarIcon className="w-8 h-8" />
-              </div>
-              <h3 className="text-xl font-semibold mb-4 text-gray-900">Laporan Hasil</h3>
-              <p className="text-gray-600">Lihat laporan deteksi dalam antarmuka yang jelas dan mudah dipahami.</p>
-            </motion.div>
-          </motion.div>
-        </div>
-      </section>
-
-      {/* Stats Section */}
-      <section className="py-20 bg-gradient-to-r from-gray-50 to-gray-100">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <motion.div
-            className="text-center mb-16"
-            initial="hidden"
-            whileInView="visible"
-            viewport={{ once: true }}
-            variants={fadeInUp}
-            custom={0}
-          >
-            <h2 className="text-3xl md:text-4xl font-bold text-gray-900 mb-4">Keunggulan RetinaScan</h2>
-            <p className="text-xl text-gray-600 max-w-3xl mx-auto">
-              Platform kami telah membantu ribuan pasien untuk mendeteksi retinopati diabetik lebih awal
-            </p>
-          </motion.div>
-
-          <motion.div 
-            className="grid grid-cols-1 md:grid-cols-4 gap-8"
-            variants={staggerContainer}
-            initial="hidden"
-            whileInView="visible"
-            viewport={{ once: true }}
-          >
-            <motion.div 
-              className="text-center p-6 bg-white rounded-2xl shadow-sm"
-              variants={fadeInUp}
-              whileHover={{ y: -5 }}
-            >
-              <div className="text-4xl font-bold mb-2" style={{ color: theme.primary }}>98%</div>
-              <p className="text-gray-600">Akurasi Deteksi</p>
-            </motion.div>
-            
-            <motion.div 
-              className="text-center p-6 bg-white rounded-2xl shadow-sm"
-              variants={fadeInUp}
-              whileHover={{ y: -5 }}
-            >
-              <div className="text-4xl font-bold mb-2" style={{ color: theme.primary }}>3 detik</div>
-              <p className="text-gray-600">Waktu Analisis</p>
-            </motion.div>
-            
-            <motion.div 
-              className="text-center p-6 bg-white rounded-2xl shadow-sm"
-              variants={fadeInUp}
-              whileHover={{ y: -5 }}
-            >
-              <div className="text-4xl font-bold mb-2" style={{ color: theme.primary }}>10K+</div>
-              <p className="text-gray-600">Pengguna Aktif</p>
-            </motion.div>
-            
-            <motion.div 
-              className="text-center p-6 bg-white rounded-2xl shadow-sm"
-              variants={fadeInUp}
-              whileHover={{ y: -5 }}
-            >
-              <div className="text-4xl font-bold mb-2" style={{ color: theme.primary }}>5</div>
-              <p className="text-gray-600">Tingkat Klasifikasi</p>
-            </motion.div>
-          </motion.div>
-        </div>
-      </section>
-
-      {/* CTA Section */}
-      <section className="py-20">
-        <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
-          <motion.div 
-            className="rounded-3xl overflow-hidden shadow-2xl"
-            initial={{ opacity: 0, y: 20 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.8 }}
-            viewport={{ once: true }}
-            style={{ 
-              background: `linear-gradient(to right, ${theme.primary}, ${theme.accent})`,
-              boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.25)'
-            }}
-          >
-            <div className="relative px-6 py-16 md:p-16 text-center">
-              <div className="absolute inset-0 bg-[url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNjAwIiBoZWlnaHQ9IjYwMCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48cGF0aCBzdHJva2U9IiNmZmYiIHN0cm9rZS13aWR0aD0iMiIgZD0iTTAgMGw2MDAgNjAwTTYwMCAwTDAgNjAwIiBmaWxsPSJub25lIiBvcGFjaXR5PSIuMSIvPjwvc3ZnPg==')] opacity-10" />
+                <SparklesText className="text-sm" sparklesCount={5}>Teknologi AI Terdepan</SparklesText>
+              </motion.span>
               
-              <motion.h2 
-                className="text-3xl md:text-4xl font-bold text-white mb-4"
-                initial={{ opacity: 0, y: -10 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                transition={{ delay: 0.2, duration: 0.5 }}
-                viewport={{ once: true }}
-              >
-                Mulai Deteksi Retinopati Diabetik Sekarang
-              </motion.h2>
+              <h1 className="text-4xl sm:text-5xl md:text-6xl font-bold text-white mb-6 leading-tight">
+                <TextAnimate animation="blurInUp" by="word" className="font-bold" delay={0.5}>
+                  Deteksi Masalah Retina dengan
+                </TextAnimate>{' '}
+                <AuroraText 
+                  className="font-bold"
+                  colors={["#38bdf8", "#818cf8", "#c084fc", "#e879f9"]}
+                >
+                  Kecerdasan Buatan
+                </AuroraText>
+              </h1>
               
               <motion.p 
-                className="text-xl text-blue-100 mb-8 max-w-2xl mx-auto"
-                initial={{ opacity: 0 }}
-                whileInView={{ opacity: 1 }}
-                transition={{ delay: 0.4, duration: 0.5 }}
-                viewport={{ once: true }}
+                className="text-xl text-gray-300 mb-8"
+                initial={{ opacity: 0, y: 30 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.8, delay: 1 }}
               >
-                Daftar sekarang dan dapatkan akses ke platform deteksi retinopati diabetik berbasis AI
+                Analisis kesehatan retina Anda dengan teknologi AI canggih untuk deteksi dini dan pencegahan masalah penglihatan.
               </motion.p>
-              
-              <motion.div
-                initial={{ opacity: 0, y: 10 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                transition={{ delay: 0.6, duration: 0.5 }}
-                viewport={{ once: true }}
-              >
-                <Link to="/register">
-                  <motion.button
-                    className="px-8 py-4 bg-white text-blue-600 rounded-full font-bold shadow-lg hover:shadow-xl transition duration-300 text-lg"
-                    whileHover={{ scale: 1.05 }}
-                    whileTap={{ scale: 0.95 }}
-                  >
-                    Daftar Gratis
-                  </motion.button>
-                </Link>
-              </motion.div>
+            </motion.div>
+            
+            <motion.div 
+              variants={fadeIn} 
+              className="flex flex-col sm:flex-row items-center justify-center gap-4"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              transition={{ duration: 0.5, delay: 1.2 }}
+            >
+              <Link to="/register">
+                <AnimatedButton
+                  primary={true}
+                  gradientFrom="from-blue-600"
+                  gradientTo="to-indigo-600"
+                  className="transform hover:scale-105 transition-all duration-300"
+                >
+                  Mulai Sekarang
+                </AnimatedButton>
+              </Link>
+              <Link to="/login">
+                <AnimatedButton 
+                  primary={false}
+                  className="border border-blue-500/30 backdrop-blur-sm hover:border-blue-500/60 transition-all duration-300"
+                >
+                  Login
+                </AnimatedButton>
+              </Link>
+            </motion.div>
+          </motion.div>
+          
+          {/* Scroll down indicator */}
+          <motion.div 
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: [0, 10, 0], transition: { duration: 2, repeat: Infinity, repeatType: "loop" } }}
+            className="absolute bottom-10 left-1/2 transform -translate-x-1/2"
+          >
+            <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6 text-white/70" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 14l-7 7m0 0l-7-7m7 7V3" />
+            </svg>
+          </motion.div>
+        </div>
+      </section>
+      
+      {/* Features Section */}
+      <section ref={featuresRef} className="relative py-24 px-4 sm:px-6 lg:px-8 z-10 bg-gray-900/50 backdrop-blur-sm">
+        <div className="container mx-auto">
+          <motion.div
+            initial="hidden"
+            animate={featuresInView ? "visible" : "hidden"}
+            variants={staggerContainer}
+            className="max-w-4xl mx-auto"
+          >
+            <motion.div variants={fadeIn} className="text-center mb-16">
+              <FlipText className="text-3xl sm:text-4xl font-bold mb-4 text-white">
+                Fitur Unggulan
+              </FlipText>
+              <p className="text-gray-300">
+                Teknologi terdepan untuk analisis retina yang akurat dan cepat
+              </p>
+            </motion.div>
+            
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+              {features.map((feature, index) => (
+                <motion.div
+                  key={index}
+                  variants={fadeIn}
+                  className="bg-gray-800/50 backdrop-blur-md rounded-2xl p-6 border border-gray-700/50 hover:border-blue-500/30 transition-all duration-300 hover:shadow-lg hover:shadow-blue-500/10 hover:-translate-y-1"
+                >
+                  <div className="bg-gradient-to-br from-gray-900 to-gray-800 rounded-xl p-3 inline-block mb-4 shadow-lg">
+                    {feature.icon}
+                  </div>
+                  <h3 className="text-xl font-bold text-white mb-2">{feature.title}</h3>
+                  <p className="text-gray-400">{feature.description}</p>
+                </motion.div>
+              ))}
             </div>
           </motion.div>
         </div>
       </section>
-
-      {/* Testimonial Section */}
-      <section className="py-20 bg-gray-50">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      
+      {/* Process Section */}
+      <section ref={processRef} className="relative py-24 px-4 sm:px-6 lg:px-8 z-10">
+        <div className="container mx-auto">
           <motion.div
-            className="text-center mb-16"
             initial="hidden"
-            whileInView="visible"
-            viewport={{ once: true }}
-            variants={fadeInUp}
-            custom={0}
-          >
-            <h2 className="text-3xl md:text-4xl font-bold text-gray-900 mb-4">Apa Kata Pengguna Kami</h2>
-            <p className="text-xl text-gray-600 max-w-3xl mx-auto">
-              RetinaScan telah membantu banyak dokter dan pasien dalam mendeteksi retinopati diabetik
-            </p>
-          </motion.div>
-
-          <motion.div 
-            className="grid grid-cols-1 md:grid-cols-3 gap-8"
+            animate={processInView ? "visible" : "hidden"}
             variants={staggerContainer}
-            initial="hidden"
-            whileInView="visible"
-            viewport={{ once: true, amount: 0.1 }}
+            className="max-w-4xl mx-auto"
           >
-            <motion.div 
-              className="bg-white p-8 rounded-2xl"
-              style={{ boxShadow: theme.mediumShadow }}
-              variants={fadeInUp}
-              whileHover={{ 
-                scale: 1.03, 
-                boxShadow: theme.largeShadow
-              }}
-            >
-              <div className="flex items-center mb-6">
-                <div className="h-12 w-12 rounded-full flex items-center justify-center text-xl font-bold"
-                     style={{ background: `${theme.primary}20`, color: theme.primary }}>
-                  DR
-                </div>
-                <div className="ml-4">
-                  <h4 className="font-semibold">Dr. Rini Pratiwi</h4>
-                  <p className="text-gray-500 text-sm">Dokter Spesialis Mata</p>
-                </div>
-              </div>
-              <p className="text-gray-600">
-                "RetinaScan membantu saya mengidentifikasi kasus retinopati diabetik dengan cepat dan akurat. 
-                Sangat membantu untuk screening pasien diabetes."
+            <motion.div variants={fadeIn} className="text-center mb-16">
+              <TextAnimate
+                animation="slideUp"
+                by="word"
+                className="text-3xl sm:text-4xl font-bold mb-4 text-white"
+              >
+                Proses Sederhana
+              </TextAnimate>
+              <p className="text-gray-300">
+                Tiga langkah mudah untuk menganalisis kesehatan retina Anda
               </p>
             </motion.div>
-
-            <motion.div 
-              className="bg-white p-8 rounded-2xl"
-              style={{ boxShadow: theme.mediumShadow }}
-              variants={fadeInUp}
-              whileHover={{ 
-                scale: 1.03, 
-                boxShadow: theme.largeShadow
-              }}
-            >
-              <div className="flex items-center mb-6">
-                <div className="h-12 w-12 rounded-full flex items-center justify-center text-xl font-bold"
-                     style={{ background: `${theme.accent}20`, color: theme.accent }}>
-                  BS
-                </div>
-                <div className="ml-4">
-                  <h4 className="font-semibold">Budi Santoso</h4>
-                  <p className="text-gray-500 text-sm">Pasien Diabetes</p>
-                </div>
-              </div>
-              <p className="text-gray-600">
-                "Berkat pemeriksaan rutin dengan RetinaScan, saya bisa mendeteksi masalah retina 
-                sejak dini dan mendapatkan perawatan tepat waktu."
-              </p>
-            </motion.div>
-
-            <motion.div 
-              className="bg-white p-8 rounded-2xl"
-              style={{ boxShadow: theme.mediumShadow }}
-              variants={fadeInUp}
-              whileHover={{ 
-                scale: 1.03, 
-                boxShadow: theme.largeShadow
-              }}
-            >
-              <div className="flex items-center mb-6">
-                <div className="h-12 w-12 rounded-full flex items-center justify-center text-xl font-bold"
-                     style={{ background: `${theme.secondary}20`, color: theme.secondary }}>
-                  SK
+            
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+              {process.map((item, index) => (
+                <motion.div
+                  key={index}
+                  variants={fadeIn}
+                  className="relative"
+                  whileHover={{ scale: 1.03 }}
+                  transition={{ type: "spring", stiffness: 300 }}
+                >
+                  <div className="bg-gray-800/30 backdrop-blur-md rounded-2xl p-8 border border-gray-700/50 hover:border-indigo-500/30 transition-all duration-300 h-full shadow-lg hover:shadow-indigo-500/10">
+                    <div className="absolute -top-5 -left-5 w-12 h-12 rounded-full bg-gradient-to-r from-blue-600 to-indigo-600 flex items-center justify-center text-white font-bold text-xl shadow-lg">
+                      {item.step}
+                    </div>
+                    <h3 className="text-xl font-bold text-white mb-4 mt-4">{item.title}</h3>
+                    <p className="text-gray-400">{item.description}</p>
+                  </div>
+                  
+                  {index < process.length - 1 && (
+                    <div className="hidden md:block absolute top-1/2 right-0 transform translate-x-1/2 -translate-y-1/2 z-10">
+                      <svg xmlns="http://www.w3.org/2000/svg" className="h-8 w-8 text-indigo-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M14 5l7 7m0 0l-7 7m7-7H3" />
+                      </svg>
+                    </div>
+                  )}
+                </motion.div>
+              ))}
             </div>
-                <div className="ml-4">
-                  <h4 className="font-semibold">Siti Kurniawati</h4>
-                  <p className="text-gray-500 text-sm">Perawat RS Medika</p>
-            </div>
-          </div>
-              <p className="text-gray-600">
-                "Sangat mudah digunakan dan memberikan hasil yang akurat. Kami menggunakan 
-                RetinaScan untuk screening pasien diabetes di rumah sakit kami."
-              </p>
-            </motion.div>
           </motion.div>
         </div>
+      </section>
+      
+      {/* CTA Section */}
+      <section ref={ctaRef} className="relative py-24 px-4 sm:px-6 lg:px-8 z-10 bg-gray-900/50 backdrop-blur-sm">
+        <motion.div
+          initial="hidden"
+          animate={ctaInView ? "visible" : "hidden"}
+          variants={staggerContainer}
+          className="container max-w-5xl mx-auto rounded-3xl overflow-hidden"
+        >
+          <div className="bg-gradient-to-br from-blue-900/90 to-indigo-900/90 backdrop-blur-md p-8 md:p-12 lg:p-16 rounded-3xl border border-blue-500/20 shadow-xl">
+            <motion.div variants={fadeIn} className="text-center mb-8">
+              <h2 className="text-3xl md:text-4xl font-bold text-white mb-4">
+                <SparklesText sparklesCount={8} className="text-3xl md:text-4xl">
+                  Mulai Analisis Retina Anda Sekarang
+                </SparklesText>
+              </h2>
+              <p className="text-xl text-blue-100/80 max-w-2xl mx-auto">
+                Jangan tunda pemeriksaan kesehatan mata Anda. Daftar sekarang dan mulai perjalanan menuju mata yang lebih sehat.
+              </p>
+            </motion.div>
+            
+            <motion.div 
+              variants={fadeIn} 
+              className="flex flex-col sm:flex-row items-center justify-center gap-4"
+              whileHover={{ scale: 1.02 }}
+              transition={{ type: "spring", stiffness: 400 }}
+            >
+              <Link to="/register" className="w-full sm:w-auto">
+                <AnimatedButton
+                  primary={true}
+                  gradientFrom="from-blue-500"
+                  gradientTo="to-indigo-500"
+                  className="w-full sm:w-auto text-lg py-3 px-8 font-medium"
+                >
+                  Daftar Gratis
+                </AnimatedButton>
+              </Link>
+            </motion.div>
+          </div>
+        </motion.div>
       </section>
     </div>
   );
-}
+};
 
-export default LandingPage;
+export default withPageTransition(LandingPage);

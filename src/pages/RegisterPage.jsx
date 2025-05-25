@@ -1,311 +1,405 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { motion } from 'framer-motion';
-import axios from 'axios';
+import { motion, AnimatePresence } from 'framer-motion';
 import { register } from '../services/authService';
-import { HomeIcon, ArrowLeftOnRectangleIcon, EyeIcon, EyeSlashIcon } from '@heroicons/react/24/outline';
+import { withPageTransition } from '../context/ThemeContext';
+import { 
+  HomeIcon, 
+  ArrowRightIcon, 
+  EnvelopeIcon, 
+  LockClosedIcon,
+  ExclamationCircleIcon,
+  EyeIcon,
+  EyeSlashIcon,
+  UserIcon,
+  CheckCircleIcon
+} from '@heroicons/react/24/outline';
+import AnimatedInput from '../components/AnimatedInput';
+import VantaBackground from '../components/VantaBackground';
+import { TextAnimate } from '../components/TextAnimate';
+import { AuroraText } from '../components/AuroraText';
+import { FlipText } from '../components/FlipText';
+import { SparklesText } from '../components/SparklesText';
+import AnimatedButton from '../components/AnimatedButton';
 
-// Animation variants
-const cardVariants = {
-  hidden: { opacity: 0, scale: 0.95, y: 30 },
-  visible: { opacity: 1, scale: 1, y: 0, transition: { duration: 0.7, ease: [0.34, 1.56, 0.64, 1], delay: 0.2 } },
-};
-
-const formElementVariants = {
-  hidden: { opacity: 0, y: 20 },
-  visible: (i) => ({ opacity: 1, y: 0, transition: { duration: 0.5, ease: [0.25, 0.1, 0.25, 1], delay: 0.3 + i * 0.1 } }),
-};
-
-const messageVariants = {
-  hidden: { opacity: 0, scale: 0.9 },
-  visible: { opacity: 1, scale: 1, transition: { duration: 0.4, ease: 'easeOut', type: 'spring', stiffness: 200 } },
-  exit: { opacity: 0, scale: 0.9, transition: { duration: 0.3, ease: 'easeIn' } },
-};
-
-const buttonVariants = {
-  initial: { backgroundColor: '#2563EB' },
-  hover: { scale: 1.05, boxShadow: '0 6px 16px rgba(37, 99, 235, 0.4)', backgroundColor: '#1D4ED8', transition: { duration: 0.3 } },
-  tap: { scale: 0.95, transition: { duration: 0.15 } },
-  loading: { scale: 1, backgroundColor: '#9CA3AF', transition: { duration: 0.2 } },
-};
-
-const inputVariants = {
-  focus: { scale: 1.01, boxShadow: '0 0 0 3px rgba(59, 130, 246, 0.3)', borderColor: '#3B82F6', transition: { duration: 0.3 } },
-  blur: { scale: 1, boxShadow: 'none', borderColor: '#D1D5DB', transition: { duration: 0.2 } },
-};
-
-function RegisterPage() {
+const RegisterPage = () => {
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [confirmPassword, setConfirmPassword] = useState('');
   const [error, setError] = useState('');
-  const [success, setSuccess] = useState('');
+  const [success, setSuccess] = useState(false);
+  const [successMessage, setSuccessMessage] = useState('');
   const [isLoading, setIsLoading] = useState(false);
-  const [isAuthenticated, setIsAuthenticated] = useState(false);
-  const [focusedInput, setFocusedInput] = useState(null);
-  const [passwordError, setPasswordError] = useState('');
-  const [showPassword, setShowPassword] = useState(false); // State untuk toggle show/hide password
+  const [showPassword, setShowPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+  const [isMounted, setIsMounted] = useState(false);
+  const formRef = useRef(null);
+  
   const navigate = useNavigate();
+  
+  // Environment variables
+  const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000';
 
   useEffect(() => {
-    const checkAuth = async () => {
-      const token = localStorage.getItem('token');
-      if (token) {
-        try {
-          await axios.get('http://localhost:5000/api/user/profile', {
-            headers: { Authorization: `Bearer ${token}` },
-          });
-          setIsAuthenticated(true);
-        } catch (error) {
-          localStorage.removeItem('token');
-          setIsAuthenticated(false);
-        }
-      }
-    };
-    checkAuth();
+    setIsMounted(true);
+    return () => setIsMounted(false);
   }, []);
+
+  // Validasi email sederhana
+  const validateEmail = (email) => {
+    return /\S+@\S+\.\S+/.test(email);
+  };
+
+  // Validasi form
+  const validateForm = () => {
+    if (!name.trim()) {
+      setError('Nama tidak boleh kosong');
+      return false;
+    }
+    
+    if (!email.trim()) {
+      setError('Email tidak boleh kosong');
+      return false;
+    }
+    
+    if (!validateEmail(email)) {
+      setError('Format email tidak valid');
+      return false;
+    }
+    
+    if (!password) {
+      setError('Password tidak boleh kosong');
+      return false;
+    }
+    
+    if (password.length < 6) {
+      setError('Password minimal 6 karakter');
+      return false;
+    }
+    
+    if (password !== confirmPassword) {
+      setError('Konfirmasi password tidak sesuai');
+      return false;
+    }
+    
+    return true;
+  };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     
-    // Validasi password minimal 8 karakter
-    if (password.length < 8) {
-      setPasswordError('Kata sandi harus minimal 8 karakter');
-      return;
-    }
-
+    if (!validateForm()) return;
+    
     setIsLoading(true);
     setError('');
-    setSuccess('');
-    setPasswordError('');
+    setSuccess(false);
+    setSuccessMessage('');
     
     try {
-      console.log('Mengirim data registrasi:', { name, email, password: '***' });
+      const response = await register({ name, email, password });
       
-      const result = await register({ name, email, password });
-      console.log('Hasil registrasi:', result);
-      
-      setSuccess('Registrasi berhasil! Anda akan dialihkan ke halaman login.');
-      
-      // Tunggu 2 detik sebelum redirect ke halaman login
-      setTimeout(() => {
-        console.log('Redirecting to login page...');
-        navigate('/login');
-      }, 2000);
-    } catch (err) {
-      console.error('Registration error:', err);
-      // Tampilkan pesan error yang lebih detail
-      if (err.response && err.response.data) {
-        setError(err.response.data.message || 'Registrasi gagal. Coba lagi nanti.');
+      if (response && response.success) {
+        setSuccess(true);
+        setSuccessMessage('Registrasi berhasil! Silahkan login dengan akun baru Anda.');
+        
+        // Reset form
+        setName('');
+        setEmail('');
+        setPassword('');
+        setConfirmPassword('');
+        
+        // Redirect ke login setelah 3 detik
+        setTimeout(() => {
+          navigate('/login');
+        }, 3000);
       } else {
-        setError('Terjadi kesalahan dalam proses registrasi. Periksa koneksi internet Anda.');
+        throw new Error(response?.message || 'Terjadi kesalahan saat mendaftar');
       }
+    } catch (err) {
+      console.error('Register error:', err);
+      setError(err.response?.data?.message || err.message || 'Terjadi kesalahan saat mendaftar');
     } finally {
       setIsLoading(false);
     }
   };
-
-  const handleLogout = () => {
-    localStorage.removeItem('token');
-    setIsAuthenticated(false);
-    navigate('/register');
+  
+  // Toggle password visibility
+  const togglePasswordVisibility = () => {
+    setShowPassword(!showPassword);
+  };
+  
+  const toggleConfirmPasswordVisibility = () => {
+    setShowConfirmPassword(!showConfirmPassword);
   };
 
-  if (isAuthenticated) {
-    return (
-      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-gray-100 via-blue-50 to-gray-200 px-4 py-8">
-        <motion.div
-          initial={{ opacity: 0, scale: 0.95 }}
-          animate={{ opacity: 1, scale: 1 }}
-          transition={{ duration: 0.5 }}
-          className="w-full max-w-md p-8 bg-white/90 backdrop-blur-lg rounded-2xl shadow-xl border border-gray-100/50"
-        >
-          <h2 className="text-3xl font-bold text-center text-gray-800 mb-6">Anda Sudah Login</h2>
-          <p className="text-center text-gray-600 mb-6">Silakan kembali ke beranda atau logout untuk mendaftar akun baru.</p>
-          <div className="space-y-4">
-            <Link
-              to="/"
-              className="flex items-center justify-center w-full py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-all duration-200"
-            >
-              <HomeIcon className="h-5 w-5 mr-2" />
-              Kembali ke Beranda
-            </Link>
-            <button
-              onClick={handleLogout}
-              className="flex items-center justify-center w-full py-3 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-all duration-200"
-            >
-              <ArrowLeftOnRectangleIcon className="h-5 w-5 mr-2" />
-              Logout
-            </button>
-          </div>
-        </motion.div>
-      </div>
-    );
-  }
+  // Framer Motion variants
+  const containerVariants = {
+    hidden: { opacity: 0 },
+    visible: { 
+      opacity: 1,
+      transition: {
+        when: "beforeChildren",
+        staggerChildren: 0.2,
+        delayChildren: 0.3
+      }
+    },
+    exit: { 
+      opacity: 0,
+      transition: { 
+        when: "afterChildren",
+        staggerChildren: 0.1,
+        staggerDirection: -1 
+      } 
+    }
+  };
+  
+  const itemVariants = {
+    hidden: { opacity: 0, y: 20 },
+    visible: { 
+      opacity: 1, 
+      y: 0,
+      transition: { duration: 0.5 }
+    },
+    exit: { 
+      opacity: 0, 
+      y: -20,
+      transition: { duration: 0.3 }
+    }
+  };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-gray-100 via-blue-50 to-gray-200 px-4 py-8">
+    <div className="min-h-screen flex flex-col items-center justify-center relative overflow-hidden py-10">
+      {/* VantaJS Background */}
+      <div className="absolute inset-0 z-0">
+        <VantaBackground options={{
+          color: 0x3b82f6, // blue-500
+          color2: 0x818cf8, // indigo-400
+          backgroundColor: 0x030712, // gray-950
+          spacing: 25.00,
+          size: 1.50,
+          showLines: false
+        }} />
+      </div>
+      
       <motion.div
-        variants={cardVariants}
+        variants={containerVariants}
         initial="hidden"
         animate="visible"
-        className="w-full max-w-md p-8 bg-white/90 backdrop-blur-lg rounded-2xl shadow-xl border border-gray-100/50"
+        exit="exit"
+        className="w-full max-w-md relative z-10"
       >
-        <h2 className="text-3xl font-bold text-center text-gray-800 mb-8">Daftar ke RetinaScan</h2>
-        {(error || success) && (
-          <motion.p
-            key={error || success}
-            variants={messageVariants}
-            initial="hidden"
-            animate="visible"
-            exit="exit"
-            className={`text-center mb-6 p-3 rounded-lg border ${
-              error ? 'text-red-500 bg-red-50 border-red-100/50' : 'text-green-600 bg-green-50 border-green-100/50'
-            }`}
+        {/* Logo & Title */}
+        <motion.div variants={itemVariants} className="text-center mb-8">
+          <motion.div
+            className="mx-auto"
+            initial={{ scale: 0.5, opacity: 0 }}
+            animate={{ scale: 1, opacity: 1, rotate: [0, 10, 0] }}
+            transition={{
+              type: "spring",
+              stiffness: 260,
+              damping: 20,
+              delay: 0.2
+            }}
           >
-            {error || success}
+            <div className="h-20 w-20 bg-gradient-to-r from-indigo-600 to-purple-600 rounded-2xl shadow-lg p-4 mx-auto mb-4 flex items-center justify-center relative overflow-hidden">
+              <div className="absolute inset-0 bg-gradient-to-r from-indigo-600/80 to-purple-600/80 animate-pulse"></div>
+              <EyeIcon className="h-12 w-12 text-white relative z-10" />
+            </div>
+          </motion.div>
+          
+          <motion.h1 
+            className="text-4xl font-bold mb-2 text-white"
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.4, duration: 0.5 }}
+          >
+            <AuroraText
+              colors={["#818cf8", "#c084fc", "#a78bfa", "#e879f9"]}
+            >
+              Buat Akun Baru
+            </AuroraText>
+          </motion.h1>
+          
+          <motion.p 
+            className="text-gray-400"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ delay: 0.6, duration: 0.5 }}
+          >
+            <TextAnimate by="word" animation="fadeIn" delay={0.5}>
+              Daftar untuk menggunakan RetinaScan
+            </TextAnimate>
           </motion.p>
-        )}
-        <form onSubmit={handleSubmit} className="space-y-6">
-          <motion.div variants={formElementVariants} custom={0} initial="hidden" animate="visible">
-            <label htmlFor="name" className="block text-sm font-medium text-gray-700 mb-1">
-              Nama
-            </label>
-            <motion.input
-              type="text"
+        </motion.div>
+        
+        {/* Registration Form */}
+        <motion.div
+          variants={itemVariants}
+          className="glass-card bg-gray-900/40 backdrop-blur-xl border border-white/10 rounded-2xl p-8 shadow-2xl"
+          style={{
+            boxShadow: "0 10px 40px -10px rgba(0, 0, 0, 0.5), 0 0 80px -10px rgba(129, 140, 248, 0.3)"
+          }}
+        >
+          {/* Error Message */}
+          <AnimatePresence>
+            {error && (
+              <motion.div 
+                initial={{ opacity: 0, y: -10, height: 0 }}
+                animate={{ opacity: 1, y: 0, height: 'auto' }}
+                exit={{ opacity: 0, y: -10, height: 0 }}
+                className="bg-red-500/10 border border-red-500/30 text-red-600 rounded-lg p-3 mb-6 flex items-center"
+              >
+                <ExclamationCircleIcon className="h-5 w-5 mr-2 flex-shrink-0" />
+                <p>{error}</p>
+              </motion.div>
+            )}
+          </AnimatePresence>
+
+          {/* Success Message */}
+          <AnimatePresence>
+            {success && (
+              <motion.div 
+                initial={{ opacity: 0, y: -10, height: 0 }}
+                animate={{ opacity: 1, y: 0, height: 'auto' }}
+                exit={{ opacity: 0, y: -10, height: 0 }}
+                className="bg-green-500/10 border border-green-500/30 text-green-600 rounded-lg p-3 mb-6 flex items-center"
+              >
+                <CheckCircleIcon className="h-5 w-5 mr-2 flex-shrink-0" />
+                <p>{successMessage}</p>
+              </motion.div>
+            )}
+          </AnimatePresence>
+
+          {/* Registration Form */}
+          <form 
+            ref={formRef}
+            onSubmit={handleSubmit} 
+            className="space-y-5"
+          >
+            <AnimatedInput
               id="name"
+              name="name"
+              type="text"
               value={name}
               onChange={(e) => setName(e.target.value)}
-              variants={inputVariants}
-              animate={focusedInput === 'name' ? 'focus' : 'blur'}
-              onFocus={() => setFocusedInput('name')}
-              onBlur={() => setFocusedInput(null)}
-              className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none bg-gray-50/50 transition duration-200"
-              placeholder="Masukkan nama Anda"
+              label="Nama Lengkap"
               required
+              placeholder="Masukkan nama lengkap anda"
+              icon={<UserIcon className="h-5 w-5" />}
+              error={error && error.includes('Nama')}
             />
-          </motion.div>
-          <motion.div variants={formElementVariants} custom={1} initial="hidden" animate="visible">
-            <label htmlFor="email" className="block text-sm font-medium text-gray-700 mb-1">
-              Email
-            </label>
-            <motion.input
-              type="email"
+
+            <AnimatedInput
               id="email"
+              name="email"
+              type="email"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
-              variants={inputVariants}
-              animate={focusedInput === 'email' ? 'focus' : 'blur'}
-              onFocus={() => setFocusedInput('email')}
-              onBlur={() => setFocusedInput(null)}
-              className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none bg-gray-50/50 transition duration-200"
-              placeholder="Masukkan email Anda"
+              label="Email"
               required
+              placeholder="Masukkan email anda"
+              icon={<EnvelopeIcon className="h-5 w-5" />}
+              error={error && error.includes('email')}
             />
-          </motion.div>
-          <motion.div variants={formElementVariants} custom={2} initial="hidden" animate="visible">
-            <label htmlFor="password" className="block text-sm font-medium text-gray-700 mb-1">
-              Kata Sandi
-            </label>
-            <div className="relative">
-              <motion.input
-                type={showPassword ? 'text' : 'password'}
-                id="password"
-                value={password}
-                onChange={(e) => {
-                  setPassword(e.target.value);
-                  if (e.target.value.length >= 8) {
-                    setPasswordError('');
+
+            <AnimatedInput
+              id="password"
+              name="password"
+              type={showPassword ? "text" : "password"}
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              label="Password"
+              required
+              placeholder="Masukkan password anda"
+              icon={<LockClosedIcon className="h-5 w-5" />}
+              endIcon={
+                <button 
+                  type="button" 
+                  onClick={togglePasswordVisibility}
+                  className="focus:outline-none"
+                >
+                  {showPassword ? 
+                    <EyeSlashIcon className="h-5 w-5" /> : 
+                    <EyeIcon className="h-5 w-5" />
                   }
-                }}
-                variants={inputVariants}
-                animate={focusedInput === 'password' ? 'focus' : 'blur'}
-                onFocus={() => setFocusedInput('password')}
-                onBlur={() => setFocusedInput(null)}
-                className={`w-full px-4 py-3 border rounded-lg focus:outline-none bg-gray-50/50 transition duration-200 pr-10 ${
-                  passwordError ? 'border-red-500' : 'border-gray-300'
-                }`}
-                placeholder="Masukkan kata sandi"
-                required
-              />
-              <button
-                type="button"
-                onClick={() => setShowPassword(!showPassword)}
-                className="absolute inset-y-0 right-0 flex items-center pr-3 text-gray-500 hover:text-gray-700"
+                </button>
+              }
+              error={error && (error.includes('Password') || error.includes('password'))}
+            />
+
+            <AnimatedInput
+              id="confirmPassword"
+              name="confirmPassword"
+              type={showConfirmPassword ? "text" : "password"}
+              value={confirmPassword}
+              onChange={(e) => setConfirmPassword(e.target.value)}
+              label="Konfirmasi Password"
+              required
+              placeholder="Konfirmasi password anda"
+              icon={<LockClosedIcon className="h-5 w-5" />}
+              endIcon={
+                <button 
+                  type="button" 
+                  onClick={toggleConfirmPasswordVisibility}
+                  className="focus:outline-none"
+                >
+                  {showConfirmPassword ? 
+                    <EyeSlashIcon className="h-5 w-5" /> : 
+                    <EyeIcon className="h-5 w-5" />
+                  }
+                </button>
+              }
+              error={error && error.includes('Konfirmasi password')}
+            />
+
+            <div className="mt-2">
+              <AnimatedButton
+                type="submit"
+                disabled={isLoading}
+                isLoading={isLoading}
+                loadingText="Memproses..."
+                primary={true}
+                gradientFrom="from-indigo-600"
+                gradientTo="to-purple-600"
+                className="w-full py-2.5"
+                icon={<ArrowRightIcon className="h-5 w-5 ml-1" />}
               >
-                {showPassword ? (
-                  <EyeSlashIcon className="h-5 w-5" />
-                ) : (
-                  <EyeIcon className="h-5 w-5" />
-                )}
-              </button>
+                Daftar
+              </AnimatedButton>
             </div>
-            {passwordError && (
-              <motion.p
-                initial={{ opacity: 0, y: -10 }}
-                animate={{ opacity: 1, y: 0 }}
-                className="mt-1 text-sm text-red-500"
+          </form>
+          
+          <div className="mt-6 text-center">
+            <p className="text-gray-400">
+              Sudah memiliki akun?{' '}
+              <Link
+                to="/login"
+                className="font-medium text-indigo-500 hover:text-indigo-400 transition-colors"
               >
-                {passwordError}
-              </motion.p>
-            )}
-          </motion.div>
-          <motion.div variants={formElementVariants} custom={3} initial="hidden" animate="visible">
-            <motion.button
-              type="submit"
-              variants={buttonVariants}
-              initial="initial"
-              whileHover="hover"
-              whileTap="tap"
-              animate={isLoading ? 'loading' : undefined}
-              disabled={isLoading}
-              className="w-full bg-blue-600 text-white py-3 rounded-lg font-medium transition duration-200"
-            >
-              {isLoading ? (
-                <span className="flex items-center justify-center">
-                  <svg
-                    className="animate-spin h-5 w-5 mr-2 text-white"
-                    xmlns="http://www.w3.org/2000/svg"
-                    fill="none"
-                    viewBox="0 0 24 24"
-                  >
-                    <circle
-                      className="opacity-25"
-                      cx="12"
-                      cy="12"
-                      r="10"
-                      stroke="currentColor"
-                      strokeWidth="4"
-                    ></circle>
-                    <path
-                      className="opacity-75"
-                      fill="currentColor"
-                      d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
-                    ></path>
-                  </svg>
-                  Memproses...
-                </span>
-              ) : (
-                'Daftar'
-              )}
-            </motion.button>
-          </motion.div>
-        </form>
-        <motion.p
-          variants={formElementVariants}
-          custom={4}
-          initial="hidden"
-          animate="visible"
-          className="mt-6 text-center text-gray-600"
+                <SparklesText minSize={5} maxSize={10} sparklesCount={5} className="text-indigo-400">
+                  Login
+                </SparklesText>
+              </Link>
+            </p>
+          </div>
+        </motion.div>
+        
+        <motion.div 
+          variants={itemVariants} 
+          className="mt-8 text-center"
         >
-          Sudah punya akun?{' '}
-          <Link to="/login" className="text-blue-600 font-medium hover:underline">
-            Masuk
+          <Link 
+            to="/" 
+            className="inline-flex items-center text-sm text-gray-400 hover:text-indigo-500 transition-colors"
+          >
+            <HomeIcon className="h-4 w-4 mr-1" />
+            Kembali ke Beranda
           </Link>
-        </motion.p>
+        </motion.div>
       </motion.div>
     </div>
   );
-}
+};
 
-export default RegisterPage;
+export default withPageTransition(RegisterPage);
