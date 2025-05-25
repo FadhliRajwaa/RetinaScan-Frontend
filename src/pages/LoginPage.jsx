@@ -206,16 +206,6 @@ const LoginPage = () => {
       }
     } catch (err) {
       console.error('Login error:', err);
-<<<<<<< HEAD
-      setError('Email atau kata sandi salah. Silakan periksa kembali informasi login Anda.');
-      setLoginAttempts(prev => prev + 1);
-      
-      // Animasi error
-      controls.start({
-        x: [0, -10, 10, -10, 0],
-        transition: { duration: 0.5 }
-      });
-=======
       
       // Memberikan pesan error yang lebih spesifik
       if (err.message && err.message.includes('Network Error')) {
@@ -235,7 +225,6 @@ const LoginPage = () => {
         // Error lainnya
         setError('Terjadi kesalahan saat login. Silakan coba lagi.');
       }
->>>>>>> 34aacf9 (fix)
     } finally {
       setIsLoading(false);
       setIsSubmitting(false);

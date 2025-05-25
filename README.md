@@ -1,3 +1,47 @@
+# RetinaScan Frontend
+
+Aplikasi frontend untuk sistem RetinaScan yang dibangun dengan React dan Vite.
+
+## Instalasi
+
+```bash
+npm install
+```
+
+## Environment Variables
+
+Buat file `.env` di root folder frontend dengan variabel-variabel berikut:
+
+```
+# API URL untuk koneksi ke backend
+VITE_API_URL=http://localhost:5000
+
+# URL untuk dashboard (opsional)
+VITE_DASHBOARD_URL=http://localhost:3001
+```
+
+## Development
+
+```bash
+npm run dev
+```
+
+## Build
+
+```bash
+npm run build
+```
+
+## Menjalankan Build
+
+```bash
+npm start
+```
+
+## Deployment
+
+Aplikasi ini dikonfigurasi untuk di-deploy ke Render.
+
 # React + Vite
 
 This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
