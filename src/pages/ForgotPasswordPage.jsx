@@ -182,11 +182,11 @@ function ForgotPasswordPage() {
               <motion.h2 
                 variants={itemVariants}
                 className={`text-2xl font-bold mb-2 ${isDarkMode ? 'text-white' : 'text-gray-900'}`}
-              >
-                Pulihkan Kata Sandi
-              </motion.h2>
+          >
+            Pulihkan Kata Sandi
+          </motion.h2>
               
-              <motion.p 
+          <motion.p
                 variants={itemVariants}
                 className={`${isDarkMode ? 'text-gray-300' : 'text-gray-600'}`}
               >
@@ -196,8 +196,8 @@ function ForgotPasswordPage() {
 
             {message && (
               <motion.div
-                initial={{ opacity: 0, y: -10 }}
-                animate={{ opacity: 1, y: 0 }}
+            initial={{ opacity: 0, y: -10 }}
+            animate={{ opacity: 1, y: 0 }}
                 className={`p-4 rounded-lg mb-6 ${
                   isDarkMode 
                     ? 'bg-green-900/30 border border-green-800/30' 
@@ -215,36 +215,36 @@ function ForgotPasswordPage() {
                       {message}
                     </p>
                     
-                    {resetCode && (
+              {resetCode && (
                       <div className="mt-2">
                         <p className={`text-sm ${
                           isDarkMode ? 'text-green-300' : 'text-green-700'
                         }`}>
                           Kode verifikasi Anda: <span className="font-medium">{resetCode}</span>
-                        </p>
+                </p>
                       </div>
-                    )}
+              )}
                     
-                    {resetCode && (
-                      <motion.button
-                        variants={buttonVariants}
-                        whileHover="hover"
-                        whileTap="tap"
-                        onClick={handleContinue}
+              {resetCode && (
+                <motion.button
+                  variants={buttonVariants}
+                  whileHover="hover"
+                  whileTap="tap"
+                  onClick={handleContinue}
                         className={`mt-4 w-full py-2.5 px-4 rounded-lg flex items-center justify-center text-white font-medium ${
                           isDarkMode ? 'bg-green-600 hover:bg-green-500' : 'bg-green-600 hover:bg-green-700'
                         } transition-colors duration-200`}
-                      >
+                >
                         <span>Lanjut ke Atur Ulang Kata Sandi</span>
                         <ArrowRightIcon className="ml-2 h-4 w-4" />
-                      </motion.button>
-                    )}
+                </motion.button>
+              )}
                   </div>
                 </div>
-              </motion.div>
-            )}
+            </motion.div>
+          )}
 
-            {error && (
+          {error && (
               <motion.div
                 initial={{ opacity: 0, y: -10 }}
                 animate={{ opacity: 1, y: 0 }}
@@ -260,10 +260,10 @@ function ForgotPasswordPage() {
                 <p className={`text-sm ${
                   isDarkMode ? 'text-red-300' : 'text-red-800'
                 }`}>
-                  {error}
+              {error}
                 </p>
               </motion.div>
-            )}
+          )}
 
             {!message && (
               <motion.form 
@@ -273,19 +273,19 @@ function ForgotPasswordPage() {
               >
                 <motion.div variants={itemVariants}>
                   <label htmlFor="email" className={`block text-sm font-medium mb-1.5 ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}>
-                    Email
-                  </label>
+              Email
+            </label>
                   <div className="relative">
                     <div className={`absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none ${
                       isDarkMode ? 'text-gray-500' : 'text-gray-400'
                     }`}>
                       <AtSymbolIcon className="h-5 w-5" />
                     </div>
-                    <motion.input
+            <motion.input
                       type="email"
-                      id="email"
-                      value={email}
-                      onChange={(e) => setEmail(e.target.value)}
+              id="email"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
                       variants={inputVariants}
                       animate={focusedInput === 'email' ? 'focus' : 'blur'}
                       onFocus={() => setFocusedInput('email')}
@@ -296,8 +296,8 @@ function ForgotPasswordPage() {
                           : 'bg-gray-50 border-gray-300 text-gray-900 placeholder-gray-400'
                       }`}
                       placeholder="email@example.com"
-                      required
-                    />
+              required
+            />
                   </div>
                 </motion.div>
                 
@@ -352,8 +352,8 @@ function ForgotPasswordPage() {
           >
             <Link to="/" className={`text-sm ${isDarkMode ? 'text-gray-400 hover:text-gray-300' : 'text-gray-600 hover:text-gray-800'}`}>
               &larr; Kembali ke beranda
-            </Link>
-          </motion.div>
+          </Link>
+      </motion.div>
         </div>
       </div>
     </div>

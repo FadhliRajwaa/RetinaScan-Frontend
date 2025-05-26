@@ -22,7 +22,8 @@ import {
   MoonIcon,
   HomeIcon,
   UserIcon,
-  EyeIcon
+  EyeIcon,
+  ChartBarIcon
 } from '@heroicons/react/24/outline';
 
 // Komponen notifikasi untuk logout
@@ -238,6 +239,7 @@ function Navbar() {
   const authLinks = isAuthenticated
     ? [
         { name: userName, path: '#', icon: <UserIcon className="w-5 h-5 mr-2" /> },
+        { name: 'Dashboard', path: DASHBOARD_URL, icon: <ChartBarIcon className="w-5 h-5 mr-2" /> },
         { name: 'Logout', action: handleLogout, icon: <ArrowLeftOnRectangleIcon className="w-5 h-5 mr-2" /> }
       ]
     : [

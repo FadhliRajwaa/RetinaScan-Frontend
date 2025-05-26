@@ -228,14 +228,14 @@ function LoginPage() {
           }`}
         >
           <div className="text-center mb-6">
-            <motion.div 
+          <motion.div
               variants={floatingIconVariants}
               initial="initial"
               animate="animate"
               className="inline-block p-3 rounded-full bg-blue-100 text-blue-600 mb-4"
             >
               <ArrowLeftOnRectangleIcon className="h-8 w-8" />
-            </motion.div>
+          </motion.div>
             <h2 className={`text-2xl font-bold ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>
               Anda Sudah Login
             </h2>
@@ -253,7 +253,7 @@ function LoginPage() {
                     ? 'bg-blue-600 hover:bg-blue-500 text-white' 
                     : 'bg-blue-600 hover:bg-blue-700 text-white'
                 } transition-colors duration-200`}
-              >
+                >
                 <HomeIcon className="h-5 w-5 mr-2" />
                 Kembali ke Beranda
               </Link>
@@ -265,11 +265,11 @@ function LoginPage() {
               whileTap="tap"
               variants={buttonVariants}
               className={`flex items-center justify-center w-full py-3 px-4 rounded-lg ${
-                isDarkMode 
+                  isDarkMode 
                   ? 'bg-gray-700 hover:bg-gray-600 text-white border border-gray-600' 
                   : 'bg-white hover:bg-gray-100 text-gray-900 border border-gray-300'
               } transition-colors duration-200`}
-            >
+                >
               <ArrowLeftOnRectangleIcon className="h-5 w-5 mr-2" />
               Logout
             </motion.button>
@@ -297,7 +297,7 @@ function LoginPage() {
       >
         {/* Overlay gradient */}
         <div className={`absolute inset-0 ${
-          isDarkMode 
+      isDarkMode 
             ? 'bg-gradient-to-br from-gray-900/90 via-gray-900/80 to-gray-900/90'
             : 'bg-gradient-to-br from-blue-500/20 via-indigo-500/20 to-white/80'
         }`} />
@@ -326,26 +326,26 @@ function LoginPage() {
 
       <div className="min-h-screen flex items-center justify-center px-4 py-16 relative z-10">
         <div className="w-full max-w-md">
-          <motion.div
-            initial={{ opacity: 0, y: -20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.5 }}
-            className="text-center mb-8"
-          >
+      <motion.div
+        initial={{ opacity: 0, y: -20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.5 }}
+        className="text-center mb-8"
+      >
             <Link to="/" className="inline-flex items-center justify-center">
               <EyeIcon className={`h-8 w-8 ${isDarkMode ? 'text-blue-400' : 'text-blue-600'}`} />
               <span className={`ml-2 text-2xl font-bold ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>
                 RetinaScan
               </span>
             </Link>
-          </motion.div>
+      </motion.div>
 
-          <motion.div
+      <motion.div
             variants={formVariants}
             initial="hidden"
             animate="visible"
             className={`p-8 rounded-2xl shadow-2xl ${
-              isDarkMode 
+          isDarkMode 
                 ? 'bg-gray-800/90 backdrop-blur-lg border border-gray-700' 
                 : 'bg-white/90 backdrop-blur-lg border border-gray-100'
             }`}
@@ -353,7 +353,7 @@ function LoginPage() {
             <motion.h2 
               variants={itemVariants}
               className={`text-2xl font-bold text-center mb-2 ${isDarkMode ? 'text-white' : 'text-gray-900'}`}
-            >
+      >
               Selamat Datang Kembali
             </motion.h2>
             
@@ -364,26 +364,26 @@ function LoginPage() {
               Masuk untuk melanjutkan ke RetinaScan
             </motion.p>
 
-            {error && (
-              <motion.div
+          {error && (
+            <motion.div
                 initial={{ opacity: 0, y: -10 }}
                 animate={{ opacity: 1, y: 0 }}
                 className={`p-3 rounded-lg mb-6 flex items-center ${
-                  isDarkMode 
+                isDarkMode 
                     ? 'bg-red-900/30 text-red-200 border border-red-800/30' 
                     : 'bg-red-50 text-red-600 border border-red-100'
-                }`}
-              >
-                <ExclamationCircleIcon className="h-5 w-5 mr-2 flex-shrink-0" />
+              }`}
+            >
+              <ExclamationCircleIcon className="h-5 w-5 mr-2 flex-shrink-0" />
                 <span className="text-sm">{error}</span>
-              </motion.div>
-            )}
+            </motion.div>
+          )}
 
             <motion.form onSubmit={handleSubmit} className="space-y-5" variants={formVariants}>
-              <motion.div variants={itemVariants}>
+          <motion.div variants={itemVariants}>
                 <label htmlFor="email" className={`block text-sm font-medium mb-1.5 ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}>
-                  Email
-                </label>
+              Email
+            </label>
                 <div className="relative">
                   <div className={`absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none ${
                     isDarkMode ? 'text-gray-500' : 'text-gray-400'
@@ -392,29 +392,29 @@ function LoginPage() {
                   </div>
                   <motion.input
                     type="email"
-                    id="email"
-                    value={email}
-                    onChange={(e) => setEmail(e.target.value)}
+              id="email"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
                     variants={inputVariants}
                     animate={focusedInput === 'email' ? 'focus' : 'blur'}
                     onFocus={() => setFocusedInput('email')}
                     onBlur={() => setFocusedInput(null)}
                     className={`block w-full pl-10 pr-3 py-3 border rounded-lg focus:outline-none ${
-                      isDarkMode 
+                isDarkMode 
                         ? 'bg-gray-700/50 border-gray-600 text-white placeholder-gray-400' 
                         : 'bg-gray-50 border-gray-300 text-gray-900 placeholder-gray-400'
-                    }`}
+              }`}
                     placeholder="email@example.com"
-                    required
-                  />
+              required
+            />
                 </div>
-              </motion.div>
+          </motion.div>
 
-              <motion.div variants={itemVariants}>
+          <motion.div variants={itemVariants}>
                 <label htmlFor="password" className={`block text-sm font-medium mb-1.5 ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}>
-                  Kata Sandi
-                </label>
-                <div className="relative">
+              Kata Sandi
+            </label>
+            <div className="relative">
                   <div className={`absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none ${
                     isDarkMode ? 'text-gray-500' : 'text-gray-400'
                   }`}>
@@ -422,102 +422,102 @@ function LoginPage() {
                   </div>
                   <motion.input
                     type={showPassword ? "text" : "password"}
-                    id="password"
-                    value={password}
-                    onChange={(e) => setPassword(e.target.value)}
+                id="password"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
                     variants={inputVariants}
                     animate={focusedInput === 'password' ? 'focus' : 'blur'}
                     onFocus={() => setFocusedInput('password')}
                     onBlur={() => setFocusedInput(null)}
                     className={`block w-full pl-10 pr-10 py-3 border rounded-lg focus:outline-none ${
-                      isDarkMode 
+                  isDarkMode 
                         ? 'bg-gray-700/50 border-gray-600 text-white placeholder-gray-400' 
                         : 'bg-gray-50 border-gray-300 text-gray-900 placeholder-gray-400'
-                    }`}
-                    placeholder="••••••••"
-                    required
-                  />
-                  <button
-                    type="button"
-                    onClick={() => setShowPassword(!showPassword)}
-                    className={`absolute inset-y-0 right-0 pr-3 flex items-center ${
-                      isDarkMode ? 'text-gray-400 hover:text-gray-300' : 'text-gray-500 hover:text-gray-700'
-                    }`}
-                  >
-                    {showPassword ? (
-                      <EyeSlashIcon className="h-5 w-5" />
-                    ) : (
-                      <EyeIcon className="h-5 w-5" />
-                    )}
-                  </button>
-                </div>
-              </motion.div>
+                }`}
+                placeholder="••••••••"
+                required
+              />
+              <button
+                type="button"
+                onClick={() => setShowPassword(!showPassword)}
+                className={`absolute inset-y-0 right-0 pr-3 flex items-center ${
+                  isDarkMode ? 'text-gray-400 hover:text-gray-300' : 'text-gray-500 hover:text-gray-700'
+                }`}
+              >
+                {showPassword ? (
+                  <EyeSlashIcon className="h-5 w-5" />
+                ) : (
+                  <EyeIcon className="h-5 w-5" />
+                )}
+              </button>
+            </div>
+          </motion.div>
 
-              <motion.div variants={itemVariants} className="flex items-center justify-between">
-                <div className="flex items-center">
-                  <input
-                    id="remember-me"
-                    name="remember-me"
-                    type="checkbox"
+          <motion.div variants={itemVariants} className="flex items-center justify-between">
+            <div className="flex items-center">
+              <input
+                id="remember-me"
+                name="remember-me"
+                type="checkbox"
                     className={`h-4 w-4 rounded ${
-                      isDarkMode 
+                  isDarkMode 
                         ? 'bg-gray-700 border-gray-600 text-blue-500 focus:ring-blue-600' 
                         : 'bg-gray-100 border-gray-300 text-blue-600 focus:ring-blue-500'
-                    }`}
-                  />
+                }`}
+              />
                   <label htmlFor="remember-me" className={`ml-2 block text-sm ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}>
-                    Ingat saya
-                  </label>
-                </div>
+                Ingat saya
+              </label>
+            </div>
                 <div className="text-sm">
                   <Link to="/forgot-password" className={`font-medium hover:underline ${isDarkMode ? 'text-blue-400' : 'text-blue-600'}`}>
-                    Lupa kata sandi?
-                  </Link>
+                Lupa kata sandi?
+              </Link>
                 </div>
-              </motion.div>
+          </motion.div>
 
-              <motion.button
-                type="submit"
-                disabled={isLoading}
-                variants={buttonVariants}
+            <motion.button
+              type="submit"
+              disabled={isLoading}
+              variants={buttonVariants}
                 whileHover={!isLoading ? "hover" : undefined}
                 whileTap={!isLoading ? "tap" : undefined}
-                animate={isLoading ? "loading" : "initial"}
+              animate={isLoading ? "loading" : "initial"}
                 className={`w-full py-3 px-4 flex justify-center items-center rounded-lg text-white font-medium ${
-                  isLoading 
+                isLoading 
                     ? isDarkMode ? 'bg-gray-600' : 'bg-blue-400'
                     : isDarkMode ? 'bg-blue-600 hover:bg-blue-500' : 'bg-blue-600 hover:bg-blue-700'
                 } transition-colors duration-200`}
-              >
-                {isLoading ? (
+            >
+              {isLoading ? (
                   <>
-                    <svg className="animate-spin -ml-1 mr-2 h-4 w-4 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                      <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-                      <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                    </svg>
+                  <svg className="animate-spin -ml-1 mr-2 h-4 w-4 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                    <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                    <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                  </svg>
                     Memproses...
                   </>
-                ) : (
+              ) : (
                   <span className="flex items-center">
                     Masuk
                     <ArrowRightIcon className="ml-2 h-4 w-4" />
                   </span>
-                )}
-              </motion.button>
-            </motion.form>
+              )}
+            </motion.button>
+        </motion.form>
 
-            <motion.div
+        <motion.div
               variants={itemVariants}
               className="mt-6 text-center"
-            >
-              <p className={isDarkMode ? 'text-gray-300' : 'text-gray-600'}>
-                Belum punya akun?{' '}
+        >
+          <p className={isDarkMode ? 'text-gray-300' : 'text-gray-600'}>
+            Belum punya akun?{' '}
                 <Link to="/register" className={`font-medium hover:underline ${isDarkMode ? 'text-blue-400' : 'text-blue-600'}`}>
-                  Daftar sekarang
-                </Link>
-              </p>
-            </motion.div>
-          </motion.div>
+                Daftar sekarang
+              </Link>
+          </p>
+        </motion.div>
+      </motion.div>
           
           <motion.div
             variants={itemVariants}

@@ -22,6 +22,7 @@ import { ParallaxBanner, Parallax, useParallax, ParallaxProvider } from 'react-s
 
 function LandingPage() {
   const { theme, animations, isDarkMode } = useTheme();
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [isVisible, setIsVisible] = useState({
     features: false,
     about: false,
@@ -29,6 +30,19 @@ function LandingPage() {
     cta: false
   });
   const [mousePosition, setMousePosition] = useState({ x: 0, y: 0 });
+  
+  // Environment variables
+  const DASHBOARD_URL = import.meta.env.VITE_DASHBOARD_URL || 'http://localhost:3000';
+  
+  // Check authentication status
+  useEffect(() => {
+    const token = localStorage.getItem('token');
+    if (token) {
+      setIsAuthenticated(true);
+    } else {
+      setIsAuthenticated(false);
+    }
+  }, []);
   
   // Refs for scroll animations
   const heroRef = useRef(null);
@@ -272,8 +286,8 @@ function LandingPage() {
             ]}
           >
             {/* Gradient overlay */}
-            <div className={`absolute inset-0 ${
-              isDarkMode 
+          <div className={`absolute inset-0 ${
+            isDarkMode 
                 ? 'bg-gradient-to-b from-gray-900/95 via-gray-900/90 to-gray-900/95'
                 : 'bg-gradient-to-b from-blue-500/30 via-white/30 to-white/90'
             }`} />
@@ -304,7 +318,7 @@ function LandingPage() {
           
           {/* Floating particles */}
           {[...Array(12)].map((_, i) => (
-            <motion.div
+          <motion.div 
               key={i}
               className={`absolute rounded-full ${
                 isDarkMode ? 'bg-blue-400/30' : 'bg-blue-500/20'
@@ -313,17 +327,17 @@ function LandingPage() {
                 left: `${Math.random() * 100}%`,
                 top: `${Math.random() * 100}%`,
               }}
-              animate={{
+            animate={{
                 y: [0, -100, 0],
                 opacity: [0, 1, 0],
-              }}
-              transition={{
+            }}
+            transition={{
                 duration: 10 + Math.random() * 10,
-                repeat: Infinity,
+              repeat: Infinity,
                 delay: Math.random() * 5,
-                ease: "easeInOut"
-              }}
-            />
+              ease: "easeInOut"
+            }}
+          />
           ))}
         </div>
 
@@ -331,24 +345,24 @@ function LandingPage() {
         <div className="container mx-auto px-4 sm:px-6 lg:px-8 relative z-10 flex flex-col items-center">
           {/* Animated Blob Background */}
           <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 -z-10">
-            <motion.div
+          <motion.div 
               className={`w-[600px] h-[600px] rounded-full filter blur-3xl opacity-20 ${
                 isDarkMode ? 'bg-blue-700' : 'bg-blue-400'
               }`}
-              animate={{
+            animate={{
                 scale: [1, 1.1, 1],
                 borderRadius: ["60% 40% 70% 30%", "40% 60% 30% 70%", "60% 40% 70% 30%"],
-              }}
-              transition={{
+            }}
+            transition={{
                 duration: 8,
-                repeat: Infinity,
+              repeat: Infinity,
                 repeatType: "reverse",
-              }}
-            />
-          </div>
-
+            }}
+          />
+        </div>
+        
           {/* Logo Icon with Glow */}
-          <motion.div
+        <motion.div 
             initial={{ opacity: 0, scale: 0.5 }}
             animate={{ opacity: 1, scale: 1 }}
             transition={{ duration: 0.8, ease: "easeOut" }}
@@ -373,15 +387,15 @@ function LandingPage() {
             } shadow-xl`}>
               <EyeIcon className={`h-16 w-16 ${isDarkMode ? 'text-blue-400' : 'text-blue-600'}`} />
             </div>
-          </motion.div>
-          
+            </motion.div>
+            
           {/* Main Heading with Animated Highlight */}
           <motion.div
             className="text-center mb-6"
             initial={{ opacity: 0, y: 30 }}
-            animate={{ opacity: 1, y: 0 }}
+              animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.8, delay: 0.2 }}
-          >
+            >
             <h1 className={`text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-bold tracking-tight mb-4 ${
               isDarkMode ? 'text-white' : 'text-gray-900'
             }`}>
@@ -426,43 +440,76 @@ function LandingPage() {
           </motion.div>
 
           {/* CTA Buttons */}
-          <motion.div
+            <motion.div
             className="flex flex-col sm:flex-row gap-4 mb-12"
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.8, delay: 0.8 }}
           >
             <motion.div whileHover="hover" whileTap="tap" variants={buttonVariants}>
-              <Link 
-                to="/register" 
-                className={`px-8 py-4 rounded-lg font-medium flex items-center justify-center ${
-                  isDarkMode 
-                    ? 'bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-500 hover:to-indigo-500 text-white' 
-                    : 'bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white'
-                } transition-all duration-300 shadow-lg`}
-              >
-                <span>Mulai Sekarang</span>
-                <motion.span
-                  initial={{ x: 0 }}
-                  whileHover={{ x: 5 }}
-                  transition={{ duration: 0.3 }}
+              {isAuthenticated ? (
+                <a 
+                  href={DASHBOARD_URL} 
+                  className={`px-8 py-4 rounded-lg font-medium flex items-center justify-center ${
+                    isDarkMode 
+                      ? 'bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-500 hover:to-indigo-500 text-white' 
+                      : 'bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white'
+                  } transition-all duration-300 shadow-lg`}
                 >
-                  <ArrowRightIcon className="ml-2 h-5 w-5" />
-                </motion.span>
-              </Link>
+                  <span>Dashboard</span>
+                  <motion.span
+                    initial={{ x: 0 }}
+                    whileHover={{ x: 5 }}
+                    transition={{ duration: 0.3 }}
+                  >
+                    <ArrowRightIcon className="ml-2 h-5 w-5" />
+                  </motion.span>
+                </a>
+              ) : (
+                <Link 
+                  to="/register" 
+                  className={`px-8 py-4 rounded-lg font-medium flex items-center justify-center ${
+                    isDarkMode 
+                      ? 'bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-500 hover:to-indigo-500 text-white' 
+                      : 'bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white'
+                  } transition-all duration-300 shadow-lg`}
+                >
+                  <span>Mulai Sekarang</span>
+                  <motion.span
+                    initial={{ x: 0 }}
+                    whileHover={{ x: 5 }}
+                    transition={{ duration: 0.3 }}
+                  >
+                    <ArrowRightIcon className="ml-2 h-5 w-5" />
+                  </motion.span>
+                </Link>
+              )}
             </motion.div>
             
             <motion.div whileHover="hover" whileTap="tap" variants={buttonVariants}>
-              <Link 
-                to="/#features" 
-                className={`px-8 py-4 rounded-lg font-medium flex items-center justify-center ${
-                  isDarkMode 
-                    ? 'bg-gray-800 hover:bg-gray-700 text-white border border-gray-700' 
-                    : 'bg-white hover:bg-gray-100 text-gray-900 border border-gray-200 shadow-md'
-                } transition-colors duration-300`}
-              >
-                Pelajari Lebih Lanjut
-              </Link>
+              {isAuthenticated ? (
+                <a 
+                  href={`${DASHBOARD_URL}/scan`} 
+                  className={`px-8 py-4 rounded-lg font-medium flex items-center justify-center ${
+                    isDarkMode 
+                      ? 'bg-gray-800 hover:bg-gray-700 text-white border border-gray-700' 
+                      : 'bg-white hover:bg-gray-100 text-gray-900 border border-gray-200 shadow-md'
+                  } transition-colors duration-300`}
+                >
+                  Scan Retina
+                </a>
+              ) : (
+                <Link 
+                  to="/#features" 
+                  className={`px-8 py-4 rounded-lg font-medium flex items-center justify-center ${
+                    isDarkMode 
+                      ? 'bg-gray-800 hover:bg-gray-700 text-white border border-gray-700' 
+                      : 'bg-white hover:bg-gray-100 text-gray-900 border border-gray-200 shadow-md'
+                  } transition-colors duration-300`}
+                >
+                  Pelajari Lebih Lanjut
+                </Link>
+              )}
             </motion.div>
           </motion.div>
 
@@ -603,8 +650,8 @@ function LandingPage() {
                 </div>
               </motion.div>
             </motion.div>
-          </motion.div>
-
+        </motion.div>
+        
           {/* Scroll down indicator */}
           <motion.div 
             className="absolute bottom-10 left-1/2 transform -translate-x-1/2"
@@ -951,31 +998,59 @@ function LandingPage() {
               transition={{ duration: 0.8, delay: 0.2, ease: "easeOut" }}
             >
               <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
-                <Link 
-                  to="/register" 
-                  className={`px-8 py-3 rounded-lg font-medium flex items-center justify-center ${
+                {isAuthenticated ? (
+                  <a 
+                    href={DASHBOARD_URL} 
+                    className={`px-8 py-3 rounded-lg font-medium flex items-center justify-center ${
                       isDarkMode 
-                      ? 'bg-blue-600 hover:bg-blue-500 text-white' 
-                      : 'bg-blue-600 hover:bg-blue-700 text-white'
-                  } transition-colors duration-300`}
+                        ? 'bg-blue-600 hover:bg-blue-500 text-white' 
+                        : 'bg-blue-600 hover:bg-blue-700 text-white'
+                    } transition-colors duration-300`}
+                  >
+                    Buka Dashboard
+                    <ArrowRightIcon className="ml-2 h-5 w-5" />
+                  </a>
+                ) : (
+                  <Link 
+                    to="/register" 
+                    className={`px-8 py-3 rounded-lg font-medium flex items-center justify-center ${
+                      isDarkMode 
+                        ? 'bg-blue-600 hover:bg-blue-500 text-white' 
+                        : 'bg-blue-600 hover:bg-blue-700 text-white'
+                    } transition-colors duration-300`}
                   >
                     Daftar Sekarang
-                  <ArrowRightIcon className="ml-2 h-5 w-5" />
-                </Link>
+                    <ArrowRightIcon className="ml-2 h-5 w-5" />
+                  </Link>
+                )}
               </motion.div>
               
               <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
-                <Link 
-                  to="/login" 
-                  className={`px-8 py-3 rounded-lg font-medium flex items-center justify-center ${
-                    isDarkMode 
-                      ? 'bg-gray-700 hover:bg-gray-600 text-white' 
-                      : 'bg-gray-100 hover:bg-gray-200 text-gray-900'
-                  } transition-colors duration-300`}
-                >
-                  Login
-                  <LockClosedIcon className="ml-2 h-5 w-5" />
-                </Link>
+                {isAuthenticated ? (
+                  <a 
+                    href={`${DASHBOARD_URL}/scan`} 
+                    className={`px-8 py-3 rounded-lg font-medium flex items-center justify-center ${
+                      isDarkMode 
+                        ? 'bg-gray-700 hover:bg-gray-600 text-white' 
+                        : 'bg-gray-100 hover:bg-gray-200 text-gray-900'
+                    } transition-colors duration-300`}
+                  >
+                    Scan Retina
+                    <EyeIcon className="ml-2 h-5 w-5" />
+                  </a>
+                ) : (
+                  <Link 
+                    to="/login" 
+                    className={`px-8 py-3 rounded-lg font-medium flex items-center justify-center ${
+                      isDarkMode 
+                        ? 'bg-gray-700 hover:bg-gray-600 text-white' 
+                        : 'bg-gray-100 hover:bg-gray-200 text-gray-900'
+                    } transition-colors duration-300`}
+                  >
+                    Login
+                    <LockClosedIcon className="ml-2 h-5 w-5" />
+                  </Link>
+                )}
               </motion.div>
             </motion.div>
           </motion.div>
