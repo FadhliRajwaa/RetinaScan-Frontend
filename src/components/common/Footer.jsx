@@ -41,7 +41,7 @@ function Footer() {
       ]
     },
   ];
-
+  
   const socialLinks = [
     { 
       name: 'Twitter', 
@@ -90,7 +90,7 @@ function Footer() {
           />
         </svg>
       </div>
-      
+
       <div className="max-w-7xl mx-auto pt-16 pb-8 px-4 sm:px-6 lg:px-8">
         <div className="xl:grid xl:grid-cols-5 xl:gap-8">
           {/* Brand */}
@@ -170,8 +170,8 @@ function Footer() {
                               ? 'text-gray-400 hover:text-white' 
                               : 'text-blue-100 hover:text-white'
                           } hover:translate-x-1 inline-flex items-center transition-all duration-200`}
-                        >
-                          {link.name}
+                  >
+                    {link.name}
                         </Link>
                       </motion.li>
                     ))}
@@ -181,9 +181,9 @@ function Footer() {
             </div>
           </div>
         </div>
-        
-        {/* Contact Info */}
-        <motion.div 
+          
+          {/* Contact Info */}
+          <motion.div 
           className="border-t border-opacity-20 mt-12 pt-8"
           initial="hidden"
           whileInView="visible"
@@ -196,7 +196,7 @@ function Footer() {
             <motion.div 
               className="flex items-center"
               whileHover={{ x: 5 }}
-            >
+              >
               <EnvelopeIcon className="h-5 w-5 mr-3 flex-shrink-0" />
               <a 
                 href="mailto:info@retinascan.com" 
@@ -227,8 +227,8 @@ function Footer() {
               <span className="text-sm">
                 Jakarta, Indonesia
               </span>
-            </motion.div>
-          </div>
+          </motion.div>
+        </div>
         </motion.div>
         
         {/* Copyright */}

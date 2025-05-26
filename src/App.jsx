@@ -1,33 +1,39 @@
 import { Routes, Route, useLocation } from 'react-router-dom';
 import { AnimatePresence, motion } from 'framer-motion';
 import { ParallaxProvider } from 'react-scroll-parallax';
+import { ThemeProvider } from './context/ThemeContext';
+import { useTheme } from './context/ThemeContext';
+import Navbar from './components/common/Navbar';
+import Footer from './components/common/Footer';
 import LandingPage from './pages/LandingPage';
 import LoginPage from './pages/LoginPage';
 import RegisterPage from './pages/RegisterPage';
 import ForgotPasswordPage from './pages/ForgotPasswordPage';
 import ResetPasswordPage from './pages/ResetPasswordPage';
+import DashboardPage from './pages/DashboardPage';
+import ProfilePage from './pages/ProfilePage';
 import RetinaScanPage from './pages/RetinaScanPage';
-import Navbar from './components/common/Navbar';
-import Footer from './components/common/Footer';
 import ProtectedRoute from './components/common/ProtectedRoute';
-import { useTheme } from './context/ThemeContext';
-import './App.css';
 
-function App() {
+function AppContent() {
   const location = useLocation();
-  const { isDarkMode, animations } = useTheme();
-  
+  const { theme } = useTheme();
+
+  // Determine if the current route should show Navbar and Footer
+  const showNavbarFooter = !['/login', '/register', '/forgot-password', '/reset-password'].includes(location.pathname);
+
   return (
     <ParallaxProvider>
-      <div className={`flex flex-col min-h-screen ${isDarkMode ? 'dark bg-gray-900 text-white' : 'bg-white text-gray-900'} transition-colors duration-300`}>
-        <Navbar />
-        <main className="flex-grow pt-16 relative overflow-hidden">
+      <div className="flex flex-col min-h-screen">
+        {showNavbarFooter && <Navbar />}
+        <main className="flex-grow">
           <AnimatePresence mode="wait">
             <motion.div
               key={location.pathname}
-              initial={animations.page.initial}
-              animate={animations.page.animate}
-              exit={animations.page.exit}
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              transition={{ duration: 0.3 }}
               className="w-full h-full"
             >
               <Routes location={location}>
@@ -36,14 +42,24 @@ function App() {
                 <Route path="/register" element={<RegisterPage />} />
                 <Route path="/forgot-password" element={<ForgotPasswordPage />} />
                 <Route path="/reset-password" element={<ResetPasswordPage />} />
+                <Route path="/dashboard" element={<ProtectedRoute><DashboardPage /></ProtectedRoute>} />
+                <Route path="/profile" element={<ProtectedRoute><ProfilePage /></ProtectedRoute>} />
                 <Route path="/retina-scan" element={<ProtectedRoute><RetinaScanPage /></ProtectedRoute>} />
               </Routes>
             </motion.div>
           </AnimatePresence>
         </main>
-        <Footer />
+        {showNavbarFooter && <Footer />}
       </div>
     </ParallaxProvider>
+  );
+}
+
+function App() {
+  return (
+    <ThemeProvider>
+      <AppContent />
+    </ThemeProvider>
   );
 }
 
