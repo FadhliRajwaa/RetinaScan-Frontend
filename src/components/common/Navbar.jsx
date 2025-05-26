@@ -199,7 +199,7 @@ function Navbar() {
       checkAuth(false);
     }
   }, [location]);
-
+  
   useEffect(() => {
     const handleScroll = () => {
       if (window.scrollY > 10) {
@@ -208,7 +208,7 @@ function Navbar() {
         setScrolled(false);
       }
     };
-
+    
     window.addEventListener('scroll', handleScroll);
     
     return () => {
@@ -232,8 +232,7 @@ function Navbar() {
   };
   
   const navLinks = [
-    { name: 'Beranda', path: '/', icon: <HomeIcon className="w-5 h-5 mr-2" /> },
-    { name: 'Retina Scan', path: '/retina-scan', icon: <EyeIcon className="w-5 h-5 mr-2" />, requireAuth: false, hideWhenAuth: true }
+    { name: 'Beranda', path: '/', icon: <HomeIcon className="w-5 h-5 mr-2" /> }
   ];
   
   const authLinks = isAuthenticated
@@ -264,7 +263,7 @@ function Navbar() {
   const linkVariants = {
     hidden: { opacity: 0, y: -10 },
     visible: { 
-      opacity: 1, 
+      opacity: 1,
       y: 0,
       transition: { type: "spring", stiffness: 100, damping: 15 }
     },
@@ -279,7 +278,7 @@ function Navbar() {
     closed: { 
       opacity: 0,
       x: "100%",
-      transition: {
+      transition: { 
         type: "spring",
         stiffness: 300,
         damping: 30
@@ -288,7 +287,7 @@ function Navbar() {
     open: { 
       opacity: 1,
       x: 0,
-      transition: {
+      transition: { 
         type: "spring",
         stiffness: 100,
         damping: 20,
@@ -307,7 +306,7 @@ function Navbar() {
     <>
       <AnimatePresence>
         {notification.show && (
-          <LogoutNotification
+          <LogoutNotification 
             message={notification.message}
             type={notification.type}
             onClose={() => setNotification({ ...notification, show: false })}
@@ -332,7 +331,7 @@ function Navbar() {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between items-center py-4">
             {/* Logo */}
-            <motion.div 
+            <motion.div
               className="flex-shrink-0"
               whileHover={{ scale: 1.05 }}
               whileTap={{ scale: 0.95 }}
@@ -342,18 +341,18 @@ function Navbar() {
                 <span className={`ml-2 text-xl font-bold ${
                   isDarkMode ? 'text-white' : 'text-gray-900'
                 }`}>
-                  RetinaScan
+                RetinaScan
                 </span>
               </Link>
             </motion.div>
-            
-            {/* Desktop Navigation */}
+
+          {/* Desktop Navigation */}
             <nav className="hidden md:flex items-center space-x-1">
               {navLinks
                 .filter(link => (!link.requireAuth || (link.requireAuth && isAuthenticated)) && !(link.hideWhenAuth && isAuthenticated))
                 .map((link) => (
                   <motion.div key={link.name} variants={linkVariants} whileHover="hover" whileTap="tap">
-                    <Link
+                <Link 
                       to={link.path}
                       className={`px-3 py-2 rounded-md text-sm font-medium flex items-center ${
                         location.pathname === link.path
@@ -364,17 +363,17 @@ function Navbar() {
                             ? 'text-gray-300 hover:bg-gray-800 hover:text-white'
                             : 'text-gray-700 hover:bg-gray-100'
                       } transition-colors duration-200`}
-                    >
+                >
                       {link.icon}
                       {link.name}
-                    </Link>
-                  </motion.div>
-                ))}
-              
+                </Link>
+              </motion.div>
+            ))}
+            
               {authLinks.map((link) => (
                 <motion.div key={link.name} variants={linkVariants} whileHover="hover" whileTap="tap">
                   {link.path ? (
-                    <Link
+                      <Link 
                       to={link.path}
                       className={`px-3 py-2 rounded-md text-sm font-medium flex items-center ${
                         location.pathname === link.path
@@ -385,29 +384,29 @@ function Navbar() {
                             ? 'text-gray-300 hover:bg-gray-800 hover:text-white'
                             : 'text-gray-700 hover:bg-gray-100'
                       } transition-colors duration-200`}
-                    >
+                      >
                       {link.icon}
                       {link.name}
-                    </Link>
+                      </Link>
                   ) : (
-                    <button
+                      <button
                       onClick={link.action}
                       className={`px-3 py-2 rounded-md text-sm font-medium flex items-center ${
                         isDarkMode
                           ? 'text-gray-300 hover:bg-gray-800 hover:text-white'
                           : 'text-gray-700 hover:bg-gray-100'
                       } transition-colors duration-200`}
-                    >
+                      >
                       {link.icon}
                       {link.name}
-                    </button>
+                      </button>
                   )}
                 </motion.div>
               ))}
               
               {/* Theme Toggle */}
               <div className="ml-2">
-                <ThemeToggle isDarkMode={isDarkMode} toggleTheme={toggleTheme} />
+            <ThemeToggle isDarkMode={isDarkMode} toggleTheme={toggleTheme} />
               </div>
             </nav>
             
@@ -417,28 +416,28 @@ function Navbar() {
               
               <motion.button
                 whileTap={{ scale: 0.9 }}
-                onClick={() => setIsOpen(!isOpen)}
+              onClick={() => setIsOpen(!isOpen)}
                 className={`ml-2 p-2 rounded-md ${
                   isDarkMode
                     ? 'text-gray-300 hover:bg-gray-800 hover:text-white'
                     : 'text-gray-700 hover:bg-gray-100'
                 }`}
-              >
+            >
                 <span className="sr-only">Open main menu</span>
-                {isOpen ? (
+              {isOpen ? (
                   <XMarkIcon className="h-6 w-6" aria-hidden="true" />
-                ) : (
+              ) : (
                   <Bars3Icon className="h-6 w-6" aria-hidden="true" />
-                )}
+              )}
               </motion.button>
             </div>
           </div>
         </div>
-        
+
         {/* Mobile Menu */}
         <AnimatePresence>
           {isOpen && (
-            <motion.div
+            <motion.div 
               initial="closed"
               animate="open"
               exit="closed"
@@ -454,7 +453,7 @@ function Navbar() {
                   .filter(link => (!link.requireAuth || (link.requireAuth && isAuthenticated)) && !(link.hideWhenAuth && isAuthenticated))
                   .map((link) => (
                     <motion.div key={link.name} variants={mobileItemVariants}>
-                      <Link
+                    <Link 
                         to={link.path}
                         className={`block px-3 py-2 rounded-md text-base font-medium flex items-center ${
                           location.pathname === link.path
@@ -465,18 +464,18 @@ function Navbar() {
                               ? 'text-gray-300 hover:bg-gray-800 hover:text-white'
                               : 'text-gray-700 hover:bg-gray-100'
                         } transition-colors duration-200`}
-                        onClick={() => setIsOpen(false)}
-                      >
+                      onClick={() => setIsOpen(false)}
+                    >
                         {link.icon}
                         {link.name}
-                      </Link>
-                    </motion.div>
-                  ))}
+                    </Link>
+                  </motion.div>
+                ))}
                 
                 {authLinks.map((link) => (
                   <motion.div key={link.name} variants={mobileItemVariants}>
                     {link.path ? (
-                      <Link
+                      <Link 
                         to={link.path}
                         className={`block px-3 py-2 rounded-md text-base font-medium flex items-center ${
                           location.pathname === link.path
@@ -508,7 +507,7 @@ function Navbar() {
                         {link.name}
                       </button>
                     )}
-                  </motion.div>
+                    </motion.div>
                 ))}
               </div>
             </motion.div>
