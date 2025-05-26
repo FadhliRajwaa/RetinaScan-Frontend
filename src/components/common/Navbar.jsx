@@ -17,7 +17,12 @@ import {
   UserCircleIcon,
   ArrowLeftOnRectangleIcon,
   CheckCircleIcon,
-  ExclamationCircleIcon
+  ExclamationCircleIcon,
+  SunIcon,
+  MoonIcon,
+  HomeIcon,
+  UserIcon,
+  EyeIcon
 } from '@heroicons/react/24/outline';
 
 // Komponen notifikasi untuk logout
@@ -52,6 +57,49 @@ const LogoutNotification = ({ message, type = 'success', onClose }) => {
   );
 };
 
+// Komponen tombol toggle tema yang lebih menarik
+const ThemeToggle = ({ isDarkMode, toggleTheme }) => {
+  const { animations } = useTheme();
+  
+  return (
+    <motion.button
+      onClick={toggleTheme}
+      className={`relative h-10 w-10 rounded-full flex items-center justify-center overflow-hidden ${
+        isDarkMode ? 'bg-gray-800' : 'bg-blue-50'
+      }`}
+      whileTap={{ scale: 0.9 }}
+      whileHover={{ scale: 1.05 }}
+      aria-label={isDarkMode ? "Switch to light mode" : "Switch to dark mode"}
+    >
+      <AnimatePresence mode="wait" initial={false}>
+        {isDarkMode ? (
+          <motion.div
+            key="sun"
+            initial={{ opacity: 0, rotate: 90, scale: 0.5 }}
+            animate={{ opacity: 1, rotate: 0, scale: 1 }}
+            exit={{ opacity: 0, rotate: -90, scale: 0.5 }}
+            transition={{ type: "spring", stiffness: 200, damping: 10 }}
+            className="absolute inset-0 flex items-center justify-center"
+          >
+            <SunIcon className="h-6 w-6 text-yellow-300" />
+          </motion.div>
+        ) : (
+          <motion.div
+            key="moon"
+            initial={{ opacity: 0, rotate: -90, scale: 0.5 }}
+            animate={{ opacity: 1, rotate: 0, scale: 1 }}
+            exit={{ opacity: 0, rotate: 90, scale: 0.5 }}
+            transition={{ type: "spring", stiffness: 200, damping: 10 }}
+            className="absolute inset-0 flex items-center justify-center"
+          >
+            <MoonIcon className="h-5 w-5 text-indigo-700" />
+          </motion.div>
+        )}
+      </AnimatePresence>
+    </motion.button>
+  );
+};
+
 function Navbar() {
   const [isOpen, setIsOpen] = useState(false);
   const [isAuthenticated, setIsAuthenticated] = useState(false);
@@ -60,7 +108,7 @@ function Navbar() {
   const [scrolled, setScrolled] = useState(false);
   const location = useLocation();
   const navigate = useNavigate();
-  const { theme, isMobile } = useTheme();
+  const { theme, isMobile, isDarkMode, toggleTheme, animations } = useTheme();
   
   // Environment variables
   const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000';
@@ -68,7 +116,7 @@ function Navbar() {
 
   const checkAuth = async (forceLogout = false) => {
     if (forceLogout) {
-      console.log('Forcing logout due to query parameter'); // Debugging
+      console.log('Forcing logout due to query parameter');
       cleanupAfterLogout();
       setIsAuthenticated(false);
       setUserName('');
@@ -110,16 +158,11 @@ function Navbar() {
     // Format URL: /#/?logout=true&from=dashboard
     const query = getHashParams();
     
-    console.log('Current URL:', window.location.href);
-    console.log('Hash params:', query.toString());
-    
     // Proses parameter logout menggunakan utility function
     const logoutParams = processLogoutParams(query);
     
     // Jika parameter logout=true, paksa logout
     if (logoutParams.isLogout) {
-      console.log('Forcing logout due to query parameter');
-      
       // Bersihkan data setelah logout
       cleanupAfterLogout();
       
@@ -131,7 +174,6 @@ function Navbar() {
       // Dapatkan pesan logout yang sesuai
       const message = getLogoutMessage(logoutParams);
       if (message) {
-        console.log('Logout message:', message);
         setNotification({
           show: true,
           message,
@@ -142,7 +184,6 @@ function Navbar() {
       // Hapus parameter logout dari URL (sesuai dengan HashRouter)
       cleanHashParams();
     } else if (query.get('auth') === 'failed' && query.get('from') === 'dashboard') {
-      console.log('Authentication failed from dashboard');
       // Hapus parameter dari URL (sesuai dengan HashRouter)
       cleanHashParams();
       
@@ -158,82 +199,115 @@ function Navbar() {
       checkAuth(false);
     }
   }, [location]);
-  
+
   useEffect(() => {
     const handleScroll = () => {
-      const offset = window.scrollY;
-      if (offset > 50) {
+      if (window.scrollY > 10) {
         setScrolled(true);
       } else {
         setScrolled(false);
       }
     };
-    
+
     window.addEventListener('scroll', handleScroll);
+    
     return () => {
       window.removeEventListener('scroll', handleScroll);
     };
   }, []);
 
   const handleLogout = () => {
-    console.log('Logging out from frontend'); // Debugging
+    handleFrontendLogout();
+    setIsAuthenticated(false);
+    setUserName('');
+    setToken('');
+    setIsOpen(false);
+    navigate('/');
     
-    // Gunakan fungsi utility untuk logout
-    handleFrontendLogout(setIsAuthenticated, setUserName, setToken, navigate);
+    setNotification({
+      show: true,
+      message: 'Anda berhasil logout',
+      type: 'success'
+    });
   };
+  
+  const navLinks = [
+    { name: 'Beranda', path: '/', icon: <HomeIcon className="w-5 h-5 mr-2" /> },
+    { name: 'Retina Scan', path: '/retina-scan', icon: <EyeIcon className="w-5 h-5 mr-2" />, requireAuth: true }
+  ];
+  
+  const authLinks = isAuthenticated
+    ? [
+        { name: userName, path: '#', icon: <UserIcon className="w-5 h-5 mr-2" /> },
+        { name: 'Logout', action: handleLogout, icon: <ArrowLeftOnRectangleIcon className="w-5 h-5 mr-2" /> }
+      ]
+    : [
+        { name: 'Login', path: '/login', icon: <UserCircleIcon className="w-5 h-5 mr-2" /> },
+        { name: 'Register', path: '/register', icon: <UserIcon className="w-5 h-5 mr-2" /> }
+      ];
 
   const navbarVariants = {
-    hidden: { opacity: 0, y: -25 },
+    hidden: { opacity: 0, y: -20 },
     visible: { 
       opacity: 1, 
       y: 0,
-      transition: { duration: 0.5, ease: "easeOut" }
+      transition: {
+        type: "spring",
+        stiffness: 100,
+        damping: 15,
+        staggerChildren: 0.1,
+        delayChildren: 0.2
+      }
     }
   };
   
-  const itemVariants = {
-    hidden: { opacity: 0, y: -5 },
-    visible: i => ({
-      opacity: 1,
+  const linkVariants = {
+    hidden: { opacity: 0, y: -10 },
+    visible: { 
+      opacity: 1, 
       y: 0,
-      transition: { 
-        delay: i * 0.1,
-        duration: 0.5,
-        ease: "easeOut"
-      }
-    })
+      transition: { type: "spring", stiffness: 100, damping: 15 }
+    },
+    hover: { 
+      scale: 1.05,
+      transition: { type: "spring", stiffness: 300, damping: 10 }
+    },
+    tap: { scale: 0.95 }
   };
   
   const mobileMenuVariants = {
-    hidden: { opacity: 0, height: 0, overflow: 'hidden' },
-    visible: { 
-      opacity: 1, 
-      height: 'auto',
-      transition: { 
-        duration: 0.3,
-        ease: "easeInOut"
+    closed: { 
+      opacity: 0,
+      x: "100%",
+      transition: {
+        type: "spring",
+        stiffness: 300,
+        damping: 30
       }
     },
-    exit: {
-      opacity: 0,
-      height: 0,
-      transition: { 
-        duration: 0.3,
-        ease: "easeInOut"
+    open: { 
+      opacity: 1,
+      x: 0,
+      transition: {
+        type: "spring",
+        stiffness: 100,
+        damping: 20,
+        staggerChildren: 0.07,
+        delayChildren: 0.1
       }
     }
   };
-
-  const bgGradient = scrolled 
-    ? `linear-gradient(90deg, ${theme.primary}, ${theme.accent})`
-    : `linear-gradient(90deg, ${theme.primary}, ${theme.accent})`;
+  
+  const mobileItemVariants = {
+    closed: { opacity: 0, x: 50 },
+    open: { opacity: 1, x: 0 }
+  };
 
   return (
     <>
-      {/* Logout Notification */}
       <AnimatePresence>
         {notification.show && (
-          <LogoutNotification 
+          <LogoutNotification
             message={notification.message}
             type={notification.type}
             onClose={() => setNotification({ ...notification, show: false })}
@@ -241,199 +315,206 @@ function Navbar() {
         )}
       </AnimatePresence>
       
-      <motion.nav 
+      <motion.header
         initial="hidden"
         animate="visible"
         variants={navbarVariants}
-        className="fixed top-0 left-0 right-0 z-40 transition-all duration-300"
-        style={{
-          background: bgGradient,
-          color: 'white',
-          boxShadow: scrolled ? theme.mediumShadow : 'none',
-          padding: scrolled ? '0.5rem 0' : '1rem 0',
-        }}
+        className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${
+          scrolled
+            ? isDarkMode
+              ? 'bg-gray-900/90 backdrop-blur-md shadow-lg shadow-gray-900/10'
+              : 'bg-white/90 backdrop-blur-md shadow-lg shadow-black/5'
+            : isDarkMode
+              ? 'bg-transparent'
+              : 'bg-transparent'
+        }`}
       >
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="flex justify-between items-center">
-          <motion.div 
-            className="flex items-center"
-            variants={itemVariants}
-            custom={0}
-          >
-            <Link to="/" className="flex-shrink-0 flex items-center">
-              <motion.span 
-                className="text-2xl font-extrabold tracking-tight"
-                style={{
-                  background: 'linear-gradient(90deg, white, rgba(255,255,255,0.8))',
-                  WebkitBackgroundClip: 'text',
-                  WebkitTextFillColor: 'transparent',
-                }}
-                whileHover={{ scale: 1.05 }}
-                whileTap={{ scale: 0.95 }}
-              >
-                RetinaScan
-              </motion.span>
-            </Link>
-          </motion.div>
-          <div className="hidden sm:flex sm:items-center sm:space-x-6">
-            {isAuthenticated ? (
-              <>
-                <motion.a
-                  href={`${DASHBOARD_URL}?token=${token}`}
-                  className="px-4 py-2 text-sm font-bold rounded-lg transition-all duration-200"
-                  style={{ ...theme.glassEffect }}
-                  variants={itemVariants}
-                  custom={1}
-                  whileHover={{ scale: 1.05 }}
-                  whileTap={{ scale: 0.95 }}
-                >
-                  Dashboard
-                </motion.a>
-                <motion.div 
-                  className="flex items-center space-x-2 px-4 py-2 rounded-lg"
-                  style={{ ...theme.glassEffect }}
-                  variants={itemVariants}
-                  custom={2}
-                >
-                  <UserCircleIcon className="h-6 w-6" />
-                  <span className="text-sm font-medium">{userName}</span>
-                </motion.div>
-                <motion.button
-                  onClick={handleLogout}
-                  className="flex items-center px-4 py-2 text-sm font-medium rounded-lg transition-all duration-200"
-                  style={{ background: 'rgba(239, 68, 68, 0.2)', backdropFilter: 'blur(8px)' }}
-                  variants={itemVariants}
-                  custom={3}
-                  whileHover={{ scale: 1.05, backgroundColor: 'rgba(220, 38, 38, 0.3)' }}
-                  whileTap={{ scale: 0.95 }}
-                >
-                  <ArrowLeftOnRectangleIcon className="h-5 w-5 mr-2" />
-                  Logout
-                </motion.button>
-              </>
-            ) : (
-              <>
-                <motion.div
-                  variants={itemVariants}
-                  custom={1}
-                >
-                  <Link
-                    to="/login"
-                    className="px-4 py-2 text-sm font-medium rounded-lg transition-all duration-200"
-                    style={{ ...theme.glassEffect }}
-                  >
-                    Login
-                  </Link>
-                </motion.div>
-                <motion.div
-                  variants={itemVariants}
-                  custom={2}
-                >
-                  <Link
-                    to="/register"
-                    className="px-4 py-2 text-sm font-medium rounded-lg transition-all duration-200 ripple"
-                    style={{ 
-                      background: 'rgba(255, 255, 255, 0.2)',
-                      backdropFilter: 'blur(8px)',
-                      border: '1px solid rgba(255, 255, 255, 0.2)',
-                      boxShadow: theme.smallShadow 
-                    }}
-                  >
-                    Register
-                  </Link>
-                </motion.div>
-              </>
-            )}
-          </div>
-          {isMobile && (
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="flex justify-between items-center py-4">
+            {/* Logo */}
             <motion.div 
-              className="flex items-center sm:hidden"
-              variants={itemVariants}
-              custom={5}
+              className="flex-shrink-0"
+              whileHover={{ scale: 1.05 }}
+              whileTap={{ scale: 0.95 }}
             >
+              <Link to="/" className="flex items-center">
+                <EyeIcon className={`h-8 w-8 ${isDarkMode ? 'text-blue-400' : 'text-blue-600'}`} />
+                <span className={`ml-2 text-xl font-bold ${
+                  isDarkMode ? 'text-white' : 'text-gray-900'
+                }`}>
+                  RetinaScan
+                </span>
+              </Link>
+            </motion.div>
+            
+            {/* Desktop Navigation */}
+            <nav className="hidden md:flex items-center space-x-1">
+              {navLinks
+                .filter(link => !link.requireAuth || (link.requireAuth && isAuthenticated))
+                .map((link) => (
+                  <motion.div key={link.name} variants={linkVariants} whileHover="hover" whileTap="tap">
+                    <Link
+                      to={link.path}
+                      className={`px-3 py-2 rounded-md text-sm font-medium flex items-center ${
+                        location.pathname === link.path
+                          ? isDarkMode
+                            ? 'bg-gray-800 text-white'
+                            : 'bg-blue-50 text-blue-700'
+                          : isDarkMode
+                            ? 'text-gray-300 hover:bg-gray-800 hover:text-white'
+                            : 'text-gray-700 hover:bg-gray-100'
+                      } transition-colors duration-200`}
+                    >
+                      {link.icon}
+                      {link.name}
+                    </Link>
+                  </motion.div>
+                ))}
+              
+              {authLinks.map((link) => (
+                <motion.div key={link.name} variants={linkVariants} whileHover="hover" whileTap="tap">
+                  {link.path ? (
+                    <Link
+                      to={link.path}
+                      className={`px-3 py-2 rounded-md text-sm font-medium flex items-center ${
+                        location.pathname === link.path
+                          ? isDarkMode
+                            ? 'bg-gray-800 text-white'
+                            : 'bg-blue-50 text-blue-700'
+                          : isDarkMode
+                            ? 'text-gray-300 hover:bg-gray-800 hover:text-white'
+                            : 'text-gray-700 hover:bg-gray-100'
+                      } transition-colors duration-200`}
+                    >
+                      {link.icon}
+                      {link.name}
+                    </Link>
+                  ) : (
+                    <button
+                      onClick={link.action}
+                      className={`px-3 py-2 rounded-md text-sm font-medium flex items-center ${
+                        isDarkMode
+                          ? 'text-gray-300 hover:bg-gray-800 hover:text-white'
+                          : 'text-gray-700 hover:bg-gray-100'
+                      } transition-colors duration-200`}
+                    >
+                      {link.icon}
+                      {link.name}
+                    </button>
+                  )}
+                </motion.div>
+              ))}
+              
+              {/* Theme Toggle */}
+              <div className="ml-2">
+                <ThemeToggle isDarkMode={isDarkMode} toggleTheme={toggleTheme} />
+              </div>
+            </nav>
+            
+            {/* Mobile Menu Button */}
+            <div className="flex items-center md:hidden">
+              <ThemeToggle isDarkMode={isDarkMode} toggleTheme={toggleTheme} />
+              
               <motion.button
-                onClick={() => setIsOpen(!isOpen)}
-                className="inline-flex items-center justify-center p-2 rounded-lg text-white transition-all duration-200"
-                style={{ ...theme.glassEffect }}
-                whileHover={{ scale: 1.1 }}
                 whileTap={{ scale: 0.9 }}
+                onClick={() => setIsOpen(!isOpen)}
+                className={`ml-2 p-2 rounded-md ${
+                  isDarkMode
+                    ? 'text-gray-300 hover:bg-gray-800 hover:text-white'
+                    : 'text-gray-700 hover:bg-gray-100'
+                }`}
               >
-                {isOpen ? <XMarkIcon className="h-6 w-6" /> : <Bars3Icon className="h-6 w-6" />}
+                <span className="sr-only">Open main menu</span>
+                {isOpen ? (
+                  <XMarkIcon className="h-6 w-6" aria-hidden="true" />
+                ) : (
+                  <Bars3Icon className="h-6 w-6" aria-hidden="true" />
+                )}
               </motion.button>
+            </div>
+          </div>
+        </div>
+        
+        {/* Mobile Menu */}
+        <AnimatePresence>
+          {isOpen && (
+            <motion.div
+              initial="closed"
+              animate="open"
+              exit="closed"
+              variants={mobileMenuVariants}
+              className={`md:hidden ${
+                isDarkMode 
+                  ? 'bg-gray-900 shadow-lg shadow-gray-900/20' 
+                  : 'bg-white shadow-lg shadow-black/5'
+              }`}
+            >
+              <div className="px-2 pt-2 pb-3 space-y-1">
+                {navLinks
+                  .filter(link => !link.requireAuth || (link.requireAuth && isAuthenticated))
+                  .map((link) => (
+                    <motion.div key={link.name} variants={mobileItemVariants}>
+                      <Link
+                        to={link.path}
+                        className={`block px-3 py-2 rounded-md text-base font-medium flex items-center ${
+                          location.pathname === link.path
+                            ? isDarkMode
+                              ? 'bg-gray-800 text-white'
+                              : 'bg-blue-50 text-blue-700'
+                            : isDarkMode
+                              ? 'text-gray-300 hover:bg-gray-800 hover:text-white'
+                              : 'text-gray-700 hover:bg-gray-100'
+                        } transition-colors duration-200`}
+                        onClick={() => setIsOpen(false)}
+                      >
+                        {link.icon}
+                        {link.name}
+                      </Link>
+                    </motion.div>
+                  ))}
+                
+                {authLinks.map((link) => (
+                  <motion.div key={link.name} variants={mobileItemVariants}>
+                    {link.path ? (
+                      <Link
+                        to={link.path}
+                        className={`block px-3 py-2 rounded-md text-base font-medium flex items-center ${
+                          location.pathname === link.path
+                            ? isDarkMode
+                              ? 'bg-gray-800 text-white'
+                              : 'bg-blue-50 text-blue-700'
+                            : isDarkMode
+                              ? 'text-gray-300 hover:bg-gray-800 hover:text-white'
+                              : 'text-gray-700 hover:bg-gray-100'
+                        } transition-colors duration-200`}
+                        onClick={() => setIsOpen(false)}
+                      >
+                        {link.icon}
+                        {link.name}
+                      </Link>
+                    ) : (
+                      <button
+                        onClick={() => {
+                          link.action();
+                          setIsOpen(false);
+                        }}
+                        className={`w-full text-left block px-3 py-2 rounded-md text-base font-medium flex items-center ${
+                          isDarkMode
+                            ? 'text-gray-300 hover:bg-gray-800 hover:text-white'
+                            : 'text-gray-700 hover:bg-gray-100'
+                        } transition-colors duration-200`}
+                      >
+                        {link.icon}
+                        {link.name}
+                      </button>
+                    )}
+                  </motion.div>
+                ))}
+              </div>
             </motion.div>
           )}
-        </div>
-      </div>
-      
-      {isOpen && (
-        <motion.div 
-          className="sm:hidden shadow-2xl"
-          style={{ background: `linear-gradient(135deg, ${theme.primary}, ${theme.accent})`, borderRadius: '0 0 1rem 1rem' }}
-          variants={mobileMenuVariants}
-          initial="hidden"
-          animate="visible"
-          exit="exit"
-        >
-          <div className="pt-2 pb-3 space-y-1">
-            {isAuthenticated ? (
-              <>
-                <motion.a
-                  href={`${DASHBOARD_URL}?token=${token}`}
-                  onClick={() => setIsOpen(false)}
-                  className="block px-4 py-2 text-base font-medium rounded-lg m-2"
-                  style={{ background: 'rgba(255, 255, 255, 0.1)' }}
-                  whileHover={{ scale: 1.03, x: 5, backgroundColor: 'rgba(255, 255, 255, 0.2)' }}
-                >
-                  Dashboard
-                </motion.a>
-                <motion.div 
-                  className="flex items-center px-4 py-2 text-base font-medium m-2"
-                  whileHover={{ scale: 1.03, x: 5 }}
-                >
-                  <UserCircleIcon className="h-6 w-6 mr-2" />
-                  <span>{userName}</span>
-                </motion.div>
-                <motion.button
-                  onClick={() => {
-                    handleLogout();
-                    setIsOpen(false);
-                  }}
-                  className="flex items-center w-full text-left px-4 py-2 text-base font-medium rounded-lg m-2"
-                  style={{ background: 'rgba(239, 68, 68, 0.2)' }}
-                  whileHover={{ scale: 1.03, x: 5, backgroundColor: 'rgba(220, 38, 38, 0.3)' }}
-                >
-                  <ArrowLeftOnRectangleIcon className="h-5 w-5 mr-2" />
-                  Logout
-                </motion.button>
-              </>
-            ) : (
-              <>
-                <motion.div whileHover={{ scale: 1.03, x: 5 }}>
-                  <Link
-                    to="/login"
-                    onClick={() => setIsOpen(false)}
-                    className="block px-4 py-2 text-base font-medium rounded-lg m-2"
-                    style={{ background: 'rgba(255, 255, 255, 0.1)' }}
-                  >
-                    Login
-                  </Link>
-                </motion.div>
-                <motion.div whileHover={{ scale: 1.03, x: 5 }}>
-                  <Link
-                    to="/register"
-                    onClick={() => setIsOpen(false)}
-                    className="block px-4 py-2 text-base font-medium rounded-lg m-2"
-                    style={{ background: 'rgba(255, 255, 255, 0.1)' }}
-                  >
-                    Register
-                  </Link>
-                </motion.div>
-              </>
-            )}
-          </div>
-        </motion.div>
-      )}
-    </motion.nav>
+        </AnimatePresence>
+      </motion.header>
     </>
   );
 }

@@ -1,6 +1,6 @@
 import { createContext, useContext, useState, useEffect } from 'react';
-import { motion } from 'framer-motion';
-import { globalTheme, animations as sharedAnimations } from '../utils/theme';
+import { motion, AnimatePresence, useScroll, useTransform } from 'framer-motion';
+import { newTheme, enhancedAnimations } from '../utils/newTheme';
 
 // Theme Context
 export const ThemeContext = createContext();
@@ -8,7 +8,16 @@ export const ThemeContext = createContext();
 // Theme Provider Component
 export const ThemeProvider = ({ children }) => {
   const [isMobile, setIsMobile] = useState(false);
-  const [theme, setTheme] = useState(globalTheme);
+  const [theme, setTheme] = useState(newTheme);
+  const [isDarkMode, setIsDarkMode] = useState(() => {
+    // Cek preferensi tema dari localStorage atau preferensi sistem
+    const savedTheme = localStorage.getItem('theme');
+    if (savedTheme) {
+      return savedTheme === 'dark';
+    }
+    return window.matchMedia('(prefers-color-scheme: dark)').matches;
+  });
+  const [themeTransitioning, setThemeTransitioning] = useState(false);
 
   // Deteksi perangkat mobile
   useEffect(() => {
@@ -24,9 +33,70 @@ export const ThemeProvider = ({ children }) => {
     };
   }, []);
 
+  // Efek untuk menerapkan tema ke dokumen dengan transisi yang lebih halus
+  useEffect(() => {
+    if (isDarkMode) {
+      document.documentElement.classList.add('dark');
+      localStorage.setItem('theme', 'dark');
+    } else {
+      document.documentElement.classList.remove('dark');
+      localStorage.setItem('theme', 'light');
+    }
+  }, [isDarkMode]);
+
+  // Toggle tema gelap/terang dengan animasi transisi
+  const toggleTheme = () => {
+    setThemeTransitioning(true);
+    setTimeout(() => {
+      setIsDarkMode(prev => !prev);
+      setTimeout(() => {
+        setThemeTransitioning(false);
+      }, 300);
+    }, 100);
+  };
+
+  // Tema yang diperluas dengan mode gelap/terang
+  const extendedTheme = {
+    ...theme,
+    isDarkMode,
+    toggleTheme,
+    themeTransitioning,
+    // Warna yang disesuaikan berdasarkan mode
+    current: {
+      background: isDarkMode ? theme.background.dark : theme.background.light,
+      text: isDarkMode ? theme.text.light : theme.text.primary,
+      primary: theme.primary,
+      secondary: theme.secondary,
+      accent: theme.accent,
+      // Efek kaca yang disesuaikan berdasarkan mode
+      glassEffect: isDarkMode ? theme.glass.dark : theme.glass.light,
+    },
+    // Fungsi untuk parallax scroll
+    parallax: {
+      useParallax: (value, distance) => {
+        const { scrollYProgress } = useScroll();
+        return useTransform(
+          scrollYProgress, 
+          [0, 1], 
+          [value, value + distance]
+        );
+      }
+    }
+  };
+
   return (
-    <ThemeContext.Provider value={{ theme, setTheme, isMobile }}>
-      {children}
+    <ThemeContext.Provider value={{ 
+      theme: extendedTheme, 
+      setTheme, 
+      isMobile, 
+      isDarkMode, 
+      toggleTheme,
+      themeTransitioning,
+      animations: enhancedAnimations
+    }}>
+      <div className={`theme-transition ${themeTransitioning ? 'transitioning' : ''}`}>
+        {children}
+      </div>
     </ThemeContext.Provider>
   );
 };
@@ -40,21 +110,41 @@ export const useTheme = () => {
   return context;
 };
 
-// HOC untuk mendukung animasi page transition
+// HOC untuk mendukung animasi page transition dengan efek yang lebih halus
 export const withPageTransition = (Component) => {
+  return (props) => {
+    const { isDarkMode, themeTransitioning, animations } = useTheme();
+    
+    return (
+      <AnimatePresence mode="wait">
+        <motion.div
+          key={isDarkMode ? 'dark' : 'light'}
+          initial={animations.page.initial}
+          animate={animations.page.animate}
+          exit={animations.page.exit}
+          className={`w-full ${themeTransitioning ? 'opacity-0' : 'opacity-100'}`}
+          style={{ 
+            willChange: 'opacity, transform',
+            transform: 'translateZ(0)',
+            transition: 'opacity 0.3s ease'
+          }}
+        >
+          <Component {...props} />
+        </motion.div>
+      </AnimatePresence>
+    );
+  };
+};
+
+// Parallax HOC untuk komponen dengan efek parallax
+export const withParallaxEffect = (Component) => {
   return (props) => {
     return (
       <motion.div
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-        exit={{ opacity: 0 }}
-        transition={{ 
-          duration: 0.2,
-          ease: "easeOut" 
-        }}
-        style={{ 
-          willChange: 'opacity',
-          transform: 'translateZ(0)'
+        style={{
+          position: 'relative',
+          zIndex: 1,
+          willChange: 'transform'
         }}
       >
         <Component {...props} />
@@ -64,4 +154,4 @@ export const withPageTransition = (Component) => {
 };
 
 // Export animations dari tema bersama
-export const animations = sharedAnimations; 
+export const animations = enhancedAnimations; 
