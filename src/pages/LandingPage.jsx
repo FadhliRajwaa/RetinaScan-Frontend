@@ -466,13 +466,13 @@ function LandingPage() {
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.8, delay: 0.8 }}
           >
-            <motion.div 
-              whileHover="hover" 
-              whileTap="tap" 
-              variants={buttonVariants}
-              className="w-full"
-            >
-              {isAuthenticated ? (
+            {isAuthenticated ? (
+              <motion.div 
+                whileHover="hover" 
+                whileTap="tap" 
+                variants={buttonVariants}
+                className="w-full"
+              >
                 <a 
                   href={DASHBOARD_URL} 
                   className={`w-full px-6 sm:px-8 py-3 sm:py-4 rounded-lg font-medium flex items-center justify-center ${
@@ -481,7 +481,7 @@ function LandingPage() {
                       : 'bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white'
                   } transition-all duration-300 shadow-lg`}
                 >
-                  <span>Dashboard</span>
+                  <span>Buka Dashboard</span>
                   <motion.span
                     initial={{ x: 0 }}
                     whileHover={{ x: 5 }}
@@ -490,57 +490,53 @@ function LandingPage() {
                     <ArrowRightIcon className="ml-2 h-5 w-5" />
                   </motion.span>
                 </a>
-              ) : (
-                <Link 
-                  to="/register" 
-                  className={`w-full px-6 sm:px-8 py-3 sm:py-4 rounded-lg font-medium flex items-center justify-center ${
-                    isDarkMode 
-                      ? 'bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-500 hover:to-indigo-500 text-white' 
-                      : 'bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white'
-                  } transition-all duration-300 shadow-lg`}
+              </motion.div>
+            ) : (
+              <>
+                <motion.div 
+                  whileHover="hover" 
+                  whileTap="tap" 
+                  variants={buttonVariants}
+                  className="w-full"
                 >
-                  <span>Mulai Sekarang</span>
-                  <motion.span
-                    initial={{ x: 0 }}
-                    whileHover={{ x: 5 }}
-                    transition={{ duration: 0.3 }}
+                  <Link 
+                    to="/register" 
+                    className={`w-full px-6 sm:px-8 py-3 sm:py-4 rounded-lg font-medium flex items-center justify-center ${
+                      isDarkMode 
+                        ? 'bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-500 hover:to-indigo-500 text-white' 
+                        : 'bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white'
+                    } transition-all duration-300 shadow-lg`}
                   >
-                    <ArrowRightIcon className="ml-2 h-5 w-5" />
-                  </motion.span>
-                </Link>
-              )}
-            </motion.div>
-            
-            <motion.div 
-              whileHover="hover" 
-              whileTap="tap" 
-              variants={buttonVariants}
-              className="w-full"
-            >
-              {isAuthenticated ? (
-                <a 
-                  href={`${DASHBOARD_URL}/scan`} 
-                  className={`w-full px-6 sm:px-8 py-3 sm:py-4 rounded-lg font-medium flex items-center justify-center ${
-                    isDarkMode 
-                      ? 'bg-gray-800 hover:bg-gray-700 text-white border border-gray-700' 
-                      : 'bg-white hover:bg-gray-100 text-gray-900 border border-gray-200 shadow-md'
-                  } transition-colors duration-300`}
+                    <span>Mulai Sekarang</span>
+                    <motion.span
+                      initial={{ x: 0 }}
+                      whileHover={{ x: 5 }}
+                      transition={{ duration: 0.3 }}
+                    >
+                      <ArrowRightIcon className="ml-2 h-5 w-5" />
+                    </motion.span>
+                  </Link>
+                </motion.div>
+                
+                <motion.div 
+                  whileHover="hover" 
+                  whileTap="tap" 
+                  variants={buttonVariants}
+                  className="w-full"
                 >
-                  Scan Retina
-                </a>
-              ) : (
-                <Link 
-                  to="/#features" 
-                  className={`w-full px-6 sm:px-8 py-3 sm:py-4 rounded-lg font-medium flex items-center justify-center ${
-                    isDarkMode 
-                      ? 'bg-gray-800 hover:bg-gray-700 text-white border border-gray-700' 
-                      : 'bg-white hover:bg-gray-100 text-gray-900 border border-gray-200 shadow-md'
-                  } transition-colors duration-300`}
-                >
-                  Pelajari Lebih Lanjut
-                </Link>
-              )}
-            </motion.div>
+                  <Link 
+                    to="/login" 
+                    className={`w-full px-6 sm:px-8 py-3 sm:py-4 rounded-lg font-medium flex items-center justify-center ${
+                      isDarkMode 
+                        ? 'bg-gray-800 hover:bg-gray-700 text-white border border-gray-700' 
+                        : 'bg-white hover:bg-gray-100 text-gray-900 border border-gray-200 shadow-md'
+                    } transition-colors duration-300`}
+                  >
+                    Login
+                  </Link>
+                </motion.div>
+              </>
+            )}
           </motion.div>
 
           {/* Enhanced Stats Cards with Better Responsiveness */}
@@ -592,7 +588,7 @@ function LandingPage() {
 
           {/* Enhanced Hero Image with Glass Effect */}
           <motion.div
-            className="w-full max-w-xs sm:max-w-lg lg:max-w-4xl mx-auto"
+            className="w-full max-w-xs sm:max-w-lg lg:max-w-3xl mx-auto"
             style={{ perspective: 1000 }}
             initial={{ opacity: 0, y: 30 }}
             animate={{ opacity: 1, y: 0 }}
@@ -632,7 +628,7 @@ function LandingPage() {
               <motion.div 
                 className={`relative rounded-xl sm:rounded-3xl overflow-hidden border ${
                   isDarkMode ? 'border-gray-700' : 'border-gray-200'
-                } shadow-2xl`}
+                } shadow-2xl max-h-[300px] sm:max-h-[400px] md:max-h-[450px]`}
                 whileHover={{ scale: 1.02 }}
                 transition={{ type: "spring", stiffness: 300, damping: 20 }}
               >
@@ -642,7 +638,7 @@ function LandingPage() {
                 <img 
                   src="https://images.unsplash.com/photo-1576091160550-2173dba999ef?auto=format&fit=crop&q=80&w=2070" 
                   alt="Retina Scan Technology" 
-                  className="w-full h-auto object-cover rounded-xl sm:rounded-3xl relative z-10"
+                  className="w-full h-full object-cover rounded-xl sm:rounded-3xl relative z-10"
                 />
                 <div className={`absolute inset-0 ${
                   isDarkMode ? 'bg-gradient-to-t from-gray-900/80 to-transparent' : 'bg-gradient-to-t from-white/80 to-transparent'
@@ -663,10 +659,10 @@ function LandingPage() {
                     transition={{ delay: 1.5 + index * 0.2, duration: 0.5 }}
                   >
                     <motion.div
-                      className={`w-3 h-3 sm:w-4 sm:h-4 rounded-full ${
+                      className={`w-2 h-2 sm:w-3 sm:h-3 rounded-full ${
                         spot.color === 'blue' ? 'bg-blue-500' : 
                         spot.color === 'purple' ? 'bg-purple-500' : 'bg-green-500'
-                      } relative z-20`}
+                      } relative z-20 cursor-pointer group`}
                       animate={{ scale: [1, 1.3, 1] }}
                       transition={{ duration: 2, repeat: Infinity }}
                     >
@@ -675,12 +671,12 @@ function LandingPage() {
                           spot.color === 'blue' ? 'bg-blue-500' : 
                           spot.color === 'purple' ? 'bg-purple-500' : 'bg-green-500'
                         } opacity-50`}
-                        animate={{ scale: [1, 2, 1] }}
+                        animate={{ scale: [1, 1.5, 1] }}
                         transition={{ duration: 2, repeat: Infinity }}
                       ></motion.div>
                       
                       {/* Tooltip on hover */}
-                      <div className={`absolute opacity-0 group-hover:opacity-100 bottom-full left-1/2 transform -translate-x-1/2 mb-2 px-2 py-1 text-xs sm:text-sm font-medium rounded ${
+                      <div className={`absolute opacity-0 group-hover:opacity-100 bottom-full left-1/2 transform -translate-x-1/2 mb-1 px-1.5 py-0.5 text-xs font-medium rounded ${
                         isDarkMode ? 'bg-gray-800 text-white' : 'bg-white text-gray-900 shadow-md'
                       } whitespace-nowrap pointer-events-none transition-opacity duration-200`}>
                         {spot.label}
@@ -942,24 +938,24 @@ function LandingPage() {
                 
                 <motion.div
                   className="relative"
-              initial={{ opacity: 0, x: 50 }}
-              animate={isVisible.about ? { opacity: 1, x: 0 } : {}}
-              transition={{ duration: 0.8, ease: "easeOut" }}
-            >
-              <div className="relative">
-                <div className={`absolute -inset-4 rounded-xl ${
-                  isDarkMode ? 'bg-blue-500/10' : 'bg-blue-100'
-                } transform -rotate-6`} />
-                <div className={`absolute -inset-4 rounded-xl ${
-                  isDarkMode ? 'bg-purple-500/10' : 'bg-purple-100'
-                } transform rotate-3`} />
-                <img 
-                  src="https://images.unsplash.com/photo-1551601651-2a8555f1a136?auto=format&fit=crop&q=80&w=1974&ixlib=rb-4.0.3"
-                  alt="AI analyzing retina scan" 
-                  className="relative z-10 rounded-xl shadow-xl w-full h-auto object-cover"
-                />
-              </div>
-            </motion.div>
+                  initial={{ opacity: 0, x: 50 }}
+                  animate={isVisible.about ? { opacity: 1, x: 0 } : {}}
+                  transition={{ duration: 0.8, ease: "easeOut" }}
+                >
+                  <div className="relative">
+                    <div className={`absolute -inset-4 rounded-xl ${
+                      isDarkMode ? 'bg-blue-500/10' : 'bg-blue-100'
+                    } transform -rotate-6`} />
+                    <div className={`absolute -inset-4 rounded-xl ${
+                      isDarkMode ? 'bg-purple-500/10' : 'bg-purple-100'
+                    } transform rotate-3`} />
+                    <img 
+                      src="https://images.unsplash.com/photo-1551601651-2a8555f1a136?auto=format&fit=crop&q=80&w=1974&ixlib=rb-4.0.3"
+                      alt="AI analyzing retina scan" 
+                      className="relative z-10 rounded-xl shadow-xl w-full h-auto object-cover max-h-[300px] sm:max-h-[350px] md:max-h-[400px]"
+                    />
+                  </div>
+                </motion.div>
           </div>
         </div>
       </section>
@@ -1213,17 +1209,17 @@ function LandingPage() {
               animate={isVisible.cta ? { opacity: 1, y: 0 } : {}}
               transition={{ duration: 0.6, delay: 0.5 }}
             >
-              <motion.div whileHover="hover" whileTap="tap" variants={buttonVariants}>
-                {isAuthenticated ? (
+              {isAuthenticated ? (
+                <motion.div whileHover="hover" whileTap="tap" variants={buttonVariants}>
                   <a 
-                    href={`${DASHBOARD_URL}/scan`} 
+                    href={DASHBOARD_URL} 
                     className={`px-8 py-4 rounded-lg font-medium flex items-center justify-center ${
                       isDarkMode 
                         ? 'bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-500 hover:to-indigo-500 text-white' 
                         : 'bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white'
                     } transition-all duration-300 shadow-lg`}
                   >
-                    <span>Mulai Scan Retina</span>
+                    <span>Buka Dashboard</span>
                     <motion.span
                       initial={{ x: 0 }}
                       whileHover={{ x: 5 }}
@@ -1232,39 +1228,43 @@ function LandingPage() {
                       <ArrowRightIcon className="ml-2 h-5 w-5" />
                     </motion.span>
                   </a>
-                ) : (
-                  <Link 
-                    to="/register" 
-                    className={`px-8 py-4 rounded-lg font-medium flex items-center justify-center ${
-                      isDarkMode 
-                        ? 'bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-500 hover:to-indigo-500 text-white' 
-                        : 'bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white'
-                    } transition-all duration-300 shadow-lg`}
-                  >
-                    <span>Daftar Sekarang</span>
-                    <motion.span
-                      initial={{ x: 0 }}
-                      whileHover={{ x: 5 }}
-                      transition={{ duration: 0.3 }}
+                </motion.div>
+              ) : (
+                <>
+                  <motion.div whileHover="hover" whileTap="tap" variants={buttonVariants}>
+                    <Link 
+                      to="/register" 
+                      className={`px-8 py-4 rounded-lg font-medium flex items-center justify-center ${
+                        isDarkMode 
+                          ? 'bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-500 hover:to-indigo-500 text-white' 
+                          : 'bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white'
+                      } transition-all duration-300 shadow-lg`}
                     >
-                      <ArrowRightIcon className="ml-2 h-5 w-5" />
-                    </motion.span>
-                  </Link>
-                )}
-              </motion.div>
-              
-              <motion.div whileHover="hover" whileTap="tap" variants={buttonVariants}>
-                <Link 
-                  to="/login" 
-                  className={`px-8 py-4 rounded-lg font-medium flex items-center justify-center ${
-                    isDarkMode 
-                      ? 'bg-gray-800 hover:bg-gray-700 text-white border border-gray-700' 
-                      : 'bg-white hover:bg-gray-100 text-gray-900 border border-gray-200 shadow-md'
-                  } transition-colors duration-300`}
-                >
-                  Login
-                </Link>
-              </motion.div>
+                      <span>Daftar Sekarang</span>
+                      <motion.span
+                        initial={{ x: 0 }}
+                        whileHover={{ x: 5 }}
+                        transition={{ duration: 0.3 }}
+                      >
+                        <ArrowRightIcon className="ml-2 h-5 w-5" />
+                      </motion.span>
+                    </Link>
+                  </motion.div>
+                  
+                  <motion.div whileHover="hover" whileTap="tap" variants={buttonVariants}>
+                    <Link 
+                      to="/login" 
+                      className={`px-8 py-4 rounded-lg font-medium flex items-center justify-center ${
+                        isDarkMode 
+                          ? 'bg-gray-800 hover:bg-gray-700 text-white border border-gray-700' 
+                          : 'bg-white hover:bg-gray-100 text-gray-900 border border-gray-200 shadow-md'
+                      } transition-colors duration-300`}
+                    >
+                      Login
+                    </Link>
+                  </motion.div>
+                </>
+              )}
             </motion.div>
             
             {/* Trust indicators */}
