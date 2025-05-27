@@ -1,242 +1,375 @@
-// Tema dan warna aplikasi dengan dukungan untuk mode gelap dan terang
-// Dengan peningkatan untuk desain modern dan aksesibilitas yang lebih baik
-
-// Warna dasar dengan skema warna yang lebih modern
+// Tema baru dengan warna yang lebih modern dan menarik
 export const newTheme = {
-  // Primary colors - Palet warna utama
-  primary: {
-    50: '#e3f6fd',
-    100: '#b3e4fa',
-    200: '#81d1f7',
-    300: '#4ebef3',
-    400: '#25aef1',
-    500: '#089eef', // Warna utama
-    600: '#0690e0',
-    700: '#047cce',
-    800: '#0369be',
-    900: '#0349a0',
-  },
+  // Warna Utama
+  primary: '#4F46E5', // Indigo-600 (warna utama)
+  secondary: '#06B6D4', // Cyan-500 (warna sekunder)
+  accent: '#8B5CF6', // Violet-500 (warna aksen)
+  success: '#10B981', // Green-500
+  warning: '#F59E0B', // Amber-500
+  danger: '#EF4444', // Red-500
+  info: '#3B82F6', // Blue-500
   
-  // Secondary colors - Aksen dan highlight
-  secondary: {
-    50: '#f3e8fd',
-    100: '#e3c6fb',
-    200: '#d0a1f9',
-    300: '#be7cf7',
-    400: '#b061f5',
-    500: '#a145f3', // Warna sekunder
-    600: '#9540e0',
-    700: '#8538c8',
-    800: '#7530b2',
-    900: '#5c2490',
-  },
-  
-  // Accent colors - Untuk emphasis dan call-to-action
-  accent: {
-    50: '#eefbf2',
-    100: '#d0f4dd',
-    200: '#a7ebc5',
-    300: '#75e0a7',
-    400: '#43d689',
-    500: '#1dcb6b', // Warna aksen
-    600: '#15bc59',
-    700: '#0ea847',
-    800: '#089337',
-    900: '#027626',
-  },
-  
-  // Background colors
+  // Warna Background
   background: {
-    light: '#FFFFFF',
-    light2: '#F5F7FA',
-    light3: '#EDF1F7',
-    dark: '#121212',
-    dark2: '#1E1E1E',
-    dark3: '#292929',
+    light: '#F9FAFB', // Gray-50
+    dark: '#111827', // Gray-900
+    gradient: 'linear-gradient(135deg, #EFF6FF, #EEF2FF)', // Blue-50 to Indigo-50
+    glass: 'rgba(255, 255, 255, 0.8)',
+    darkGlass: 'rgba(17, 24, 39, 0.8)'
   },
   
-  // Text colors with improved contrast
+  // Warna Teks
   text: {
-    primary: '#2B2D42',
-    secondary: '#575A7B',
-    tertiary: '#8D91A5',
-    light: '#F8F9FA',
-    light2: '#E9ECEF',
-    dark: '#212529',
-    dark2: '#343A40',
+    primary: '#111827', // Gray-900
+    secondary: '#4B5563', // Gray-600
+    light: '#F9FAFB', // Gray-50
+    muted: '#9CA3AF', // Gray-400
+    accent: '#4F46E5' // Indigo-600
   },
   
-  // Border colors
-  border: {
-    light: '#E1E5EB',
-    dark: '#3A3A3A',
+  // Gradients
+  gradients: {
+    primary: 'linear-gradient(135deg, #4F46E5, #6366F1)', // Indigo-600 to Indigo-500
+    secondary: 'linear-gradient(135deg, #06B6D4, #22D3EE)', // Cyan-500 to Cyan-400
+    accent: 'linear-gradient(135deg, #8B5CF6, #A78BFA)', // Violet-500 to Violet-400
+    success: 'linear-gradient(135deg, #10B981, #34D399)', // Green-500 to Green-400
+    warning: 'linear-gradient(135deg, #F59E0B, #FBBF24)', // Amber-500 to Amber-400
+    danger: 'linear-gradient(135deg, #EF4444, #F87171)', // Red-500 to Red-400
+    cool: 'linear-gradient(135deg, #3B82F6, #06B6D4)', // Blue-500 to Cyan-500
+    purple: 'linear-gradient(135deg, #8B5CF6, #EC4899)', // Violet-500 to Pink-500
+    sunset: 'linear-gradient(135deg, #F59E0B, #EF4444)', // Amber-500 to Red-500
+    ocean: 'linear-gradient(135deg, #06B6D4, #3B82F6)', // Cyan-500 to Blue-500
+    retina: 'linear-gradient(135deg, #4F46E5, #8B5CF6, #EC4899)', // Indigo-600 to Violet-500 to Pink-500
   },
   
-  // Semantic colors
-  semantic: {
-    success: '#06c270',
-    warning: '#ffcc00',
-    error: '#ff3b30',
-    info: '#007aff',
+  // Shadows
+  shadows: {
+    sm: '0 1px 2px 0 rgba(0, 0, 0, 0.05)',
+    md: '0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06)',
+    lg: '0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05)',
+    xl: '0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04)',
+    '2xl': '0 25px 50px -12px rgba(0, 0, 0, 0.25)',
+    inner: 'inset 0 2px 4px 0 rgba(0, 0, 0, 0.06)',
+    colored: '0 10px 20px -10px rgba(79, 70, 229, 0.5)', // Shadow dengan warna indigo
+    glow: '0 0 15px rgba(79, 70, 229, 0.5)', // Glow effect dengan warna indigo
   },
   
-  // Glass effect with better blur for modern UI
+  // Border Radius
+  borderRadius: {
+    none: '0',
+    sm: '0.125rem', // 2px
+    md: '0.375rem', // 6px
+    lg: '0.5rem', // 8px
+    xl: '0.75rem', // 12px
+    '2xl': '1rem', // 16px
+    '3xl': '1.5rem', // 24px
+    full: '9999px',
+  },
+  
+  // Glass Effects
   glass: {
     light: {
       background: 'rgba(255, 255, 255, 0.7)',
-      blur: '10px',
-      border: '1px solid rgba(255, 255, 255, 0.18)',
+      backdropFilter: 'blur(16px)',
+      border: '1px solid rgba(255, 255, 255, 0.5)',
+      boxShadow: '0 4px 30px rgba(0, 0, 0, 0.1)'
     },
     dark: {
-      background: 'rgba(18, 18, 18, 0.75)',
-      blur: '10px',
-      border: '1px solid rgba(255, 255, 255, 0.08)',
+      background: 'rgba(17, 24, 39, 0.75)',
+      backdropFilter: 'blur(16px)',
+      border: '1px solid rgba(255, 255, 255, 0.05)',
+      boxShadow: '0 4px 30px rgba(0, 0, 0, 0.2)'
     },
+    colored: {
+      background: 'rgba(79, 70, 229, 0.15)', // Indigo dengan transparansi
+      backdropFilter: 'blur(16px)',
+      border: '1px solid rgba(79, 70, 229, 0.3)',
+      boxShadow: '0 4px 30px rgba(79, 70, 229, 0.2)'
+    }
   },
   
-  // Shadow variants
-  shadow: {
-    sm: '0 2px 4px rgba(0, 0, 0, 0.05)',
-    md: '0 4px 6px rgba(0, 0, 0, 0.07)',
-    lg: '0 10px 15px rgba(0, 0, 0, 0.1)',
-    xl: '0 20px 25px rgba(0, 0, 0, 0.15)',
-    inner: 'inset 0 2px 4px rgba(0, 0, 0, 0.05)',
-    outline: '0 0 0 3px rgba(8, 158, 239, 0.3)',
-    none: 'none',
+  // Animations
+  transitions: {
+    fast: 'all 0.15s ease',
+    default: 'all 0.3s ease',
+    slow: 'all 0.5s ease',
+    bounce: 'all 0.5s cubic-bezier(0.68, -0.55, 0.265, 1.55)'
   }
 };
 
-// Animasi yang lebih modern dan responsif
+// Animasi yang lebih menarik untuk Framer Motion
 export const enhancedAnimations = {
-  // Animasi halaman
+  // Fade in dengan bounce effect
+  fadeInUp: {
+    hidden: { y: 40, opacity: 0 },
+    visible: (delay = 0) => ({
+      y: 0,
+      opacity: 1,
+      transition: {
+        type: 'spring',
+        damping: 12,
+        stiffness: 100,
+        delay,
+        duration: 0.8
+      }
+    })
+  },
+  
+  // Fade in dari atas dengan bounce effect
+  fadeInDown: {
+    hidden: { y: -40, opacity: 0 },
+    visible: (delay = 0) => ({
+      y: 0,
+      opacity: 1,
+      transition: {
+        type: 'spring',
+        damping: 12,
+        stiffness: 100,
+        delay,
+        duration: 0.8
+      }
+    })
+  },
+  
+  // Fade in dari kiri dengan bounce effect
+  fadeInLeft: {
+    hidden: { x: -60, opacity: 0 },
+    visible: (delay = 0) => ({
+      x: 0,
+      opacity: 1,
+      transition: {
+        type: 'spring',
+        damping: 12,
+        stiffness: 100,
+        delay,
+        duration: 0.8
+      }
+    })
+  },
+  
+  // Fade in dari kanan dengan bounce effect
+  fadeInRight: {
+    hidden: { x: 60, opacity: 0 },
+    visible: (delay = 0) => ({
+      x: 0,
+      opacity: 1,
+      transition: {
+        type: 'spring',
+        damping: 12,
+        stiffness: 100,
+        delay,
+        duration: 0.8
+      }
+    })
+  },
+  
+  // Scale in dengan bounce
+  scaleIn: {
+    hidden: { scale: 0.8, opacity: 0 },
+    visible: (delay = 0) => ({
+      scale: 1,
+      opacity: 1,
+      transition: {
+        type: 'spring',
+        damping: 12,
+        stiffness: 100,
+        delay,
+        duration: 0.8
+      }
+    })
+  },
+  
+  // Container untuk elemen staggered dengan delay yang lebih baik
+  container: {
+    hidden: { opacity: 0 },
+    visible: {
+      opacity: 1,
+      transition: {
+        staggerChildren: 0.12,
+        delayChildren: 0.3,
+        duration: 0.8
+      }
+    }
+  },
+  
+  // Item untuk container staggered
+  item: {
+    hidden: { y: 20, opacity: 0 },
+    visible: {
+      y: 0,
+      opacity: 1,
+      transition: {
+        type: 'spring',
+        damping: 12,
+        stiffness: 100
+      }
+    }
+  },
+  
+  // Card animations yang lebih menarik
+  card: {
+    initial: { scale: 0.95, opacity: 0 },
+    animate: { scale: 1, opacity: 1, transition: { duration: 0.5 } },
+    hover: { 
+      scale: 1.03, 
+      y: -5, 
+      boxShadow: '0 15px 30px -5px rgba(79, 70, 229, 0.2)',
+      transition: { duration: 0.3 }
+    },
+    tap: { scale: 0.98, transition: { duration: 0.15 } }
+  },
+  
+  // Button animations yang lebih responsif
+  button: {
+    hover: { 
+      scale: 1.05, 
+      boxShadow: '0 10px 15px -3px rgba(79, 70, 229, 0.3)', 
+      transition: { duration: 0.2 } 
+    },
+    tap: { scale: 0.95, transition: { duration: 0.1 } }
+  },
+  
+  // Page transition yang lebih halus
   page: {
-    initial: { opacity: 0, y: 5 },
-    animate: { opacity: 1, y: 0 },
-    exit: { opacity: 0, y: -5 },
-    transition: { duration: 0.3, ease: [0.25, 0.1, 0.25, 1.0] },
-  },
-  
-  // Animasi untuk elemen yang muncul
-  fadeIn: {
-    initial: { opacity: 0 },
-    animate: { opacity: 1 },
-    transition: { duration: 0.4, ease: 'easeOut' },
-  },
-  
-  // Animasi untuk elemen yang masuk dari bawah
-  slideUp: {
     initial: { opacity: 0, y: 20 },
-    animate: { opacity: 1, y: 0 },
-    transition: { duration: 0.5, ease: [0.25, 0.1, 0.25, 1.0] },
+    animate: { opacity: 1, y: 0, transition: { duration: 0.5, ease: [0.22, 1, 0.36, 1] } },
+    exit: { opacity: 0, y: -20, transition: { duration: 0.3 } }
   },
   
-  // Animasi untuk elemen yang masuk dari kiri
-  slideRight: {
-    initial: { opacity: 0, x: -20 },
-    animate: { opacity: 1, x: 0 },
-    transition: { duration: 0.5, ease: [0.25, 0.1, 0.25, 1.0] },
+  // Modal animations dengan scale dan fade
+  modal: {
+    hidden: { opacity: 0, scale: 0.9, y: 30 },
+    visible: { 
+      opacity: 1, 
+      scale: 1, 
+      y: 0,
+      transition: {
+        type: 'spring',
+        damping: 20,
+        stiffness: 300,
+        duration: 0.5
+      }
+    },
+    exit: { 
+      opacity: 0, 
+      scale: 0.9, 
+      y: 20,
+      transition: { duration: 0.3 }
+    }
   },
   
-  // Animasi untuk elemen yang masuk dari kanan
-  slideLeft: {
-    initial: { opacity: 0, x: 20 },
-    animate: { opacity: 1, x: 0 },
-    transition: { duration: 0.5, ease: [0.25, 0.1, 0.25, 1.0] },
+  // Dropdown animations yang lebih halus
+  dropdown: {
+    hidden: { opacity: 0, height: 0, scale: 0.95, transformOrigin: 'top' },
+    visible: { 
+      opacity: 1, 
+      height: 'auto', 
+      scale: 1,
+      transition: { 
+        height: { duration: 0.3 },
+        opacity: { duration: 0.2, delay: 0.1 },
+        scale: { duration: 0.2, delay: 0.1 }
+      } 
+    },
+    exit: { 
+      opacity: 0, 
+      height: 0, 
+      scale: 0.95,
+      transition: { 
+        height: { duration: 0.2 },
+        opacity: { duration: 0.2 },
+        scale: { duration: 0.2 }
+      } 
+    }
   },
   
-  // Animasi untuk elemen yang masuk dari atas
-  slideDown: {
-    initial: { opacity: 0, y: -20 },
-    animate: { opacity: 1, y: 0 },
-    transition: { duration: 0.5, ease: [0.25, 0.1, 0.25, 1.0] },
+  // Toast notification animation dengan slide dan fade
+  toast: {
+    hidden: { opacity: 0, x: 50, scale: 0.9 },
+    visible: { 
+      opacity: 1, 
+      x: 0, 
+      scale: 1,
+      transition: { 
+        type: 'spring',
+        damping: 15,
+        stiffness: 300,
+        duration: 0.4 
+      } 
+    },
+    exit: { 
+      opacity: 0, 
+      x: 50, 
+      scale: 0.9,
+      transition: { duration: 0.3 } 
+    }
   },
   
-  // Animasi untuk elemen hover
-  hover: {
-    scale: 1.02,
-    transition: { duration: 0.2, ease: 'easeOut' },
+  // Hover effect untuk link
+  link: {
+    initial: { backgroundSize: '0% 2px', backgroundPosition: '0 100%' },
+    hover: { 
+      backgroundSize: '100% 2px',
+      transition: { duration: 0.3 }
+    }
   },
   
-  // Animasi untuk elemen tap
-  tap: {
-    scale: 0.98,
-    transition: { duration: 0.1 },
+  // Floating animation untuk elemen dekoratif
+  floating: {
+    initial: { y: 0 },
+    animate: {
+      y: [0, -10, 0],
+      transition: {
+        duration: 3,
+        repeat: Infinity,
+        repeatType: 'loop',
+        ease: 'easeInOut'
+      }
+    }
   },
   
-  // Animasi untuk elemen yang berulang
+  // Pulse animation untuk elemen yang perlu perhatian
   pulse: {
-    animate: { 
-      scale: [1, 1.03, 1],
-      opacity: [0.9, 1, 0.9],
-    },
-    transition: { 
-      duration: 2, 
-      ease: 'easeInOut', 
-      repeat: Infinity,
-      repeatType: 'mirror',
-    },
+    initial: { scale: 1 },
+    animate: {
+      scale: [1, 1.05, 1],
+      transition: {
+        duration: 2,
+        repeat: Infinity,
+        repeatType: 'loop',
+        ease: 'easeInOut'
+      }
+    }
   },
   
-  // Animasi untuk staggered children
-  staggerContainer: {
-    animate: { transition: { staggerChildren: 0.1 } }
+  // Rotate animation untuk loading atau elemen dekoratif
+  rotate: {
+    initial: { rotate: 0 },
+    animate: {
+      rotate: 360,
+      transition: {
+        duration: 2,
+        repeat: Infinity,
+        repeatType: 'loop',
+        ease: 'linear'
+      }
+    }
   },
   
-  // Animasi untuk transisi tema gelap/terang
-  themeTransition: {
-    type: 'tween',
-    duration: 0.3,
-    ease: [0.25, 0.1, 0.25, 1.0],
-  },
-};
-
-// Breakpoint untuk responsive design
-export const breakpoints = {
-  xs: '480px',
-  sm: '640px',
-  md: '768px',
-  lg: '1024px',
-  xl: '1280px',
-  '2xl': '1536px',
-};
-
-// Spasi konsisten
-export const spacing = {
-  px: '1px',
-  0: '0',
-  0.5: '0.125rem',
-  1: '0.25rem',
-  1.5: '0.375rem',
-  2: '0.5rem',
-  2.5: '0.625rem',
-  3: '0.75rem',
-  3.5: '0.875rem',
-  4: '1rem',
-  5: '1.25rem',
-  6: '1.5rem',
-  7: '1.75rem',
-  8: '2rem',
-  9: '2.25rem',
-  10: '2.5rem',
-  11: '2.75rem',
-  12: '3rem',
-  14: '3.5rem',
-  16: '4rem',
-  20: '5rem',
-  24: '6rem',
-  28: '7rem',
-  32: '8rem',
-  36: '9rem',
-  40: '10rem',
-  44: '11rem',
-  48: '12rem',
-  52: '13rem',
-  56: '14rem',
-  60: '15rem',
-  64: '16rem',
-  72: '18rem',
-  80: '20rem',
-  96: '24rem',
+  // Wave animation untuk elemen dekoratif
+  wave: {
+    initial: { pathLength: 0, pathOffset: 0 },
+    animate: {
+      pathLength: 1,
+      pathOffset: 0,
+      transition: {
+        duration: 2,
+        repeat: Infinity,
+        repeatType: 'loop',
+        ease: 'easeInOut'
+      }
+    }
+  }
 };
 
 // Konfigurasi untuk animasi Lottie
