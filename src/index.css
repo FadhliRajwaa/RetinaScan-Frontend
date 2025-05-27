@@ -1,4 +1,5 @@
-@import "tailwindcss";
+@import "tailwindcss/preflight";
+@tailwind utilities;
 
 :root {
   --primary: #3B82F6;
@@ -6,6 +7,26 @@
   --accent: #8B5CF6;
   --background: #F9FAFB;
   --text: #1F2937;
+  --primary-50: #e3f6fd;
+  --primary-100: #b3e4fa;
+  --primary-200: #81d1f7;
+  --primary-300: #4ebef3;
+  --primary-400: #25aef1;
+  --primary-500: #089eef;
+  --primary-600: #0690e0;
+  --primary-700: #047cce;
+  --primary-800: #0369be;
+  --primary-900: #0349a0;
+  --text-primary: #2B2D42;
+  --text-secondary: #575A7B;
+  --text-tertiary: #8D91A5;
+  --bg-light: #FFFFFF;
+  --bg-light2: #F5F7FA;
+  --bg-light3: #EDF1F7;
+  --transition-standard: all 0.3s ease;
+  --transition-fast: all 0.2s ease;
+  --transition-slow: all 0.5s ease;
+  --transition-bounce: all 0.5s cubic-bezier(0.68, -0.55, 0.265, 1.55);
 }
 
 .dark {
@@ -14,6 +35,12 @@
   --accent: #A78BFA;
   --background: #111827;
   --text: #F9FAFB;
+  --text-primary: #F8F9FA;
+  --text-secondary: #E9ECEF;
+  --text-tertiary: #CED4DA;
+  --bg-dark: #121212;
+  --bg-dark2: #1E1E1E;
+  --bg-dark3: #292929;
 }
 
 body {
@@ -164,11 +191,6 @@ body {
   animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
 }
 
-@keyframes pulse {
-  0%, 100% { opacity: 1; }
-  50% { opacity: 0.6; }
-}
-
 .floating {
   animation: floating 3s ease-in-out infinite;
 }
@@ -209,7 +231,7 @@ body {
 
 /* Transisi tema yang halus */
 .theme-transition {
-  transition: background-color 0.5s ease, color 0.5s ease, border-color 0.5s ease, box-shadow 0.5s ease;
+  transition: background-color 0.3s ease, color 0.3s ease, border-color 0.3s ease;
 }
 
 .theme-transition.transitioning * {
@@ -414,4 +436,235 @@ body {
 
 .animate-fadeInDown {
   animation: fadeInDown 0.8s ease forwards;
+}
+
+/* Tailwind directives */
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Base styles */
+html {
+  @apply scroll-smooth antialiased;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-rendering: optimizeLegibility;
+}
+
+body {
+  @apply font-sans bg-white dark:bg-gray-900 text-gray-900 dark:text-white transition-colors duration-300;
+  overflow-x: hidden;
+}
+
+/* Modern form inputs */
+.form-input {
+  @apply w-full px-4 py-3 rounded-lg border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-800
+         text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent
+         transition-colors placeholder:text-gray-500 dark:placeholder:text-gray-400;
+}
+
+.form-label {
+  @apply block text-sm font-medium text-gray-700 dark:text-gray-200 mb-1;
+}
+
+/* Modern buttons */
+.btn {
+  @apply inline-flex items-center justify-center px-5 py-2.5 rounded-lg font-medium text-center
+         transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2;
+}
+
+.btn-primary {
+  @apply bg-primary-500 hover:bg-primary-600 text-white focus:ring-primary-500;
+}
+
+.btn-secondary {
+  @apply bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-700 text-gray-700 dark:text-gray-200
+         hover:bg-gray-100 dark:hover:bg-gray-700 focus:ring-gray-500;
+}
+
+.btn-accent {
+  @apply bg-accent-500 hover:bg-accent-600 text-white focus:ring-accent-500;
+}
+
+.btn-sm {
+  @apply px-3 py-1.5 text-sm rounded;
+}
+
+.btn-lg {
+  @apply px-6 py-3 text-lg;
+}
+
+/* Glass effect styling */
+.glass {
+  @apply backdrop-blur-md bg-white/70 dark:bg-black/50 border border-white/20 dark:border-white/10;
+}
+
+/* Custom animation classes */
+.animate-fade-in {
+  animation: fadeIn 0.4s ease forwards;
+}
+
+.animate-slide-up {
+  animation: slideUp 0.5s ease forwards;
+}
+
+.animate-slide-down {
+  animation: slideDown 0.5s ease forwards;
+}
+
+.animate-slide-left {
+  animation: slideLeft 0.5s ease forwards;
+}
+
+.animate-slide-right {
+  animation: slideRight 0.5s ease forwards;
+}
+
+.animate-pulse {
+  animation: pulse 2s infinite ease-in-out;
+}
+
+/* Modern card styles */
+.card {
+  @apply rounded-xl bg-white dark:bg-gray-800 overflow-hidden shadow-lg transition-all duration-300;
+}
+
+.card-hover {
+  @apply hover:shadow-xl hover:-translate-y-1 transition-all duration-300;
+}
+
+/* Modern responsive layout utilities */
+.responsive-grid {
+  @apply grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6;
+}
+
+.responsive-grid-tight {
+  @apply grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4;
+}
+
+.responsive-container {
+  @apply max-w-7xl mx-auto px-4 sm:px-6 lg:px-8;
+}
+
+/* Mobile-first spacing utilities */
+.section {
+  @apply py-12 md:py-16 lg:py-20;
+}
+
+.section-sm {
+  @apply py-8 md:py-10 lg:py-12;
+}
+
+.section-lg {
+  @apply py-16 md:py-20 lg:py-24;
+}
+
+/* Custom scrollbar for modern look */
+::-webkit-scrollbar {
+  width: 10px;
+  height: 10px;
+}
+
+::-webkit-scrollbar-track {
+  @apply bg-gray-100 dark:bg-gray-800;
+}
+
+::-webkit-scrollbar-thumb {
+  @apply bg-gray-300 dark:bg-gray-600 rounded-full hover:bg-gray-400 dark:hover:bg-gray-500;
+}
+
+/* Utility classes for text gradients */
+.text-gradient-primary {
+  @apply text-transparent bg-clip-text bg-gradient-to-r from-primary-500 to-primary-700;
+}
+
+.text-gradient-accent {
+  @apply text-transparent bg-clip-text bg-gradient-to-r from-accent-500 to-accent-700;
+}
+
+/* Media query utilities for responsive design */
+@media (max-width: 640px) {
+  .hide-on-mobile {
+    display: none !important;
+  }
+}
+
+@media (min-width: 641px) and (max-width: 1024px) {
+  .hide-on-tablet {
+    display: none !important;
+  }
+}
+
+@media (min-width: 1025px) {
+  .hide-on-desktop {
+    display: none !important;
+  }
+}
+
+/* Focus styles for accessibility */
+.focus-visible:focus {
+  @apply outline-none ring-2 ring-primary-500 ring-offset-2 ring-offset-white dark:ring-offset-gray-900;
+}
+
+/* Add styles for the RetinaScan specific components */
+.retina-container {
+  @apply p-4 md:p-6 lg:p-8 bg-white dark:bg-gray-800 rounded-2xl shadow-xl;
+}
+
+.retina-card {
+  @apply p-6 bg-white dark:bg-gray-800 rounded-xl shadow-lg border border-gray-100 dark:border-gray-700;
+}
+
+.retina-title {
+  @apply text-2xl md:text-3xl lg:text-4xl font-bold text-gray-900 dark:text-white;
+}
+
+.retina-subtitle {
+  @apply text-lg md:text-xl text-gray-600 dark:text-gray-300;
+}
+
+/* Custom motion styles */
+.motion-safe\:transition-all {
+  @apply transition-all duration-300;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .motion-safe\:transition-all {
+    transition: none !important;
+  }
+  
+  * {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+/* Custom styles for the Navbar */
+.navbar-glass {
+  @apply bg-white/80 dark:bg-gray-900/80 backdrop-blur-md border-b border-gray-200 dark:border-gray-800;
+}
+
+/* Smooth transitions for page changes */
+.page-transition-enter {
+  opacity: 0;
+  transform: translateY(5px);
+}
+
+.page-transition-enter-active {
+  opacity: 1;
+  transform: translateY(0);
+  transition: opacity 300ms, transform 300ms;
+}
+
+.page-transition-exit {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+.page-transition-exit-active {
+  opacity: 0;
+  transform: translateY(-5px);
+  transition: opacity 300ms, transform 300ms;
 }
