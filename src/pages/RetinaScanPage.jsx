@@ -190,7 +190,8 @@ const RetinaScanPage = () => {
       });
       setAnalysisHistory(historyResponse.data);
       
-      // Tetap di tab Scan, jangan otomatis pindah ke hasil
+      // Otomatis beralih ke tab hasil setelah upload berhasil
+      setActiveTab(1);
     } catch (error) {
       console.error('Error uploading:', error);
       if (error.response) {
