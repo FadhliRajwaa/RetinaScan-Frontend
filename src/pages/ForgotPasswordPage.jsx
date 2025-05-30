@@ -16,8 +16,12 @@ function ForgotPasswordPage() {
   const [isLoading, setIsLoading] = useState(false);
   const [focusedInput, setFocusedInput] = useState(null);
   const [emailSent, setEmailSent] = useState(false);
+  const [retryCount, setRetryCount] = useState(0);
+  const [isRetrying, setIsRetrying] = useState(false);
   const navigate = useNavigate();
   const { isDarkMode } = useTheme();
+
+  const MAX_RETRY_ATTEMPTS = 2;
 
   // Inisialisasi EmailJS saat komponen dimuat
   useEffect(() => {
@@ -91,39 +95,69 @@ function ForgotPasswordPage() {
     }
   };
 
+  // Fungsi untuk mengirim email reset password
+  const sendResetEmail = async (emailAddress, code) => {
+    try {
+      const resetLink = createResetPasswordLink(code);
+      
+      // Kirim email menggunakan EmailJS
+      const emailResult = await sendResetPasswordEmail({
+        email: emailAddress,
+        name: emailAddress.split('@')[0], // Gunakan bagian sebelum @ sebagai nama
+        resetLink: resetLink,
+        resetToken: code
+      });
+      
+      if (emailResult.success) {
+        setEmailSent(true);
+        setMessage('Instruksi reset password telah dikirim ke email Anda.');
+        return true;
+      } else {
+        console.error('Gagal mengirim email:', emailResult.error);
+        return false;
+      }
+    } catch (err) {
+      console.error('Error saat mengirim email:', err);
+      return false;
+    }
+  };
+
+  // Fungsi untuk mencoba ulang pengiriman email
+  const retryEmailSending = async () => {
+    if (retryCount >= MAX_RETRY_ATTEMPTS || !resetCode) {
+      return false;
+    }
+    
+    setIsRetrying(true);
+    const success = await sendResetEmail(email, resetCode);
+    setIsRetrying(false);
+    setRetryCount(prev => prev + 1);
+    
+    return success;
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     setIsLoading(true);
     setEmailSent(false);
+    setError('');
+    setRetryCount(0);
+    
     try {
       const response = await forgotPassword(email);
-      setMessage(response.message);
       setResetCode(response.resetCode);
-      setError('');
       
       // Jika kode reset berhasil dibuat, kirim email
       if (response.resetCode) {
-        const resetLink = createResetPasswordLink(response.resetCode);
+        const emailSuccess = await sendResetEmail(email, response.resetCode);
         
-        // Kirim email menggunakan EmailJS
-        const emailResult = await sendResetPasswordEmail({
-          email: email,
-          name: email.split('@')[0], // Gunakan bagian sebelum @ sebagai nama
-          resetLink: resetLink,
-          resetToken: response.resetCode
-        });
-        
-        if (emailResult.success) {
-          setEmailSent(true);
-          setMessage('Instruksi reset password telah dikirim ke email Anda.');
-        } else {
-          console.error('Gagal mengirim email:', emailResult.error);
-          // Tetap tampilkan kode reset jika email gagal terkirim
+        if (!emailSuccess) {
+          // Jika gagal mengirim email, tampilkan pesan error
+          setError('Gagal mengirim email reset password. Silakan coba lagi nanti atau hubungi administrator.');
         }
       }
     } catch (err) {
       setError(err.response?.data?.message || 'Terjadi kesalahan. Silakan coba lagi.');
-      setMessage('');
       setResetCode('');
     } finally {
       setIsLoading(false);
@@ -211,22 +245,22 @@ function ForgotPasswordPage() {
               <motion.h2 
                 variants={itemVariants}
                 className={`text-2xl font-bold mb-2 ${isDarkMode ? 'text-white' : 'text-gray-900'}`}
-          >
-            Pulihkan Kata Sandi
-          </motion.h2>
+              >
+                Pulihkan Kata Sandi
+              </motion.h2>
               
-          <motion.p
+              <motion.p
                 variants={itemVariants}
                 className={`${isDarkMode ? 'text-gray-300' : 'text-gray-600'}`}
               >
-                Masukkan email Anda untuk mendapatkan kode verifikasi
+                Masukkan email Anda untuk menerima instruksi reset password
               </motion.p>
             </motion.div>
 
-            {message && (
+            {emailSent && (
               <motion.div
-            initial={{ opacity: 0, y: -10 }}
-            animate={{ opacity: 1, y: 0 }}
+                initial={{ opacity: 0, y: -10 }}
+                animate={{ opacity: 1, y: 0 }}
                 className={`p-4 rounded-lg mb-6 ${
                   isDarkMode 
                     ? 'bg-green-900/30 border border-green-800/30' 
@@ -244,23 +278,11 @@ function ForgotPasswordPage() {
                       {message}
                     </p>
                     
-                    {emailSent && (
-                      <p className={`text-sm mt-1 ${
-                        isDarkMode ? 'text-green-300' : 'text-green-700'
-                      }`}>
-                        Silakan cek email Anda untuk instruksi reset password.
-                      </p>
-                    )}
-                    
-                    {resetCode && !emailSent && (
-                      <div className="mt-2">
-                        <p className={`text-sm ${
-                          isDarkMode ? 'text-green-300' : 'text-green-700'
-                        }`}>
-                          Kode verifikasi Anda: <span className="font-medium">{resetCode}</span>
-                        </p>
-                      </div>
-                    )}
+                    <p className={`text-sm mt-1 ${
+                      isDarkMode ? 'text-green-300' : 'text-green-700'
+                    }`}>
+                      Silakan cek email Anda untuk instruksi reset password.
+                    </p>
                     
                     {resetCode && (
                       <motion.button
@@ -278,31 +300,60 @@ function ForgotPasswordPage() {
                     )}
                   </div>
                 </div>
-            </motion.div>
-          )}
+              </motion.div>
+            )}
 
-          {error && (
+            {error && (
               <motion.div
                 initial={{ opacity: 0, y: -10 }}
                 animate={{ opacity: 1, y: 0 }}
-                className={`p-4 rounded-lg mb-6 flex items-start ${
+                className={`p-4 rounded-lg mb-6 flex flex-col ${
                   isDarkMode 
                     ? 'bg-red-900/30 border border-red-800/30' 
                     : 'bg-red-50 border border-red-100'
                 }`}
               >
-                <ExclamationCircleIcon className={`h-5 w-5 mr-2 mt-0.5 flex-shrink-0 ${
-                  isDarkMode ? 'text-red-400' : 'text-red-500'
-                }`} />
-                <p className={`text-sm ${
-                  isDarkMode ? 'text-red-300' : 'text-red-800'
-                }`}>
-              {error}
-                </p>
+                <div className="flex items-start">
+                  <ExclamationCircleIcon className={`h-5 w-5 mr-2 mt-0.5 flex-shrink-0 ${
+                    isDarkMode ? 'text-red-400' : 'text-red-500'
+                  }`} />
+                  <p className={`text-sm ${
+                    isDarkMode ? 'text-red-300' : 'text-red-800'
+                  }`}>
+                    {error}
+                  </p>
+                </div>
+                
+                {resetCode && retryCount < MAX_RETRY_ATTEMPTS && (
+                  <motion.button
+                    variants={buttonVariants}
+                    whileHover={!isRetrying ? "hover" : undefined}
+                    whileTap={!isRetrying ? "tap" : undefined}
+                    onClick={retryEmailSending}
+                    disabled={isRetrying}
+                    className={`mt-4 py-2 px-4 rounded-lg flex items-center justify-center text-white font-medium ${
+                      isDarkMode ? 'bg-red-600 hover:bg-red-500' : 'bg-red-600 hover:bg-red-700'
+                    } transition-colors duration-200`}
+                  >
+                    {isRetrying ? (
+                      <>
+                        <svg className="animate-spin -ml-1 mr-2 h-4 w-4 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                          <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                          <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                        </svg>
+                        Mencoba ulang...
+                      </>
+                    ) : (
+                      <>
+                        <span>Coba Kirim Email Lagi</span>
+                      </>
+                    )}
+                  </motion.button>
+                )}
               </motion.div>
-          )}
+            )}
 
-            {!message && (
+            {!emailSent && !error && (
               <motion.form 
                 onSubmit={handleSubmit} 
                 className="space-y-6"
@@ -310,19 +361,19 @@ function ForgotPasswordPage() {
               >
                 <motion.div variants={itemVariants}>
                   <label htmlFor="email" className={`block text-sm font-medium mb-1.5 ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}>
-              Email
-            </label>
+                    Email
+                  </label>
                   <div className="relative">
                     <div className={`absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none ${
                       isDarkMode ? 'text-gray-500' : 'text-gray-400'
                     }`}>
                       <AtSymbolIcon className="h-5 w-5" />
                     </div>
-            <motion.input
+                    <motion.input
                       type="email"
-              id="email"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
+                      id="email"
+                      value={email}
+                      onChange={(e) => setEmail(e.target.value)}
                       variants={inputVariants}
                       animate={focusedInput === 'email' ? 'focus' : 'blur'}
                       onFocus={() => setFocusedInput('email')}
@@ -333,8 +384,8 @@ function ForgotPasswordPage() {
                           : 'bg-gray-50 border-gray-300 text-gray-900 placeholder-gray-400'
                       }`}
                       placeholder="email@example.com"
-              required
-            />
+                      required
+                    />
                   </div>
                 </motion.div>
                 
@@ -360,7 +411,7 @@ function ForgotPasswordPage() {
                       Memproses...
                     </>
                   ) : (
-                    "Dapatkan Kode Verifikasi"
+                    "Kirim Instruksi Reset Password"
                   )}
                 </motion.button>
               </motion.form>
@@ -389,8 +440,8 @@ function ForgotPasswordPage() {
           >
             <Link to="/" className={`text-sm ${isDarkMode ? 'text-gray-400 hover:text-gray-300' : 'text-gray-600 hover:text-gray-800'}`}>
               &larr; Kembali ke beranda
-          </Link>
-      </motion.div>
+            </Link>
+          </motion.div>
         </div>
       </div>
     </div>
