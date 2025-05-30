@@ -11,7 +11,6 @@ function ForgotPasswordPage() {
   const [email, setEmail] = useState('');
   const [message, setMessage] = useState('');
   const [error, setError] = useState('');
-  const [resetCode, setResetCode] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [isSuccess, setIsSuccess] = useState(false);
   const [focusedInput, setFocusedInput] = useState(null);
@@ -130,14 +129,11 @@ function ForgotPasswordPage() {
     try {
       const response = await forgotPassword(email);
       setMessage(response.message);
-      // Simpan kode reset tapi jangan tampilkan
-      setResetCode('');
       setError('');
       setIsSuccess(true);
     } catch (err) {
       setError(err.response?.data?.message || 'Terjadi kesalahan. Silakan coba lagi.');
       setMessage('');
-      setResetCode('');
       setIsSuccess(false);
     } finally {
       setIsLoading(false);
