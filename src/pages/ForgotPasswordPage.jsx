@@ -98,8 +98,8 @@ function ForgotPasswordPage() {
     try {
       console.log('Mengirim permintaan reset password ke backend untuk:', emailAddress);
       
-      // Panggil API backend untuk mengirim email
-      const response = await axios.post(`${API_URL}/email/send-reset-password`, {
+      // Panggil API backend untuk mengirim email - perbaiki URL dengan menambahkan /api
+      const response = await axios.post(`${API_URL}/api/email/send-reset-password`, {
         email: emailAddress,
         resetCode: code
       });
