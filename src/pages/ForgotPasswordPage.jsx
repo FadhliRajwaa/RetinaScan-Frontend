@@ -131,7 +131,7 @@ function ForgotPasswordPage() {
       const response = await forgotPassword(email);
       setMessage(response.message);
       // Simpan kode reset tapi jangan tampilkan
-      setResetCode(response.resetCode);
+      setResetCode('');
       setError('');
       setIsSuccess(true);
     } catch (err) {
@@ -141,12 +141,6 @@ function ForgotPasswordPage() {
       setIsSuccess(false);
     } finally {
       setIsLoading(false);
-    }
-  };
-
-  const handleContinue = () => {
-    if (resetCode) {
-      navigate(`/reset-password?code=${resetCode}`);
     }
   };
 
@@ -394,25 +388,10 @@ function ForgotPasswordPage() {
                       isDarkMode ? 'text-gray-300' : 'text-gray-600'
                     }`}
                   >
-                    Kami telah mengirim kode verifikasi ke alamat <span className="font-semibold">{email}</span>. Silakan cek kotak masuk dan folder spam email Anda.
+                    Kami telah mengirim kode verifikasi ke alamat <span className="font-semibold">{email}</span>. Silakan cek kotak masuk dan folder spam email Anda untuk mendapatkan instruksi reset kata sandi.
                   </motion.p>
 
-                  <motion.button
-                    variants={buttonVariants}
-                    whileHover="hover"
-                    whileTap="tap"
-                    onClick={handleContinue}
-                    className={`w-full py-3 px-4 rounded-xl font-medium text-white flex items-center justify-center ${
-                      isDarkMode 
-                        ? 'bg-green-600 hover:bg-green-500' 
-                        : 'bg-green-600 hover:bg-green-700'
-                    } transition-colors duration-200 mb-4`}
-                  >
-                    <span>Lanjut ke Atur Ulang Kata Sandi</span>
-                    <ArrowRightIcon className="ml-2 h-4 w-4" />
-                  </motion.button>
-
-                  <motion.div variants={itemVariants}>
+                  <motion.div variants={itemVariants} className="mt-4">
                     <Link to="/login" className={`text-sm ${
                       isDarkMode ? 'text-indigo-400 hover:text-indigo-300' : 'text-indigo-600 hover:text-indigo-700'
                     } transition-colors duration-200`}>

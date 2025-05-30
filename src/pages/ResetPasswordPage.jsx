@@ -129,14 +129,6 @@ function ResetPasswordPage() {
     }
   };
 
-  // Set default resetCode from query parameter if available
-  useEffect(() => {
-    const code = searchParams.get('code');
-    if (code && !resetCode) {
-      setResetCode(code);
-    }
-  }, [searchParams, resetCode]);
-
   // Validasi password saat diubah
   const validatePassword = (value) => {
     if (!value) return '';
@@ -300,7 +292,7 @@ function ResetPasswordPage() {
                       variants={itemVariants}
                       className={`${isDarkMode ? 'text-gray-300' : 'text-gray-600'}`}
                     >
-                      Masukkan kode verifikasi dan kata sandi baru Anda
+                      Masukkan kode verifikasi dari email dan kata sandi baru Anda
                     </motion.p>
                   </motion.div>
 
@@ -355,7 +347,7 @@ function ResetPasswordPage() {
                           onFocus={() => setFocusedInput('resetCode')}
                           onBlur={() => setFocusedInput(null)}
                           required
-                          placeholder="Kode 6 digit"
+                          placeholder="Kode 6 digit dari email"
                           className={`pl-10 w-full py-3 px-4 rounded-xl text-sm ${
                             isDarkMode 
                               ? 'bg-gray-700 text-white border-gray-600 placeholder-gray-400' 
