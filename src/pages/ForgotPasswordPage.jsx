@@ -98,8 +98,13 @@ function ForgotPasswordPage() {
     try {
       console.log('Mengirim permintaan reset password ke backend untuk:', emailAddress);
       
+      // Gunakan URL backend yang benar berdasarkan environment
+      const apiBaseUrl = import.meta.env.MODE === 'production'
+        ? 'https://retinascan-backend-eszo.onrender.com'
+        : API_URL;
+      
       // Panggil API backend untuk mengirim email - perbaiki URL dengan menambahkan /api
-      const response = await axios.post(`${API_URL}/api/email/send-reset-password`, {
+      const response = await axios.post(`${apiBaseUrl}/api/email/send-reset-password`, {
         email: emailAddress,
         resetCode: code
       });
@@ -110,6 +115,15 @@ function ForgotPasswordPage() {
         return true;
       } else {
         console.error('Respons error dari server:', response.data);
+        
+        // Jika ada fallback resetCode, tampilkan
+        if (response.data.fallback && response.data.resetCode) {
+          setEmailSent(true);
+          setShowResetCode(true);
+          setMessage('Sistem email tidak tersedia. Gunakan kode reset berikut:');
+          return true;
+        }
+        
         return false;
       }
     } catch (err) {
@@ -120,6 +134,14 @@ function ForgotPasswordPage() {
         setEmailSent(true);
         setShowResetCode(true);
         setMessage('Sistem email tidak tersedia. Gunakan kode reset berikut:');
+        return true;
+      }
+      
+      // Jika server error, masih tampilkan kode reset yang sudah didapatkan
+      if (err.response?.status === 500 && code) {
+        setEmailSent(true);
+        setShowResetCode(true);
+        setMessage('Tidak dapat mengirim email reset password. Gunakan kode reset berikut:');
         return true;
       }
       
