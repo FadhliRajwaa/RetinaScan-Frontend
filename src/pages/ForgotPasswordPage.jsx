@@ -1,11 +1,11 @@
 import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { motion } from 'framer-motion';
+import { motion, AnimatePresence } from 'framer-motion';
 import { forgotPassword } from '../services/authService';
 import { useTheme } from '../context/ThemeContext';
 import { withPageTransition } from '../context/ThemeContext';
 import { ParallaxBanner, Parallax } from 'react-scroll-parallax';
-import { AtSymbolIcon, KeyIcon, ArrowRightIcon, ExclamationCircleIcon, CheckCircleIcon } from '@heroicons/react/24/outline';
+import { AtSymbolIcon, KeyIcon, ArrowRightIcon, ExclamationCircleIcon, CheckCircleIcon, EnvelopeIcon, ShieldCheckIcon } from '@heroicons/react/24/outline';
 
 function ForgotPasswordPage() {
   const [email, setEmail] = useState('');
@@ -13,9 +13,24 @@ function ForgotPasswordPage() {
   const [error, setError] = useState('');
   const [resetCode, setResetCode] = useState('');
   const [isLoading, setIsLoading] = useState(false);
+  const [isSuccess, setIsSuccess] = useState(false);
   const [focusedInput, setFocusedInput] = useState(null);
   const navigate = useNavigate();
   const { isDarkMode } = useTheme();
+
+  // Palet warna yang direkomendasikan
+  const colors = {
+    primary: isDarkMode ? '#4F46E5' : '#4338CA', // Indigo
+    secondary: isDarkMode ? '#8B5CF6' : '#7C3AED', // Violet
+    accent: isDarkMode ? '#EC4899' : '#DB2777', // Pink
+    success: isDarkMode ? '#10B981' : '#059669', // Emerald
+    warning: isDarkMode ? '#F59E0B' : '#D97706', // Amber
+    error: isDarkMode ? '#EF4444' : '#DC2626', // Red
+    background: isDarkMode ? '#1F2937' : '#F9FAFB', // Gray
+    card: isDarkMode ? '#374151' : '#FFFFFF', // White/Dark Gray
+    text: isDarkMode ? '#F9FAFB' : '#1F2937', // Gray
+    textMuted: isDarkMode ? '#9CA3AF' : '#6B7280', // Gray
+  };
 
   // Animation variants
   const formVariants = {
@@ -39,13 +54,25 @@ function ForgotPasswordPage() {
     }
   };
 
+  const successVariants = {
+    hidden: { scale: 0.8, opacity: 0 },
+    visible: { 
+      scale: 1, 
+      opacity: 1,
+      transition: { 
+        type: 'spring', 
+        damping: 20, 
+        stiffness: 300 
+      }
+    }
+  };
+
   const buttonVariants = {
     initial: { scale: 1 },
     hover: { 
       scale: 1.03, 
-      boxShadow: isDarkMode 
-        ? '0 10px 15px -3px rgba(0, 0, 0, 0.3), 0 4px 6px -2px rgba(0, 0, 0, 0.15)' 
-        : '0 10px 15px -3px rgba(59, 130, 246, 0.3), 0 4px 6px -2px rgba(59, 130, 246, 0.15)'
+      boxShadow: `0 10px 15px -3px rgba(${isDarkMode ? '0, 0, 0' : '79, 70, 229'}, 0.3), 0 4px 6px -2px rgba(${isDarkMode ? '0, 0, 0' : '79, 70, 229'}, 0.15)`,
+      background: isDarkMode ? colors.secondary : colors.primary,
     },
     tap: { scale: 0.97 },
     loading: {
@@ -60,8 +87,8 @@ function ForgotPasswordPage() {
   const inputVariants = {
     focus: { 
       scale: 1.02, 
-      boxShadow: `0 0 0 3px ${isDarkMode ? 'rgba(59, 130, 246, 0.3)' : 'rgba(59, 130, 246, 0.2)'}`, 
-      borderColor: '#3B82F6',
+      boxShadow: `0 0 0 3px ${isDarkMode ? 'rgba(79, 70, 229, 0.3)' : 'rgba(79, 70, 229, 0.2)'}`, 
+      borderColor: colors.primary,
       transition: { duration: 0.3 } 
     },
     blur: { 
@@ -84,18 +111,34 @@ function ForgotPasswordPage() {
     }
   };
 
+  const iconVariants = {
+    hidden: { scale: 0, opacity: 0 },
+    visible: { 
+      scale: 1, 
+      opacity: 1, 
+      transition: { 
+        type: 'spring',
+        damping: 10,
+        stiffness: 200
+      } 
+    }
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     setIsLoading(true);
     try {
       const response = await forgotPassword(email);
       setMessage(response.message);
+      // Simpan kode reset tapi jangan tampilkan
       setResetCode(response.resetCode);
       setError('');
+      setIsSuccess(true);
     } catch (err) {
       setError(err.response?.data?.message || 'Terjadi kesalahan. Silakan coba lagi.');
       setMessage('');
       setResetCode('');
+      setIsSuccess(false);
     } finally {
       setIsLoading(false);
     }
@@ -126,8 +169,8 @@ function ForgotPasswordPage() {
         {/* Overlay gradient */}
         <div className={`absolute inset-0 ${
           isDarkMode 
-            ? 'bg-gradient-to-br from-gray-900/90 via-gray-900/80 to-gray-900/90'
-            : 'bg-gradient-to-br from-blue-500/20 via-indigo-500/20 to-white/80'
+            ? 'bg-gradient-to-br from-gray-900/90 via-indigo-900/30 to-gray-900/90'
+            : 'bg-gradient-to-br from-indigo-500/20 via-purple-500/20 to-white/80'
         }`} />
       </ParallaxBanner>
 
@@ -138,7 +181,7 @@ function ForgotPasswordPage() {
           initial="hidden"
           animate="visible"
           className={`absolute top-[20%] left-[10%] w-64 h-64 rounded-full ${
-            isDarkMode ? 'bg-blue-500/10' : 'bg-blue-300/20'
+            isDarkMode ? 'bg-indigo-500/10' : 'bg-indigo-300/20'
           } blur-3xl`}
         />
         <motion.div 
@@ -147,7 +190,16 @@ function ForgotPasswordPage() {
           animate="visible"
           custom={0.2}
           className={`absolute bottom-[20%] right-[10%] w-80 h-80 rounded-full ${
-            isDarkMode ? 'bg-purple-500/10' : 'bg-purple-300/20'
+            isDarkMode ? 'bg-violet-500/10' : 'bg-violet-300/20'
+          } blur-3xl`}
+        />
+        <motion.div 
+          variants={shapeVariants}
+          initial="hidden"
+          animate="visible"
+          custom={0.4}
+          className={`absolute top-[40%] right-[20%] w-40 h-40 rounded-full ${
+            isDarkMode ? 'bg-pink-500/10' : 'bg-pink-300/20'
           } blur-3xl`}
         />
       </div>
@@ -161,7 +213,7 @@ function ForgotPasswordPage() {
             className="text-center mb-8"
           >
             <Link to="/" className="inline-flex items-center justify-center">
-              <KeyIcon className={`h-8 w-8 ${isDarkMode ? 'text-blue-400' : 'text-blue-600'}`} />
+              <KeyIcon className={`h-8 w-8 ${isDarkMode ? 'text-indigo-400' : 'text-indigo-600'}`} />
               <span className={`ml-2 text-2xl font-bold ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>
                 RetinaScan
               </span>
@@ -178,182 +230,199 @@ function ForgotPasswordPage() {
                 : 'bg-white/90 backdrop-blur-lg border border-gray-100'
             }`}
           >
-            <motion.div className="text-center mb-8">
-              <motion.h2 
-                variants={itemVariants}
-                className={`text-2xl font-bold mb-2 ${isDarkMode ? 'text-white' : 'text-gray-900'}`}
-          >
-            Pulihkan Kata Sandi
-          </motion.h2>
-              
-          <motion.p
-                variants={itemVariants}
-                className={`${isDarkMode ? 'text-gray-300' : 'text-gray-600'}`}
-              >
-                Masukkan email Anda untuk mendapatkan kode verifikasi
-              </motion.p>
-            </motion.div>
-
-            {message && (
-              <motion.div
-            initial={{ opacity: 0, y: -10 }}
-            animate={{ opacity: 1, y: 0 }}
-                className={`p-4 rounded-lg mb-6 ${
-                  isDarkMode 
-                    ? 'bg-green-900/30 border border-green-800/30' 
-                    : 'bg-green-50 border border-green-100'
-                }`}
-              >
-                <div className="flex items-start">
-                  <CheckCircleIcon className={`h-5 w-5 mr-2 mt-0.5 flex-shrink-0 ${
-                    isDarkMode ? 'text-green-400' : 'text-green-500'
-                  }`} />
-                  <div>
-                    <p className={`text-sm font-medium ${
-                      isDarkMode ? 'text-green-300' : 'text-green-800'
-                    }`}>
-                      {message}
-                    </p>
-                    
-              {resetCode && (
-                      <div className="mt-2">
-                        <p className={`text-sm ${
-                          isDarkMode ? 'text-green-300' : 'text-green-700'
-                        }`}>
-                          Kode verifikasi Anda: <span className="font-medium">{resetCode}</span>
-                </p>
-                      </div>
-              )}
-                    
-              {resetCode && (
-                <motion.button
-                  variants={buttonVariants}
-                  whileHover="hover"
-                  whileTap="tap"
-                  onClick={handleContinue}
-                        className={`mt-4 w-full py-2.5 px-4 rounded-lg flex items-center justify-center text-white font-medium ${
-                          isDarkMode ? 'bg-green-600 hover:bg-green-500' : 'bg-green-600 hover:bg-green-700'
-                        } transition-colors duration-200`}
+            <AnimatePresence mode="wait">
+              {!isSuccess ? (
+                <motion.div
+                  key="form"
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  exit={{ opacity: 0, x: -30 }}
                 >
-                        <span>Lanjut ke Atur Ulang Kata Sandi</span>
-                        <ArrowRightIcon className="ml-2 h-4 w-4" />
-                </motion.button>
-              )}
-                  </div>
-                </div>
-            </motion.div>
-          )}
+                  <motion.div className="text-center mb-8">
+                    <motion.h2 
+                      variants={itemVariants}
+                      className={`text-2xl font-bold mb-2 ${isDarkMode ? 'text-white' : 'text-gray-900'}`}
+                    >
+                      Pulihkan Kata Sandi
+                    </motion.h2>
+                    
+                    <motion.p
+                      variants={itemVariants}
+                      className={`${isDarkMode ? 'text-gray-300' : 'text-gray-600'}`}
+                    >
+                      Masukkan email Anda untuk mendapatkan kode verifikasi
+                    </motion.p>
+                  </motion.div>
 
-          {error && (
-              <motion.div
-                initial={{ opacity: 0, y: -10 }}
-                animate={{ opacity: 1, y: 0 }}
-                className={`p-4 rounded-lg mb-6 flex items-start ${
-                  isDarkMode 
-                    ? 'bg-red-900/30 border border-red-800/30' 
-                    : 'bg-red-50 border border-red-100'
-                }`}
-              >
-                <ExclamationCircleIcon className={`h-5 w-5 mr-2 mt-0.5 flex-shrink-0 ${
-                  isDarkMode ? 'text-red-400' : 'text-red-500'
-                }`} />
-                <p className={`text-sm ${
-                  isDarkMode ? 'text-red-300' : 'text-red-800'
-                }`}>
-              {error}
-                </p>
-              </motion.div>
-          )}
-
-            {!message && (
-              <motion.form 
-                onSubmit={handleSubmit} 
-                className="space-y-6"
-                variants={formVariants}
-              >
-                <motion.div variants={itemVariants}>
-                  <label htmlFor="email" className={`block text-sm font-medium mb-1.5 ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}>
-              Email
-            </label>
-                  <div className="relative">
-                    <div className={`absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none ${
-                      isDarkMode ? 'text-gray-500' : 'text-gray-400'
-                    }`}>
-                      <AtSymbolIcon className="h-5 w-5" />
-                    </div>
-            <motion.input
-                      type="email"
-              id="email"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-                      variants={inputVariants}
-                      animate={focusedInput === 'email' ? 'focus' : 'blur'}
-                      onFocus={() => setFocusedInput('email')}
-                      onBlur={() => setFocusedInput(null)}
-                      className={`block w-full pl-10 pr-3 py-3 border rounded-lg focus:outline-none ${
+                  {error && (
+                    <motion.div
+                      initial={{ opacity: 0, y: -10 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      className={`p-4 rounded-lg mb-6 ${
                         isDarkMode 
-                          ? 'bg-gray-700/50 border-gray-600 text-white placeholder-gray-400' 
-                          : 'bg-gray-50 border-gray-300 text-gray-900 placeholder-gray-400'
+                          ? 'bg-red-900/30 border border-red-800/30' 
+                          : 'bg-red-50 border border-red-100'
                       }`}
-                      placeholder="email@example.com"
-              required
-            />
-                  </div>
-                </motion.div>
-                
-                <motion.button
-                  type="submit"
-                  disabled={isLoading}
-                  variants={buttonVariants}
-                  whileHover={!isLoading ? "hover" : undefined}
-                  whileTap={!isLoading ? "tap" : undefined}
-                  animate={isLoading ? "loading" : "initial"}
-                  className={`w-full py-3 px-4 flex justify-center items-center rounded-lg text-white font-medium ${
-                    isLoading 
-                      ? isDarkMode ? 'bg-gray-600' : 'bg-blue-400'
-                      : isDarkMode ? 'bg-blue-600 hover:bg-blue-500' : 'bg-blue-600 hover:bg-blue-700'
-                  } transition-colors duration-200`}
-                >
-                  {isLoading ? (
-                    <>
-                      <svg className="animate-spin -ml-1 mr-2 h-4 w-4 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                        <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-                        <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                      </svg>
-                      Memproses...
-                    </>
-                  ) : (
-                    "Dapatkan Kode Verifikasi"
+                    >
+                      <div className="flex items-start">
+                        <ExclamationCircleIcon className={`h-5 w-5 mr-2 mt-0.5 flex-shrink-0 ${
+                          isDarkMode ? 'text-red-400' : 'text-red-500'
+                        }`} />
+                        <p className={`text-sm ${
+                          isDarkMode ? 'text-red-300' : 'text-red-800'
+                        }`}>
+                          {error}
+                        </p>
+                      </div>
+                    </motion.div>
                   )}
-                </motion.button>
-              </motion.form>
-            )}
 
-            <motion.div
-              variants={itemVariants}
-              className="mt-6 text-center"
-            >
-              <p className={isDarkMode ? 'text-gray-300' : 'text-gray-600'}>
-                Kembali ke{' '}
-                <Link to="/login" className={`font-medium hover:underline ${isDarkMode ? 'text-blue-400' : 'text-blue-600'} relative group`}>
-                  <span>Masuk</span>
-                  <span className="absolute bottom-0 left-0 w-0 h-0.5 bg-current transform origin-left transition-all duration-200 group-hover:w-full"></span>
-                </Link>
-              </p>
-            </motion.div>
+                  <motion.form onSubmit={handleSubmit} variants={itemVariants}>
+                    <div className="mb-6">
+                      <motion.label 
+                        htmlFor="email" 
+                        className={`block text-sm font-medium mb-2 ${
+                          isDarkMode ? 'text-gray-300' : 'text-gray-700'
+                        }`}
+                      >
+                        Email
+                      </motion.label>
+                      <div className="relative">
+                        <motion.div 
+                          className={`absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none ${
+                            isDarkMode ? 'text-gray-400' : 'text-gray-500'
+                          }`}
+                        >
+                          <AtSymbolIcon className="h-5 w-5" />
+                        </motion.div>
+                        <motion.input
+                          variants={inputVariants}
+                          animate={focusedInput === 'email' ? 'focus' : 'blur'}
+                          id="email"
+                          type="email"
+                          value={email}
+                          onChange={(e) => setEmail(e.target.value)}
+                          onFocus={() => setFocusedInput('email')}
+                          onBlur={() => setFocusedInput(null)}
+                          required
+                          placeholder="nama@email.com"
+                          className={`pl-10 w-full py-3 px-4 rounded-xl text-sm ${
+                            isDarkMode 
+                              ? 'bg-gray-700 text-white border-gray-600 placeholder-gray-400' 
+                              : 'bg-white text-gray-900 border-gray-300 placeholder-gray-400'
+                          } border focus:outline-none transition-all duration-200`}
+                        />
+                      </div>
+                    </div>
+
+                    <motion.button
+                      variants={buttonVariants}
+                      initial="initial"
+                      whileHover="hover"
+                      whileTap="tap"
+                      animate={isLoading ? 'loading' : 'initial'}
+                      type="submit"
+                      disabled={isLoading}
+                      className={`w-full py-3 px-4 rounded-xl font-medium text-white flex items-center justify-center ${
+                        isDarkMode 
+                          ? 'bg-indigo-600 hover:bg-indigo-500' 
+                          : 'bg-indigo-600 hover:bg-indigo-700'
+                      } transition-all duration-200 disabled:opacity-70`}
+                    >
+                      {isLoading ? (
+                        <>
+                          <svg className="animate-spin -ml-1 mr-2 h-4 w-4 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                            <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                            <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                          </svg>
+                          Mengirim...
+                        </>
+                      ) : (
+                        <>
+                          Kirim Kode Verifikasi
+                          <ArrowRightIcon className="ml-2 h-4 w-4" />
+                        </>
+                      )}
+                    </motion.button>
+                  </motion.form>
+
+                  <motion.div 
+                    variants={itemVariants}
+                    className="mt-6 text-center"
+                  >
+                    <Link to="/login" className={`text-sm ${
+                      isDarkMode ? 'text-indigo-400 hover:text-indigo-300' : 'text-indigo-600 hover:text-indigo-700'
+                    } transition-colors duration-200`}>
+                      Kembali ke Masuk
+                    </Link>
+                  </motion.div>
+                </motion.div>
+              ) : (
+                <motion.div
+                  key="success"
+                  variants={successVariants}
+                  initial="hidden"
+                  animate="visible"
+                  exit={{ opacity: 0, scale: 0.8 }}
+                  className="text-center"
+                >
+                  <motion.div 
+                    variants={iconVariants} 
+                    className="flex justify-center mb-6"
+                  >
+                    <div className={`rounded-full p-3 ${
+                      isDarkMode ? 'bg-green-900/30' : 'bg-green-100'
+                    }`}>
+                      <EnvelopeIcon className={`h-10 w-10 ${
+                        isDarkMode ? 'text-green-400' : 'text-green-600'
+                      }`} />
+                    </div>
+                  </motion.div>
+                  
+                  <motion.h2 
+                    variants={itemVariants}
+                    className={`text-2xl font-bold mb-3 ${
+                      isDarkMode ? 'text-white' : 'text-gray-900'
+                    }`}
+                  >
+                    Cek Email Anda
+                  </motion.h2>
+                  
+                  <motion.p 
+                    variants={itemVariants}
+                    className={`mb-6 ${
+                      isDarkMode ? 'text-gray-300' : 'text-gray-600'
+                    }`}
+                  >
+                    Kami telah mengirim kode verifikasi ke alamat <span className="font-semibold">{email}</span>. Silakan cek kotak masuk dan folder spam email Anda.
+                  </motion.p>
+
+                  <motion.button
+                    variants={buttonVariants}
+                    whileHover="hover"
+                    whileTap="tap"
+                    onClick={handleContinue}
+                    className={`w-full py-3 px-4 rounded-xl font-medium text-white flex items-center justify-center ${
+                      isDarkMode 
+                        ? 'bg-green-600 hover:bg-green-500' 
+                        : 'bg-green-600 hover:bg-green-700'
+                    } transition-colors duration-200 mb-4`}
+                  >
+                    <span>Lanjut ke Atur Ulang Kata Sandi</span>
+                    <ArrowRightIcon className="ml-2 h-4 w-4" />
+                  </motion.button>
+
+                  <motion.div variants={itemVariants}>
+                    <Link to="/login" className={`text-sm ${
+                      isDarkMode ? 'text-indigo-400 hover:text-indigo-300' : 'text-indigo-600 hover:text-indigo-700'
+                    } transition-colors duration-200`}>
+                      Kembali ke Masuk
+                    </Link>
+                  </motion.div>
+                </motion.div>
+              )}
+            </AnimatePresence>
           </motion.div>
-          
-          <motion.div
-            variants={itemVariants}
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            transition={{ delay: 0.6 }}
-            className="mt-8 text-center"
-          >
-            <Link to="/" className={`text-sm ${isDarkMode ? 'text-gray-400 hover:text-gray-300' : 'text-gray-600 hover:text-gray-800'}`}>
-              &larr; Kembali ke beranda
-          </Link>
-      </motion.div>
         </div>
       </div>
     </div>
