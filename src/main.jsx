@@ -4,6 +4,10 @@ import { HashRouter } from 'react-router-dom';
 import { ThemeProvider } from './context/ThemeContext';
 import App from './App.jsx';
 import './index.css';
+import { initEmailJS } from './utils/emailService';
+
+// Inisialisasi EmailJS saat aplikasi dimulai
+initEmailJS();
 
 // Menggunakan HashRouter untuk mengatasi masalah routing static hosting
 // HashRouter menambahkan # pada URL tapi menghindari masalah 404 saat refresh

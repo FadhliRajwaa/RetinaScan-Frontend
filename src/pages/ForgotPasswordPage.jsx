@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { forgotPassword } from '../services/authService';
@@ -6,6 +6,7 @@ import { useTheme } from '../context/ThemeContext';
 import { withPageTransition } from '../context/ThemeContext';
 import { ParallaxBanner, Parallax } from 'react-scroll-parallax';
 import { AtSymbolIcon, KeyIcon, ArrowRightIcon, ExclamationCircleIcon, CheckCircleIcon } from '@heroicons/react/24/outline';
+import { initEmailJS, sendResetPasswordEmail, createResetPasswordLink } from '../utils/emailService';
 
 function ForgotPasswordPage() {
   const [email, setEmail] = useState('');
@@ -14,8 +15,14 @@ function ForgotPasswordPage() {
   const [resetCode, setResetCode] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [focusedInput, setFocusedInput] = useState(null);
+  const [emailSent, setEmailSent] = useState(false);
   const navigate = useNavigate();
   const { isDarkMode } = useTheme();
+
+  // Inisialisasi EmailJS saat komponen dimuat
+  useEffect(() => {
+    initEmailJS();
+  }, []);
 
   // Animation variants
   const formVariants = {
@@ -87,11 +94,33 @@ function ForgotPasswordPage() {
   const handleSubmit = async (e) => {
     e.preventDefault();
     setIsLoading(true);
+    setEmailSent(false);
     try {
       const response = await forgotPassword(email);
       setMessage(response.message);
       setResetCode(response.resetCode);
       setError('');
+      
+      // Jika kode reset berhasil dibuat, kirim email
+      if (response.resetCode) {
+        const resetLink = createResetPasswordLink(response.resetCode);
+        
+        // Kirim email menggunakan EmailJS
+        const emailResult = await sendResetPasswordEmail({
+          email: email,
+          name: email.split('@')[0], // Gunakan bagian sebelum @ sebagai nama
+          resetLink: resetLink,
+          resetToken: response.resetCode
+        });
+        
+        if (emailResult.success) {
+          setEmailSent(true);
+          setMessage('Instruksi reset password telah dikirim ke email Anda.');
+        } else {
+          console.error('Gagal mengirim email:', emailResult.error);
+          // Tetap tampilkan kode reset jika email gagal terkirim
+        }
+      }
     } catch (err) {
       setError(err.response?.data?.message || 'Terjadi kesalahan. Silakan coba lagi.');
       setMessage('');
@@ -215,30 +244,38 @@ function ForgotPasswordPage() {
                       {message}
                     </p>
                     
-              {resetCode && (
+                    {emailSent && (
+                      <p className={`text-sm mt-1 ${
+                        isDarkMode ? 'text-green-300' : 'text-green-700'
+                      }`}>
+                        Silakan cek email Anda untuk instruksi reset password.
+                      </p>
+                    )}
+                    
+                    {resetCode && !emailSent && (
                       <div className="mt-2">
                         <p className={`text-sm ${
                           isDarkMode ? 'text-green-300' : 'text-green-700'
                         }`}>
                           Kode verifikasi Anda: <span className="font-medium">{resetCode}</span>
-                </p>
+                        </p>
                       </div>
-              )}
+                    )}
                     
-              {resetCode && (
-                <motion.button
-                  variants={buttonVariants}
-                  whileHover="hover"
-                  whileTap="tap"
-                  onClick={handleContinue}
+                    {resetCode && (
+                      <motion.button
+                        variants={buttonVariants}
+                        whileHover="hover"
+                        whileTap="tap"
+                        onClick={handleContinue}
                         className={`mt-4 w-full py-2.5 px-4 rounded-lg flex items-center justify-center text-white font-medium ${
                           isDarkMode ? 'bg-green-600 hover:bg-green-500' : 'bg-green-600 hover:bg-green-700'
                         } transition-colors duration-200`}
-                >
+                      >
                         <span>Lanjut ke Atur Ulang Kata Sandi</span>
                         <ArrowRightIcon className="ml-2 h-4 w-4" />
-                </motion.button>
-              )}
+                      </motion.button>
+                    )}
                   </div>
                 </div>
             </motion.div>

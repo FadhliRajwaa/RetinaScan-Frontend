@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { Link, useSearchParams } from 'react-router-dom';
+import { Link, useSearchParams, useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { resetPassword } from '../services/authService';
 import { EyeIcon, EyeSlashIcon } from '@heroicons/react/24/outline';
@@ -46,11 +46,15 @@ const buttonVariants = {
 function ResetPasswordPage() {
   const [resetCode, setResetCode] = useState('');
   const [password, setPassword] = useState('');
+  const [confirmPassword, setConfirmPassword] = useState('');
   const [message, setMessage] = useState('');
   const [error, setError] = useState('');
   const [passwordError, setPasswordError] = useState(''); // State untuk validasi password
+  const [confirmPasswordError, setConfirmPasswordError] = useState(''); // State untuk validasi konfirmasi password
   const [showPassword, setShowPassword] = useState(false); // State untuk toggle show/hide password
+  const [isSubmitting, setIsSubmitting] = useState(false);
   const [searchParams] = useSearchParams();
+  const navigate = useNavigate();
 
   // Set default resetCode from query parameter if available
   useEffect(() => {
@@ -59,6 +63,22 @@ function ResetPasswordPage() {
       setResetCode(code);
     }
   }, [searchParams, resetCode]);
+
+  // Validasi password saat diubah
+  const validatePassword = (value) => {
+    if (value.length < 8) {
+      return 'Kata sandi harus minimal 8 karakter';
+    }
+    return '';
+  };
+
+  // Validasi konfirmasi password
+  const validateConfirmPassword = (password, confirmValue) => {
+    if (password !== confirmValue) {
+      return 'Konfirmasi kata sandi tidak sesuai';
+    }
+    return '';
+  };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -69,24 +89,36 @@ function ResetPasswordPage() {
       return;
     }
     
-    // Validasi password minimal 8 karakter
-    if (password.length < 8) {
-      setPasswordError('Kata sandi harus minimal 8 karakter');
+    // Validasi password
+    const passwordValidationError = validatePassword(password);
+    if (passwordValidationError) {
+      setPasswordError(passwordValidationError);
+      return;
+    }
+
+    // Validasi konfirmasi password
+    const confirmPasswordValidationError = validateConfirmPassword(password, confirmPassword);
+    if (confirmPasswordValidationError) {
+      setConfirmPasswordError(confirmPasswordValidationError);
       return;
     }
 
     setError('');
     setPasswordError('');
+    setConfirmPasswordError('');
+    setIsSubmitting(true);
     
     try {
       await resetPassword(resetCode, password);
       setMessage('Kata sandi telah diatur ulang. Silakan masuk dengan kata sandi baru Anda.');
       setTimeout(() => {
-        window.location.href = '/login';
-      }, 1500);
+        navigate('/login');
+      }, 2000);
     } catch (err) {
       setError(err.response?.data?.message || 'Terjadi kesalahan. Silakan coba lagi.');
       setMessage('');
+    } finally {
+      setIsSubmitting(false);
     }
   };
 
@@ -135,6 +167,7 @@ function ResetPasswordPage() {
               className="mt-1 block w-full px-4 py-3 bg-gray-50/50 border border-gray-300 rounded-lg shadow-sm focus:ring-2 focus:ring-primary focus:border-primary transition-all duration-300"
               placeholder="Masukkan kode 6 digit"
               required
+              disabled={isSubmitting}
             />
           </motion.div>
           <motion.div variants={formElementVariants} custom={1} initial="hidden" animate="visible">
@@ -149,8 +182,9 @@ function ResetPasswordPage() {
                 value={password}
                 onChange={(e) => {
                   setPassword(e.target.value);
-                  if (e.target.value.length >= 8) {
-                    setPasswordError('');
+                  setPasswordError(validatePassword(e.target.value));
+                  if (confirmPassword) {
+                    setConfirmPasswordError(validateConfirmPassword(e.target.value, confirmPassword));
                   }
                 }}
                 className={`mt-1 block w-full px-4 py-3 bg-gray-50/50 border rounded-lg shadow-sm focus:ring-2 focus:ring-primary focus:border-primary transition-all duration-300 pr-10 ${
@@ -158,6 +192,7 @@ function ResetPasswordPage() {
                 }`}
                 placeholder="Masukkan Kata Sandi Baru"
                 required
+                disabled={isSubmitting}
               />
               <button
                 type="button"
@@ -181,17 +216,64 @@ function ResetPasswordPage() {
               </motion.p>
             )}
           </motion.div>
+          
+          <motion.div variants={formElementVariants} custom={2} initial="hidden" animate="visible">
+            <label htmlFor="confirmPassword" className="block text-sm font-medium text-gray-700">
+              Konfirmasi Kata Sandi
+            </label>
+            <div className="relative">
+              <motion.input
+                whileFocus={{ scale: 1.02, boxShadow: '0 0 8px rgba(29, 78, 216, 0.3)', transition: { duration: 0.3 } }}
+                id="confirmPassword"
+                type={showPassword ? 'text' : 'password'}
+                value={confirmPassword}
+                onChange={(e) => {
+                  setConfirmPassword(e.target.value);
+                  setConfirmPasswordError(validateConfirmPassword(password, e.target.value));
+                }}
+                className={`mt-1 block w-full px-4 py-3 bg-gray-50/50 border rounded-lg shadow-sm focus:ring-2 focus:ring-primary focus:border-primary transition-all duration-300 pr-10 ${
+                  confirmPasswordError ? 'border-red-500' : 'border-gray-300'
+                }`}
+                placeholder="Konfirmasi Kata Sandi Baru"
+                required
+                disabled={isSubmitting}
+              />
+            </div>
+            {confirmPasswordError && (
+              <motion.p
+                initial={{ opacity: 0, y: -10 }}
+                animate={{ opacity: 1, y: 0 }}
+                className="mt-1 text-sm text-red-500"
+              >
+                {confirmPasswordError}
+              </motion.p>
+            )}
+          </motion.div>
+          
           <motion.button
             variants={buttonVariants}
-            whileHover="hover"
-            whileTap="tap"
+            whileHover={!isSubmitting ? "hover" : undefined}
+            whileTap={!isSubmitting ? "tap" : undefined}
             type="submit"
-            className="w-full flex justify-center py-3 px-4 border border-transparent rounded-lg shadow-md text-sm font-semibold text-white bg-gradient-to-r from-primary to-blue-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary transition-all duration-300"
+            disabled={isSubmitting}
+            className={`w-full flex justify-center py-3 px-4 border border-transparent rounded-lg shadow-md text-sm font-semibold text-white bg-gradient-to-r from-primary to-blue-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary transition-all duration-300 ${
+              isSubmitting ? 'opacity-70 cursor-not-allowed' : ''
+            }`}
           >
-            Atur Ulang Kata Sandi
+            {isSubmitting ? (
+              <>
+                <svg className="animate-spin -ml-1 mr-2 h-4 w-4 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                  <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                  <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                </svg>
+                Memproses...
+              </>
+            ) : (
+              'Atur Ulang Kata Sandi'
+            )}
           </motion.button>
         </form>
-        <motion.p variants={formElementVariants} custom={2} initial="hidden" animate="visible" className="mt-4 text-center text-sm text-gray-600">
+        <motion.p variants={formElementVariants} custom={3} initial="hidden" animate="visible" className="mt-4 text-center text-sm text-gray-600">
           Kembali ke{' '}
           <Link to="/login" className="font-medium text-primary relative overflow-hidden group">
             Masuk
