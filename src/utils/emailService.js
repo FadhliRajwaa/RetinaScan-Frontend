@@ -5,18 +5,31 @@ const SERVICE_ID = import.meta.env.VITE_EMAILJS_SERVICE_ID || 'Email_Fadhli_ID';
 const TEMPLATE_ID_RESET = import.meta.env.VITE_EMAILJS_RESET_TEMPLATE_ID || 'template_j9rj1wu';
 const PUBLIC_KEY = import.meta.env.VITE_EMAILJS_PUBLIC_KEY || '';
 
+// Reset flag saat file di-reload untuk mencegah caching
 let isInitialized = false;
+
+/**
+ * Reset konfigurasi EmailJS untuk mengatasi masalah cache
+ */
+export const resetEmailJSConfig = () => {
+  isInitialized = false;
+  console.log('Konfigurasi EmailJS di-reset');
+  
+  // Re-inisialisasi dengan konfigurasi terbaru
+  initEmailJS();
+};
 
 // Inisialisasi EmailJS
 export const initEmailJS = () => {
   if (isInitialized) {
+    console.log('EmailJS sudah diinisialisasi sebelumnya, menggunakan konfigurasi yang ada');
     return;
   }
   
   try {
     console.log('Menginisialisasi EmailJS dengan konfigurasi:');
     console.log('- Service ID:', SERVICE_ID);
-    console.log('- Template Reset ID:', TEMPLATE_ID_RESET);
+    console.log('- Template Reset ID:', TEMPLATE_ID_RESET, '(Versi Terbaru)');
     console.log('- Public Key:', PUBLIC_KEY ? 'Terisi' : 'Tidak terisi');
     
     emailjs.init({
@@ -88,11 +101,19 @@ export const sendResetPasswordEmail = async (data) => {
       app_name: 'RetinaScan',
     };
 
-    console.log('Mengirim email reset password dengan template ID:', TEMPLATE_ID_RESET);
+    // Gunakan template ID dari konstanta, bukan hardcoded value
+    const templateId = TEMPLATE_ID_RESET;
+    console.log('Mengirim email reset password dengan template ID:', templateId);
+    
+    // Log detail untuk troubleshooting
+    console.log('Detail permintaan EmailJS:');
+    console.log('- Service:', SERVICE_ID);
+    console.log('- Template:', templateId);
+    console.log('- Parameters:', JSON.stringify(templateParams, null, 2));
     
     const response = await emailjs.send(
       SERVICE_ID,
-      TEMPLATE_ID_RESET,
+      templateId,
       templateParams
     );
 
@@ -114,6 +135,8 @@ export const sendResetPasswordEmail = async (data) => {
       if (error.text && error.text.includes('template ID not found')) {
         errorMessage = 'Template email tidak ditemukan. Silakan hubungi administrator untuk mengatur template email reset password.';
         console.error('Template ID tidak ditemukan. Pastikan template sudah dibuat di dashboard EmailJS: https://dashboard.emailjs.com/admin/templates');
+        // Tampilkan detail template yang dicoba digunakan
+        console.error(`Template ID yang dicoba: ${TEMPLATE_ID_RESET}`);
       } else {
         errorMessage += ': Parameter tidak valid';
       }
@@ -181,4 +204,5 @@ export default {
   generateResetToken,
   createResetPasswordLink,
   alternativeResetNotification,
+  resetEmailJSConfig,
 }; 

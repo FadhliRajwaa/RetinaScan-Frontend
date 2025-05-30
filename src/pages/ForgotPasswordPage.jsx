@@ -1,12 +1,14 @@
 import { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
+import axios from 'axios';
 import { forgotPassword } from '../services/authService';
 import { useTheme } from '../context/ThemeContext';
 import { withPageTransition } from '../context/ThemeContext';
 import { ParallaxBanner, Parallax } from 'react-scroll-parallax';
 import { AtSymbolIcon, KeyIcon, ArrowRightIcon, ExclamationCircleIcon, CheckCircleIcon } from '@heroicons/react/24/outline';
-import { initEmailJS, sendResetPasswordEmail, createResetPasswordLink, alternativeResetNotification } from '../utils/emailService';
+
+const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000/api';
 
 function ForgotPasswordPage() {
   const [email, setEmail] = useState('');
@@ -23,11 +25,6 @@ function ForgotPasswordPage() {
   const { isDarkMode } = useTheme();
 
   const MAX_RETRY_ATTEMPTS = 2;
-
-  // Inisialisasi EmailJS saat komponen dimuat
-  useEffect(() => {
-    initEmailJS();
-  }, []);
 
   // Animation variants
   const formVariants = {
@@ -96,46 +93,36 @@ function ForgotPasswordPage() {
     }
   };
 
-  // Fungsi untuk mengirim email reset password
+  // Fungsi untuk mengirim email reset password melalui API backend
   const sendResetEmail = async (emailAddress, code) => {
     try {
-      const resetLink = createResetPasswordLink(code);
+      console.log('Mengirim permintaan reset password ke backend untuk:', emailAddress);
       
-      // Kirim email menggunakan EmailJS
-      const emailResult = await sendResetPasswordEmail({
+      // Panggil API backend untuk mengirim email
+      const response = await axios.post(`${API_URL}/email/send-reset-password`, {
         email: emailAddress,
-        name: emailAddress.split('@')[0], // Gunakan bagian sebelum @ sebagai nama
-        resetLink: resetLink,
-        resetToken: code
+        resetCode: code
       });
       
-      if (emailResult.success) {
+      if (response.data.success) {
         setEmailSent(true);
         setMessage('Instruksi reset password telah dikirim ke email Anda.');
         return true;
       } else {
-        console.error('Gagal mengirim email:', emailResult.error);
-        
-        // Jika pesan error menunjukkan template tidak ditemukan, gunakan alternatif
-        if (emailResult.error && emailResult.error.text && emailResult.error.text.includes('template ID not found')) {
-          // Gunakan metode alternatif
-          const altResult = alternativeResetNotification({
-            email: emailAddress,
-            resetToken: code
-          });
-          
-          if (altResult.success) {
-            setEmailSent(true);
-            setShowResetCode(true);
-            setMessage('Sistem email tidak tersedia. Gunakan kode reset berikut:');
-            return true;
-          }
-        }
-        
+        console.error('Respons error dari server:', response.data);
         return false;
       }
     } catch (err) {
       console.error('Error saat mengirim email:', err);
+      
+      // Jika ada fallback resetCode dari backend, tampilkan
+      if (err.response?.data?.fallback && err.response?.data?.resetCode) {
+        setEmailSent(true);
+        setShowResetCode(true);
+        setMessage('Sistem email tidak tersedia. Gunakan kode reset berikut:');
+        return true;
+      }
+      
       return false;
     }
   };
@@ -171,6 +158,7 @@ function ForgotPasswordPage() {
     setShowResetCode(false);
     
     try {
+      // Dapatkan kode reset dari API
       const response = await forgotPassword(email);
       setResetCode(response.resetCode);
       
@@ -179,19 +167,10 @@ function ForgotPasswordPage() {
         const emailSuccess = await sendResetEmail(email, response.resetCode);
         
         if (!emailSuccess) {
-          // Jika gagal mengirim email, coba gunakan metode alternatif
-          const altResult = alternativeResetNotification({
-            email: email,
-            resetToken: response.resetCode
-          });
-          
-          if (altResult.success) {
-            setEmailSent(true);
-            setShowResetCode(true);
-            setMessage('Sistem email tidak tersedia. Gunakan kode reset berikut:');
-          } else {
-            setError('Gagal mengirim email reset password. Silakan coba lagi nanti atau hubungi administrator.');
-          }
+          // Jika gagal mengirim email, tampilkan kode sebagai fallback
+          setEmailSent(true);
+          setShowResetCode(true);
+          setMessage('Sistem email tidak tersedia. Gunakan kode reset berikut:');
         }
       }
     } catch (err) {
