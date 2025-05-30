@@ -1,8 +1,8 @@
 import emailjs from '@emailjs/browser';
 
 // Konfigurasi EmailJS
-const SERVICE_ID = import.meta.env.VITE_EMAILJS_SERVICE_ID || 'default_service';
-const TEMPLATE_ID_RESET = import.meta.env.VITE_EMAILJS_RESET_TEMPLATE_ID || 'template_reset';
+const SERVICE_ID = import.meta.env.VITE_EMAILJS_SERVICE_ID || 'Email_Fadhli_ID';
+const TEMPLATE_ID_RESET = import.meta.env.VITE_EMAILJS_RESET_TEMPLATE_ID || 'template_j9rj1wu';
 const PUBLIC_KEY = import.meta.env.VITE_EMAILJS_PUBLIC_KEY || '';
 
 let isInitialized = false;
@@ -111,7 +111,12 @@ export const sendResetPasswordEmail = async (data) => {
     
     // Menambahkan detail error lebih spesifik
     if (error.status === 400) {
-      errorMessage += ': Parameter tidak valid';
+      if (error.text && error.text.includes('template ID not found')) {
+        errorMessage = 'Template email tidak ditemukan. Silakan hubungi administrator untuk mengatur template email reset password.';
+        console.error('Template ID tidak ditemukan. Pastikan template sudah dibuat di dashboard EmailJS: https://dashboard.emailjs.com/admin/templates');
+      } else {
+        errorMessage += ': Parameter tidak valid';
+      }
     } else if (error.status === 401 || error.status === 403) {
       errorMessage += ': Masalah autentikasi dengan layanan email';
     } else if (error.status >= 500) {
@@ -146,9 +151,34 @@ export const createResetPasswordLink = (token) => {
   return `${baseUrl}/#/reset-password?code=${token}`;
 };
 
+/**
+ * Fungsi alternatif untuk reset password tanpa EmailJS
+ * Gunakan hanya untuk fallback jika EmailJS tidak berfungsi
+ * @param {Object} data - Data untuk reset password
+ * @returns {Object} - Hasil operasi
+ */
+export const alternativeResetNotification = (data) => {
+  console.warn('Menggunakan metode alternatif untuk notifikasi reset password');
+  
+  if (!data.email || !data.resetToken) {
+    return {
+      success: false,
+      message: 'Data tidak lengkap untuk reset password',
+    };
+  }
+  
+  // Dalam situasi nyata, ini bisa diganti dengan metode alternatif seperti SMS atau notifikasi di aplikasi
+  
+  return {
+    success: true,
+    message: 'Kode reset password telah dibuat. Gunakan kode berikut untuk reset password: ' + data.resetToken,
+  };
+};
+
 export default {
   initEmailJS,
   sendResetPasswordEmail,
   generateResetToken,
   createResetPasswordLink,
+  alternativeResetNotification,
 }; 

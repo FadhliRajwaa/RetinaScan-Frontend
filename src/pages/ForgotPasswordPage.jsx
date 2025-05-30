@@ -6,7 +6,7 @@ import { useTheme } from '../context/ThemeContext';
 import { withPageTransition } from '../context/ThemeContext';
 import { ParallaxBanner, Parallax } from 'react-scroll-parallax';
 import { AtSymbolIcon, KeyIcon, ArrowRightIcon, ExclamationCircleIcon, CheckCircleIcon } from '@heroicons/react/24/outline';
-import { initEmailJS, sendResetPasswordEmail, createResetPasswordLink } from '../utils/emailService';
+import { initEmailJS, sendResetPasswordEmail, createResetPasswordLink, alternativeResetNotification } from '../utils/emailService';
 
 function ForgotPasswordPage() {
   const [email, setEmail] = useState('');
@@ -18,6 +18,7 @@ function ForgotPasswordPage() {
   const [emailSent, setEmailSent] = useState(false);
   const [retryCount, setRetryCount] = useState(0);
   const [isRetrying, setIsRetrying] = useState(false);
+  const [showResetCode, setShowResetCode] = useState(false);
   const navigate = useNavigate();
   const { isDarkMode } = useTheme();
 
@@ -114,6 +115,23 @@ function ForgotPasswordPage() {
         return true;
       } else {
         console.error('Gagal mengirim email:', emailResult.error);
+        
+        // Jika pesan error menunjukkan template tidak ditemukan, gunakan alternatif
+        if (emailResult.error && emailResult.error.text && emailResult.error.text.includes('template ID not found')) {
+          // Gunakan metode alternatif
+          const altResult = alternativeResetNotification({
+            email: emailAddress,
+            resetToken: code
+          });
+          
+          if (altResult.success) {
+            setEmailSent(true);
+            setShowResetCode(true);
+            setMessage('Sistem email tidak tersedia. Gunakan kode reset berikut:');
+            return true;
+          }
+        }
+        
         return false;
       }
     } catch (err) {
@@ -133,6 +151,14 @@ function ForgotPasswordPage() {
     setIsRetrying(false);
     setRetryCount(prev => prev + 1);
     
+    // Jika masih gagal setelah percobaan terakhir, tampilkan kode
+    if (!success && retryCount === MAX_RETRY_ATTEMPTS - 1) {
+      setShowResetCode(true);
+      setMessage('Setelah beberapa percobaan, sistem email masih tidak tersedia. Gunakan kode reset berikut:');
+      setEmailSent(true);
+      return true;
+    }
+    
     return success;
   };
 
@@ -142,6 +168,7 @@ function ForgotPasswordPage() {
     setEmailSent(false);
     setError('');
     setRetryCount(0);
+    setShowResetCode(false);
     
     try {
       const response = await forgotPassword(email);
@@ -152,8 +179,19 @@ function ForgotPasswordPage() {
         const emailSuccess = await sendResetEmail(email, response.resetCode);
         
         if (!emailSuccess) {
-          // Jika gagal mengirim email, tampilkan pesan error
-          setError('Gagal mengirim email reset password. Silakan coba lagi nanti atau hubungi administrator.');
+          // Jika gagal mengirim email, coba gunakan metode alternatif
+          const altResult = alternativeResetNotification({
+            email: email,
+            resetToken: response.resetCode
+          });
+          
+          if (altResult.success) {
+            setEmailSent(true);
+            setShowResetCode(true);
+            setMessage('Sistem email tidak tersedia. Gunakan kode reset berikut:');
+          } else {
+            setError('Gagal mengirim email reset password. Silakan coba lagi nanti atau hubungi administrator.');
+          }
         }
       }
     } catch (err) {
@@ -278,26 +316,46 @@ function ForgotPasswordPage() {
                       {message}
                     </p>
                     
-                    <p className={`text-sm mt-1 ${
-                      isDarkMode ? 'text-green-300' : 'text-green-700'
-                    }`}>
-                      Silakan cek email Anda untuk instruksi reset password.
-                    </p>
-                    
-                    {resetCode && (
-                      <motion.button
-                        variants={buttonVariants}
-                        whileHover="hover"
-                        whileTap="tap"
-                        onClick={handleContinue}
-                        className={`mt-4 w-full py-2.5 px-4 rounded-lg flex items-center justify-center text-white font-medium ${
-                          isDarkMode ? 'bg-green-600 hover:bg-green-500' : 'bg-green-600 hover:bg-green-700'
-                        } transition-colors duration-200`}
-                      >
-                        <span>Lanjut ke Atur Ulang Kata Sandi</span>
-                        <ArrowRightIcon className="ml-2 h-4 w-4" />
-                      </motion.button>
+                    {!showResetCode && (
+                      <p className={`text-sm mt-1 ${
+                        isDarkMode ? 'text-green-300' : 'text-green-700'
+                      }`}>
+                        Silakan cek email Anda untuk instruksi reset password.
+                      </p>
                     )}
+                    
+                    {showResetCode && resetCode && (
+                      <div className="mt-2">
+                        <p className={`text-sm ${
+                          isDarkMode ? 'text-green-300' : 'text-green-700'
+                        }`}>
+                          Kode reset Anda:
+                        </p>
+                        <div className={`mt-1 p-2 rounded-md font-mono text-center ${
+                          isDarkMode ? 'bg-gray-700 text-green-400' : 'bg-green-50 text-green-800 border border-green-200'
+                        }`}>
+                          {resetCode}
+                        </div>
+                        <p className={`text-xs mt-2 ${
+                          isDarkMode ? 'text-green-400/70' : 'text-green-600/70'
+                        }`}>
+                          Simpan kode ini untuk digunakan pada halaman reset password.
+                        </p>
+                      </div>
+                    )}
+                    
+                    <motion.button
+                      variants={buttonVariants}
+                      whileHover="hover"
+                      whileTap="tap"
+                      onClick={handleContinue}
+                      className={`mt-4 w-full py-2.5 px-4 rounded-lg flex items-center justify-center text-white font-medium ${
+                        isDarkMode ? 'bg-green-600 hover:bg-green-500' : 'bg-green-600 hover:bg-green-700'
+                      } transition-colors duration-200`}
+                    >
+                      <span>Lanjut ke Atur Ulang Kata Sandi</span>
+                      <ArrowRightIcon className="ml-2 h-4 w-4" />
+                    </motion.button>
                   </div>
                 </div>
               </motion.div>
@@ -349,6 +407,33 @@ function ForgotPasswordPage() {
                       </>
                     )}
                   </motion.button>
+                )}
+                
+                {resetCode && retryCount >= MAX_RETRY_ATTEMPTS && (
+                  <div className="mt-4">
+                    <p className={`text-sm mb-2 ${
+                      isDarkMode ? 'text-red-300' : 'text-red-700'
+                    }`}>
+                      Jika Anda tidak dapat menerima email, gunakan kode berikut:
+                    </p>
+                    <div className={`mt-1 p-2 rounded-md font-mono text-center ${
+                      isDarkMode ? 'bg-gray-700 text-red-400' : 'bg-red-50 text-red-800 border border-red-200'
+                    }`}>
+                      {resetCode}
+                    </div>
+                    <motion.button
+                      variants={buttonVariants}
+                      whileHover="hover"
+                      whileTap="tap"
+                      onClick={handleContinue}
+                      className={`mt-4 w-full py-2.5 px-4 rounded-lg flex items-center justify-center text-white font-medium ${
+                        isDarkMode ? 'bg-red-600 hover:bg-red-500' : 'bg-red-600 hover:bg-red-700'
+                      } transition-colors duration-200`}
+                    >
+                      <span>Lanjut ke Atur Ulang Kata Sandi</span>
+                      <ArrowRightIcon className="ml-2 h-4 w-4" />
+                    </motion.button>
+                  </div>
                 )}
               </motion.div>
             )}
