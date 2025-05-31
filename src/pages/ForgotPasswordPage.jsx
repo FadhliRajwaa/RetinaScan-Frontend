@@ -142,7 +142,11 @@ function ForgotPasswordPage() {
   };
 
   return (
-    <div className="min-h-screen w-full relative overflow-hidden">
+    <div className={`min-h-screen flex items-center justify-center px-4 py-12 ${
+      isDarkMode 
+        ? 'bg-gradient-to-br from-gray-900 to-gray-800' 
+        : 'bg-gradient-to-br from-blue-50 to-indigo-100'
+    } relative overflow-hidden`}>
       {/* Vanta.js Background */}
       <VantaBackground
         className="forgot-password-vanta-background"
@@ -167,28 +171,6 @@ function ForgotPasswordPage() {
         backgroundAlpha={0.0}
       />
       
-      {/* Parallax background */}
-      <ParallaxBanner
-        layers={[
-          { 
-            image: isDarkMode 
-              ? 'https://images.unsplash.com/photo-1584017911766-d451b3d0e843?auto=format&fit=crop&q=80&w=2069&ixlib=rb-4.0.3' 
-              : 'https://images.unsplash.com/photo-1579547945413-497e1b99dac0?auto=format&fit=crop&q=80&w=2070&ixlib=rb-4.0.3',
-            speed: -20,
-            opacity: isDarkMode ? 0.3 : 0.7,
-            scale: [1, 1.15, 'easeOutCubic']
-          }
-        ]}
-        className="absolute inset-0"
-      >
-        {/* Overlay gradient */}
-        <div className={`absolute inset-0 ${
-          isDarkMode 
-            ? 'bg-gradient-to-br from-gray-900/90 via-indigo-900/30 to-gray-900/90'
-            : 'bg-gradient-to-br from-indigo-500/20 via-purple-500/20 to-white/80'
-        }`} />
-      </ParallaxBanner>
-
       {/* Decorative shapes */}
       <div className="absolute inset-0 overflow-hidden">
         <motion.div 
@@ -219,212 +201,210 @@ function ForgotPasswordPage() {
         />
       </div>
 
-      <div className="min-h-screen flex items-center justify-center px-4 py-12 relative z-10">
-        <div className="flex flex-col items-center justify-center my-auto h-auto">
-          <div className="w-full max-w-xl">
-            <motion.div
-              initial={{ opacity: 0, y: -20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.5 }}
-              className="text-center mb-6"
-            >
-              <Link to="/" className="inline-flex items-center justify-center">
-                <KeyIcon className={`h-8 w-8 ${isDarkMode ? 'text-indigo-400' : 'text-indigo-600'}`} />
-                <span className={`ml-2 text-2xl font-bold ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>
-                  RetinaScan
-                </span>
-              </Link>
-            </motion.div>
+      <div className="flex flex-col items-center justify-center relative z-10 my-auto h-auto">
+        <div className="w-full max-w-xl">
+          <motion.div
+            initial={{ opacity: 0, y: -20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.5 }}
+            className="text-center mb-6"
+          >
+            <Link to="/" className="inline-flex items-center justify-center">
+              <KeyIcon className={`h-8 w-8 ${isDarkMode ? 'text-indigo-400' : 'text-indigo-600'}`} />
+              <span className={`ml-2 text-2xl font-bold ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>
+                RetinaScan
+              </span>
+            </Link>
+          </motion.div>
 
-            <motion.div
-              variants={formVariants}
-              initial="hidden"
-              animate="visible"
-              className={`px-10 py-8 rounded-2xl shadow-2xl max-h-fit ${
-                isDarkMode 
-                  ? 'bg-gray-800/90 backdrop-blur-lg border border-gray-700' 
-                  : 'bg-white/90 backdrop-blur-lg border border-gray-100'
-              }`}
-            >
-              <AnimatePresence mode="wait">
-                {!isSuccess ? (
-                  <motion.div
-                    key="form"
-                    initial={{ opacity: 0 }}
-                    animate={{ opacity: 1 }}
-                    exit={{ opacity: 0, x: -30 }}
-                  >
-                    <motion.div className="text-center mb-8">
-                      <motion.h2 
-                        variants={itemVariants}
-                        className={`text-2xl font-bold mb-2 ${isDarkMode ? 'text-white' : 'text-gray-900'}`}
-                      >
-                        Pulihkan Kata Sandi
-                      </motion.h2>
-                      
-                      <motion.p
-                        variants={itemVariants}
-                        className={`${isDarkMode ? 'text-gray-300' : 'text-gray-600'}`}
-                      >
-                        Masukkan email Anda untuk mendapatkan kode verifikasi
-                      </motion.p>
-                    </motion.div>
-
-                    {error && (
-                      <motion.div
-                        initial={{ opacity: 0, y: -10 }}
-                        animate={{ opacity: 1, y: 0 }}
-                        className={`p-4 rounded-lg mb-6 ${
-                          isDarkMode 
-                            ? 'bg-red-900/30 border border-red-800/30' 
-                            : 'bg-red-50 border border-red-100'
-                        }`}
-                      >
-                        <div className="flex items-start">
-                          <ExclamationCircleIcon className={`h-5 w-5 mr-2 mt-0.5 flex-shrink-0 ${
-                            isDarkMode ? 'text-red-400' : 'text-red-500'
-                          }`} />
-                          <p className={`text-sm ${
-                            isDarkMode ? 'text-red-300' : 'text-red-800'
-                          }`}>
-                            {error}
-                          </p>
-                        </div>
-                      </motion.div>
-                    )}
-
-                    <motion.form onSubmit={handleSubmit} variants={itemVariants}>
-                      <div className="mb-6">
-                        <motion.label 
-                          htmlFor="email" 
-                          className={`block text-sm font-medium mb-2 ${
-                            isDarkMode ? 'text-gray-300' : 'text-gray-700'
-                          }`}
-                        >
-                          Email
-                        </motion.label>
-                        <div className="relative">
-                          <motion.div 
-                            className={`absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none ${
-                              isDarkMode ? 'text-gray-400' : 'text-gray-500'
-                            }`}
-                          >
-                            <AtSymbolIcon className="h-5 w-5" />
-                          </motion.div>
-                          <motion.input
-                            variants={inputVariants}
-                            animate={focusedInput === 'email' ? 'focus' : 'blur'}
-                            id="email"
-                            type="email"
-                            value={email}
-                            onChange={(e) => setEmail(e.target.value)}
-                            onFocus={() => setFocusedInput('email')}
-                            onBlur={() => setFocusedInput(null)}
-                            required
-                            placeholder="nama@email.com"
-                            className={`pl-10 w-full py-3 px-4 rounded-xl text-sm ${
-                              isDarkMode 
-                                ? 'bg-gray-700 text-white border-gray-600 placeholder-gray-400' 
-                                : 'bg-white text-gray-900 border-gray-300 placeholder-gray-400'
-                            } border focus:outline-none transition-all duration-200`}
-                          />
-                        </div>
-                      </div>
-
-                      <motion.button
-                        variants={buttonVariants}
-                        initial="initial"
-                        whileHover="hover"
-                        whileTap="tap"
-                        animate={isLoading ? 'loading' : 'initial'}
-                        type="submit"
-                        disabled={isLoading}
-                        className={`w-full py-3 px-4 rounded-xl font-medium text-white flex items-center justify-center ${
-                          isDarkMode 
-                            ? 'bg-indigo-600 hover:bg-indigo-500' 
-                            : 'bg-indigo-600 hover:bg-indigo-700'
-                        } transition-all duration-200 disabled:opacity-70`}
-                      >
-                        {isLoading ? (
-                          <>
-                            <svg className="animate-spin -ml-1 mr-2 h-4 w-4 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                              <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-                              <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                            </svg>
-                            Mengirim...
-                          </>
-                        ) : (
-                          <>
-                            Kirim Kode Verifikasi
-                            <ArrowRightIcon className="ml-2 h-4 w-4" />
-                          </>
-                        )}
-                      </motion.button>
-                    </motion.form>
-
-                    <motion.div 
-                      variants={itemVariants}
-                      className="mt-6 text-center"
-                    >
-                      <Link to="/login" className={`text-sm ${
-                        isDarkMode ? 'text-indigo-400 hover:text-indigo-300' : 'text-indigo-600 hover:text-indigo-700'
-                      } transition-colors duration-200`}>
-                        Kembali ke Masuk
-                      </Link>
-                    </motion.div>
-                  </motion.div>
-                ) : (
-                  <motion.div
-                    key="success"
-                    variants={successVariants}
-                    initial="hidden"
-                    animate="visible"
-                    exit={{ opacity: 0, scale: 0.8 }}
-                    className="text-center"
-                  >
-                    <motion.div 
-                      variants={iconVariants} 
-                      className="flex justify-center mb-6"
-                    >
-                      <div className={`rounded-full p-3 ${
-                        isDarkMode ? 'bg-green-900/30' : 'bg-green-100'
-                      }`}>
-                        <EnvelopeIcon className={`h-10 w-10 ${
-                          isDarkMode ? 'text-green-400' : 'text-green-600'
-                        }`} />
-                      </div>
-                    </motion.div>
-                    
+          <motion.div
+            variants={formVariants}
+            initial="hidden"
+            animate="visible"
+            className={`px-10 py-8 rounded-2xl shadow-2xl max-h-fit ${
+              isDarkMode 
+                ? 'bg-gray-800/90 backdrop-blur-lg border border-gray-700' 
+                : 'bg-white/90 backdrop-blur-lg border border-gray-100'
+            }`}
+          >
+            <AnimatePresence mode="wait">
+              {!isSuccess ? (
+                <motion.div
+                  key="form"
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  exit={{ opacity: 0, x: -30 }}
+                >
+                  <motion.div className="text-center mb-8">
                     <motion.h2 
                       variants={itemVariants}
-                      className={`text-2xl font-bold mb-3 ${
-                        isDarkMode ? 'text-white' : 'text-gray-900'
-                      }`}
+                      className={`text-2xl font-bold mb-2 ${isDarkMode ? 'text-white' : 'text-gray-900'}`}
                     >
-                      Cek Email Anda
+                      Pulihkan Kata Sandi
                     </motion.h2>
                     
-                    <motion.p 
+                    <motion.p
                       variants={itemVariants}
-                      className={`mb-6 ${
-                        isDarkMode ? 'text-gray-300' : 'text-gray-600'
+                      className={`${isDarkMode ? 'text-gray-300' : 'text-gray-600'}`}
+                    >
+                      Masukkan email Anda untuk mendapatkan kode verifikasi
+                    </motion.p>
+                  </motion.div>
+
+                  {error && (
+                    <motion.div
+                      initial={{ opacity: 0, y: -10 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      className={`p-4 rounded-lg mb-6 ${
+                        isDarkMode 
+                          ? 'bg-red-900/30 border border-red-800/30' 
+                          : 'bg-red-50 border border-red-100'
                       }`}
                     >
-                      Kami telah mengirim kode verifikasi ke alamat <span className="font-semibold">{email}</span>. Silakan cek kotak masuk dan folder spam email Anda untuk mendapatkan instruksi reset kata sandi.
-                    </motion.p>
-
-                    <motion.div variants={itemVariants} className="mt-4">
-                      <Link to="/login" className={`text-sm ${
-                        isDarkMode ? 'text-indigo-400 hover:text-indigo-300' : 'text-indigo-600 hover:text-indigo-700'
-                      } transition-colors duration-200`}>
-                        Kembali ke Masuk
-                      </Link>
+                      <div className="flex items-start">
+                        <ExclamationCircleIcon className={`h-5 w-5 mr-2 mt-0.5 flex-shrink-0 ${
+                          isDarkMode ? 'text-red-400' : 'text-red-500'
+                        }`} />
+                        <p className={`text-sm ${
+                          isDarkMode ? 'text-red-300' : 'text-red-800'
+                        }`}>
+                          {error}
+                        </p>
+                      </div>
                     </motion.div>
+                  )}
+
+                  <motion.form onSubmit={handleSubmit} variants={itemVariants}>
+                    <div className="mb-6">
+                      <motion.label 
+                        htmlFor="email" 
+                        className={`block text-sm font-medium mb-2 ${
+                          isDarkMode ? 'text-gray-300' : 'text-gray-700'
+                        }`}
+                      >
+                        Email
+                      </motion.label>
+                      <div className="relative">
+                        <motion.div 
+                          className={`absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none ${
+                            isDarkMode ? 'text-gray-400' : 'text-gray-500'
+                          }`}
+                        >
+                          <AtSymbolIcon className="h-5 w-5" />
+                        </motion.div>
+                        <motion.input
+                          variants={inputVariants}
+                          animate={focusedInput === 'email' ? 'focus' : 'blur'}
+                          id="email"
+                          type="email"
+                          value={email}
+                          onChange={(e) => setEmail(e.target.value)}
+                          onFocus={() => setFocusedInput('email')}
+                          onBlur={() => setFocusedInput(null)}
+                          required
+                          placeholder="nama@email.com"
+                          className={`pl-10 w-full py-3 px-4 rounded-xl text-sm ${
+                            isDarkMode 
+                              ? 'bg-gray-700 text-white border-gray-600 placeholder-gray-400' 
+                              : 'bg-white text-gray-900 border-gray-300 placeholder-gray-400'
+                          } border focus:outline-none transition-all duration-200`}
+                        />
+                      </div>
+                    </div>
+
+                    <motion.button
+                      variants={buttonVariants}
+                      initial="initial"
+                      whileHover="hover"
+                      whileTap="tap"
+                      animate={isLoading ? 'loading' : 'initial'}
+                      type="submit"
+                      disabled={isLoading}
+                      className={`w-full py-3 px-4 rounded-xl font-medium text-white flex items-center justify-center ${
+                        isDarkMode 
+                          ? 'bg-indigo-600 hover:bg-indigo-500' 
+                          : 'bg-indigo-600 hover:bg-indigo-700'
+                      } transition-all duration-200 disabled:opacity-70`}
+                    >
+                      {isLoading ? (
+                        <>
+                          <svg className="animate-spin -ml-1 mr-2 h-4 w-4 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                            <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                            <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                          </svg>
+                          Mengirim...
+                        </>
+                      ) : (
+                        <>
+                          Kirim Kode Verifikasi
+                          <ArrowRightIcon className="ml-2 h-4 w-4" />
+                        </>
+                      )}
+                    </motion.button>
+                  </motion.form>
+
+                  <motion.div 
+                    variants={itemVariants}
+                    className="mt-6 text-center"
+                  >
+                    <Link to="/login" className={`text-sm ${
+                      isDarkMode ? 'text-indigo-400 hover:text-indigo-300' : 'text-indigo-600 hover:text-indigo-700'
+                    } transition-colors duration-200`}>
+                      Kembali ke Masuk
+                    </Link>
                   </motion.div>
-                )}
-              </AnimatePresence>
-            </motion.div>
-          </div>
+                </motion.div>
+              ) : (
+                <motion.div
+                  key="success"
+                  variants={successVariants}
+                  initial="hidden"
+                  animate="visible"
+                  exit={{ opacity: 0, scale: 0.8 }}
+                  className="text-center"
+                >
+                  <motion.div 
+                    variants={iconVariants} 
+                    className="flex justify-center mb-6"
+                  >
+                    <div className={`rounded-full p-3 ${
+                      isDarkMode ? 'bg-green-900/30' : 'bg-green-100'
+                    }`}>
+                      <EnvelopeIcon className={`h-10 w-10 ${
+                        isDarkMode ? 'text-green-400' : 'text-green-600'
+                      }`} />
+                    </div>
+                  </motion.div>
+                  
+                  <motion.h2 
+                    variants={itemVariants}
+                    className={`text-2xl font-bold mb-3 ${
+                      isDarkMode ? 'text-white' : 'text-gray-900'
+                    }`}
+                  >
+                    Cek Email Anda
+                  </motion.h2>
+                  
+                  <motion.p 
+                    variants={itemVariants}
+                    className={`mb-6 ${
+                      isDarkMode ? 'text-gray-300' : 'text-gray-600'
+                    }`}
+                  >
+                    Kami telah mengirim kode verifikasi ke alamat <span className="font-semibold">{email}</span>. Silakan cek kotak masuk dan folder spam email Anda untuk mendapatkan instruksi reset kata sandi.
+                  </motion.p>
+
+                  <motion.div variants={itemVariants} className="mt-4">
+                    <Link to="/login" className={`text-sm ${
+                      isDarkMode ? 'text-indigo-400 hover:text-indigo-300' : 'text-indigo-600 hover:text-indigo-700'
+                    } transition-colors duration-200`}>
+                      Kembali ke Masuk
+                    </Link>
+                  </motion.div>
+                </motion.div>
+              )}
+            </AnimatePresence>
+          </motion.div>
         </div>
       </div>
     </div>
