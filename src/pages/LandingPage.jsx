@@ -65,6 +65,19 @@ function LandingPage() {
   const testimonialsRef = useRef(null);
   const ctaRef = useRef(null);
   
+  // Smooth scroll function
+  const scrollToSection = (elementRef) => {
+    if (elementRef && elementRef.current) {
+      const yOffset = -80; // Offset for fixed header if present
+      const y = elementRef.current.getBoundingClientRect().top + window.pageYOffset + yOffset;
+      
+      window.scrollTo({
+        top: y,
+        behavior: 'smooth'
+      });
+    }
+  };
+  
   const { scrollYProgress } = useScroll();
   const heroY = useTransform(scrollYProgress, [0, 0.5], [0, -150]);
   const heroScale = useTransform(scrollYProgress, [0, 0.5], [1, 1.1]);
@@ -760,10 +773,23 @@ function LandingPage() {
             <motion.div
               animate={{ y: [0, 10, 0] }}
               transition={{ duration: 1.5, repeat: Infinity, repeatType: "reverse" }}
-              className="flex flex-col items-center"
+              className="flex flex-col items-center cursor-pointer hover:scale-110 transition-transform duration-300"
+              onClick={() => scrollToSection(featuresRef)}
+              whileHover={{ scale: 1.1 }}
+              whileTap={{ scale: 0.95 }}
+              aria-label="Scroll to Features Section"
+              role="button"
+              tabIndex={0}
+              onKeyDown={(e) => {
+                if (e.key === 'Enter' || e.key === ' ') {
+                  scrollToSection(featuresRef);
+                }
+              }}
             >
               <span className={`hidden sm:inline text-xs sm:text-sm mb-2 ${isDarkMode ? 'text-gray-400' : 'text-gray-600'}`}>Scroll Down</span>
-              <ArrowDownIcon className={`h-4 w-4 sm:h-5 sm:w-5 ${isDarkMode ? 'text-gray-400' : 'text-gray-600'}`} />
+              <div className={`p-2 rounded-full ${isDarkMode ? 'hover:bg-gray-800' : 'hover:bg-gray-100'} transition-colors duration-300`}>
+                <ArrowDownIcon className={`h-6 w-6 sm:h-7 sm:w-7 ${isDarkMode ? 'text-gray-400' : 'text-gray-600'}`} />
+              </div>
             </motion.div>
           </motion.div>
         </div>
