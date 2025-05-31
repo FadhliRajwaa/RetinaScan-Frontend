@@ -1,7 +1,5 @@
 import { useEffect, useRef, useState } from 'react';
 import { useTheme } from '../../context/ThemeContext';
-import THREE from './preloadThree';
-import { initVantaBirds } from './initVanta';
 
 const VantaBirdsBackground = ({ children, className }) => {
   const [vantaEffect, setVantaEffect] = useState(null);
@@ -74,49 +72,49 @@ const VantaBirdsBackground = ({ children, className }) => {
     // Prevent multiple initializations
     if (vantaEffect) return;
     
-    // Initialize Vanta effect
-    const setupVantaEffect = async () => {
-      try {
-        // Configure options based on device capabilities and theme
-        const options = {
-          el: vantaRef.current,
-          mouseControls: !shouldSimplify,
-          touchControls: !shouldSimplify,
-          gyroControls: false,
-          minHeight: 200.00,
-          minWidth: 200.00,
-          scale: shouldSimplify ? 0.5 : 1.00,
-          scaleMobile: 0.5,
-          backgroundColor: isDarkMode ? 0x0f172a : 0xf8fafc, // dark: slate-900, light: slate-50
-          color1: isDarkMode ? 0x60a5fa : 0x3b82f6, // dark: blue-400, light: blue-500
-          color2: isDarkMode ? 0x3b82f6 : 0x2563eb, // dark: blue-500, light: blue-600
-          colorMode: "variance",
-          birdSize: shouldSimplify ? 1.0 : 1.2,
-          wingSpan: shouldSimplify ? 15.0 : 30.0,
-          speedLimit: shouldSimplify ? 3.0 : 5.0,
-          separation: shouldSimplify ? 40.0 : 50.0,
-          alignment: 50.0,
-          cohesion: 50.0,
-          quantity: shouldSimplify ? 1.0 : 3.0,
-          backgroundAlpha: 0.0, // Transparent background
-          fps: shouldSimplify ? 30 : 60
-        };
-        
-        // Initialize effect using our helper
-        const effect = await initVantaBirds(vantaRef.current, options);
-        
-        if (effect) {
-          setVantaEffect(effect);
-        } else {
-          setError(true);
-        }
-      } catch (err) {
-        console.error('Failed to load Vanta.js:', err);
-        setError(true);
-      }
-    };
+    // Check if VANTA is available globally
+    if (typeof window.VANTA === 'undefined') {
+      console.error('VANTA is not defined. Make sure the script is loaded correctly.');
+      setError(true);
+      return;
+    }
     
-    setupVantaEffect();
+    try {
+      // Configure options based on device capabilities and theme
+      const options = {
+        el: vantaRef.current,
+        mouseControls: !shouldSimplify,
+        touchControls: !shouldSimplify,
+        gyroControls: false,
+        minHeight: 200.00,
+        minWidth: 200.00,
+        scale: shouldSimplify ? 0.5 : 1.00,
+        scaleMobile: 0.5,
+        backgroundColor: isDarkMode ? 0x0f172a : 0xf8fafc, // dark: slate-900, light: slate-50
+        color1: isDarkMode ? 0x60a5fa : 0x3b82f6, // dark: blue-400, light: blue-500
+        color2: isDarkMode ? 0x3b82f6 : 0x2563eb, // dark: blue-500, light: blue-600
+        colorMode: "variance",
+        birdSize: shouldSimplify ? 1.0 : 1.2,
+        wingSpan: shouldSimplify ? 15.0 : 30.0,
+        speedLimit: shouldSimplify ? 3.0 : 5.0,
+        separation: shouldSimplify ? 40.0 : 50.0,
+        alignment: 50.0,
+        cohesion: 50.0,
+        quantity: shouldSimplify ? 1.0 : 3.0,
+        backgroundAlpha: 0.0, // Transparent background
+        fps: shouldSimplify ? 30 : 60
+      };
+      
+      // Initialize effect using global VANTA
+      const effect = window.VANTA.BIRDS(options);
+      
+      if (effect) {
+        setVantaEffect(effect);
+      }
+    } catch (err) {
+      console.error('Failed to initialize Vanta effect:', err);
+      setError(true);
+    }
     
     // Cleanup
     return () => {
