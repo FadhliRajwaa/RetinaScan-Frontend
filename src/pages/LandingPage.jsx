@@ -2,16 +2,6 @@ import { Link } from 'react-router-dom';
 import { motion, useScroll, useTransform, AnimatePresence } from 'framer-motion';
 import { useTheme } from '../context/ThemeContext';
 import { useRef, useEffect, useState } from 'react';
-// Import dari Three.js dan Vanta dengan cara yang lebih aman
-import * as THREE from 'three';
-// Impor Vanta Birds dengan menangani kemungkinan error
-let BIRDS;
-try {
-  BIRDS = require('vanta/dist/vanta.birds.min').default;
-} catch (error) {
-  console.error('Error importing Vanta Birds:', error);
-  BIRDS = null;
-}
 import { 
   ArrowRightIcon, 
   ShieldCheckIcon, 
@@ -39,235 +29,9 @@ function LandingPage() {
     cta: false
   });
   const [scrollY, setScrollY] = useState(0);
-  const [mouseX, setMouseX] = useState(0);
-  const [mouseY, setMouseY] = useState(0);
-  const vantaRef = useRef(null);
-  const [vantaEffect, setVantaEffect] = useState(null);
   
   // Environment variables
   const DASHBOARD_URL = import.meta.env.VITE_DASHBOARD_URL || 'http://localhost:3000';
-  
-  // Deteksi performa perangkat
-  const [devicePerformance, setDevicePerformance] = useState({
-    isMobile: false,
-    isLowPower: false,
-    isLowPerformance: false
-  });
-  
-  // Deteksi performa perangkat untuk optimasi Vanta
-  useEffect(() => {
-    // Deteksi mobile
-    const checkMobile = () => {
-      return window.innerWidth < 768 || 
-        /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
-    };
-    
-    // Deteksi CPU dan memori
-    const checkPerformance = () => {
-      const lowPerformance = window.navigator.hardwareConcurrency 
-        ? window.navigator.hardwareConcurrency <= 4
-        : true;
-      
-      // Cek memori jika tersedia
-      let lowMemory = true;
-      if (navigator.deviceMemory) {
-        lowMemory = navigator.deviceMemory < 4; // 4GB threshold
-      }
-      
-      return lowPerformance || lowMemory;
-    };
-    
-    // Cek baterai jika API tersedia
-    const checkBattery = async () => {
-      if ('getBattery' in navigator) {
-        try {
-          const battery = await navigator.getBattery();
-          // Jika baterai di bawah 20% atau tidak di-charge, anggap low power
-          return battery.level < 0.2 && !battery.charging;
-        } catch (e) {
-          console.log('Battery status check failed:', e);
-          return false;
-        }
-      }
-      return false;
-    };
-    
-    const updatePerformanceStatus = async () => {
-      const isMobile = checkMobile();
-      const isLowPerformance = checkPerformance();
-      const isLowPower = await checkBattery();
-      
-      setDevicePerformance({
-        isMobile,
-        isLowPower,
-        isLowPerformance
-      });
-    };
-    
-    updatePerformanceStatus();
-    
-    // Update pada resize
-    window.addEventListener('resize', () => {
-      setDevicePerformance(prev => ({
-        ...prev,
-        isMobile: checkMobile()
-      }));
-    });
-    
-    // Jika baterai API tersedia, tambahkan listener
-    if ('getBattery' in navigator) {
-      navigator.getBattery().then(battery => {
-        const batteryHandler = async () => {
-          const isLowPower = battery.level < 0.2 && !battery.charging;
-          setDevicePerformance(prev => ({
-            ...prev,
-            isLowPower
-          }));
-        };
-        
-        battery.addEventListener('levelchange', batteryHandler);
-        battery.addEventListener('chargingchange', batteryHandler);
-        
-        return () => {
-          battery.removeEventListener('levelchange', batteryHandler);
-          battery.removeEventListener('chargingchange', batteryHandler);
-        };
-      }).catch(e => {
-        console.log('Battery API error:', e);
-      });
-    }
-  }, []);
-  
-  // Deteksi visibilitas hero section untuk memulai/berhenti Vanta
-  useEffect(() => {
-    if (!heroRef.current) return;
-    
-    // Periksa apakah Vanta tersedia
-    if (!BIRDS) {
-      console.error('Vanta Birds tidak tersedia, animasi tidak akan dijalankan');
-      return;
-    }
-    
-    // Fungsi untuk membuat atau memperbarui Vanta effect
-    const createOrUpdateVantaEffect = () => {
-      try {
-        // Gunakan devicePerformance yang sudah disiapkan sebelumnya
-        const { isMobile, isLowPerformance, isLowPower } = devicePerformance;
-        const performanceLevel = isMobile 
-          ? (isLowPerformance || isLowPower ? 0 : 1) 
-          : (isLowPerformance ? 1 : 2);
-        
-        const config = {
-          el: vantaRef.current,
-          THREE: THREE,
-          mouseControls: performanceLevel > 0,
-          touchControls: performanceLevel > 0,
-          gyroControls: false,
-          minHeight: 200.00,
-          minWidth: 200.00,
-          scale: isMobile ? 0.75 : 1.00,
-          scaleMobile: 0.75,
-          backgroundColor: isDarkMode ? 0x0a0a0a : 0xffffff,
-          color1: isDarkMode ? 0x3b82f6 : 0x3b82f6,
-          color2: isDarkMode ? 0x8b5cf6 : 0x8b5cf6,
-          colorMode: "variance",
-          birdSize: 1.00,
-          wingSpan: 30.00,
-          speedLimit: performanceLevel === 0 ? 3.00 : (performanceLevel === 1 ? 4.00 : 5.00),
-          separation: 35.00,
-          alignment: 35.00,
-          cohesion: 35.00,
-          quantity: performanceLevel === 0 ? 1 : (performanceLevel === 1 ? 2 : 3),
-          backgroundAlpha: 0.0,
-        };
-        
-        if (vantaEffect) {
-          // Update konfigurasi jika effect sudah ada
-          vantaEffect.setOptions(config);
-        } else if (vantaRef.current) {
-          // Buat effect baru jika belum ada dan THREE tersedia
-          if (typeof THREE === 'undefined' || typeof BIRDS === 'undefined') {
-            console.error('THREE atau BIRDS tidak tersedia');
-            return;
-          }
-          const effect = BIRDS(config);
-          setVantaEffect(effect);
-        }
-      } catch (error) {
-        console.error('Error saat membuat Vanta effect:', error);
-      }
-    };
-    
-    // Buat observer untuk mendeteksi visibilitas hero section
-    const observer = new IntersectionObserver(
-      (entries) => {
-        entries.forEach(entry => {
-          // Hanya jalankan Vanta ketika hero section terlihat
-          if (entry.isIntersecting) {
-            // Jika Vanta belum dibuat, buat instance baru
-            if (!vantaEffect && vantaRef.current) {
-              createOrUpdateVantaEffect();
-            }
-          } else {
-            // Destroy Vanta ketika hero section tidak terlihat lagi
-            // untuk menghemat performa
-            if (vantaEffect) {
-              try {
-                vantaEffect.destroy();
-              } catch (error) {
-                console.error('Error saat menghancurkan Vanta effect:', error);
-              }
-              setVantaEffect(null);
-            }
-          }
-        });
-      },
-      { threshold: 0.1 } // 10% visibilitas sudah cukup untuk memulai/berhenti
-    );
-    
-    // Tambahkan event listener untuk resize
-    const handleResize = () => {
-      // Perbarui Vanta effect jika sudah ada dan hero section terlihat
-      if (vantaEffect && heroRef.current) {
-        try {
-          const entry = observer.takeRecords().find(e => e.target === heroRef.current);
-          if (entry && entry.isIntersecting) {
-            createOrUpdateVantaEffect();
-          }
-        } catch (error) {
-          console.error('Error saat resize Vanta effect:', error);
-        }
-      }
-    };
-    
-    observer.observe(heroRef.current);
-    window.addEventListener('resize', handleResize);
-    
-    return () => {
-      if (heroRef.current) {
-        observer.unobserve(heroRef.current);
-      }
-      if (vantaEffect) {
-        try {
-          vantaEffect.destroy();
-        } catch (error) {
-          console.error('Error saat cleanup Vanta effect:', error);
-        }
-      }
-      window.removeEventListener('resize', handleResize);
-    };
-  }, [heroRef, vantaRef, vantaEffect, isDarkMode, devicePerformance, BIRDS]);
-  
-  // Update vantaEffect warna ketika tema berubah
-  useEffect(() => {
-    if (vantaEffect) {
-      vantaEffect.setOptions({
-        backgroundColor: isDarkMode ? 0x0a0a0a : 0xffffff,
-        color1: isDarkMode ? 0x3b82f6 : 0x3b82f6,
-        color2: isDarkMode ? 0x8b5cf6 : 0x8b5cf6,
-      });
-    }
-  }, [isDarkMode, vantaEffect]);
   
   // Check authentication status
   useEffect(() => {
@@ -322,8 +86,8 @@ function LandingPage() {
       // Use requestAnimationFrame for better performance
       requestAnimationFrame(() => {
         // Reduce mouse movement multiplier by 70-80% for smoother effect
-        setMouseX((e.clientX / window.innerWidth - 0.5) * 0.3);
-        setMouseY((e.clientY / window.innerHeight - 0.5) * 0.3);
+        setX((e.clientX / window.innerWidth - 0.5) * 0.3);
+        setY((e.clientY / window.innerHeight - 0.5) * 0.3);
       });
     };
     
@@ -522,17 +286,9 @@ function LandingPage() {
     <div className={`${isDarkMode ? 'bg-gray-900 text-white' : 'bg-white text-gray-900'} transition-colors duration-300`}>
       {/* Hero Section - Enhanced Modern Design */}
       <section className="relative min-h-[100svh] flex items-center justify-center overflow-hidden" ref={heroRef}>
-        {/* Vanta Birds animation */}
-        <div ref={vantaRef} className="vanta-bg absolute inset-0 z-0 overflow-hidden"></div>
-        
-        {/* Overlay gradient untuk meningkatkan readability dan aesthetic */}
-        <div 
-          className={`vanta-overlay absolute inset-0 z-[1] ${isDarkMode ? 'dark' : ''}`}
-        ></div>
-
         {/* Enhanced animated gradient background */}
         <motion.div 
-          className="absolute inset-0 z-[2] overflow-hidden"
+          className="absolute inset-0 z-0 overflow-hidden"
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           transition={{ duration: 1.5 }}
@@ -595,7 +351,7 @@ function LandingPage() {
         </motion.div>
 
         {/* Hero Content - Enhanced Responsive Design */}
-        <div className="container mx-auto px-4 sm:px-6 lg:px-8 relative z-20 flex flex-col items-center">
+        <div className="container mx-auto px-4 sm:px-6 lg:px-8 relative z-10 flex flex-col items-center">
           {/* Enhanced Animated Blob Background */}
           <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 -z-10">
             <motion.div 

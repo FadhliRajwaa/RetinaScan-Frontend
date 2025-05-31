@@ -471,37 +471,3 @@ body {
     transform: scale(1.05) translate(0, -5%);
   }
 }
-
-/* Vanta Animation Styles */
-.vanta-bg {
-  position: absolute;
-  width: 100%;
-  height: 100%;
-  top: 0;
-  left: 0;
-  z-index: 0;
-  overflow: hidden;
-  will-change: transform, opacity;
-  transform-style: preserve-3d;
-  backface-visibility: hidden;
-}
-
-.vanta-overlay {
-  position: absolute;
-  width: 100%;
-  height: 100%;
-  top: 0;
-  left: 0;
-  z-index: 1;
-  background: linear-gradient(to bottom, 
-    rgba(255,255,255,0.2) 0%, 
-    rgba(255,255,255,0.6) 100%
-  );
-}
-
-.dark .vanta-overlay {
-  background: linear-gradient(to bottom, 
-    rgba(0,0,0,0.2) 0%, 
-    rgba(0,0,0,0.6) 100%
-  );
-}
