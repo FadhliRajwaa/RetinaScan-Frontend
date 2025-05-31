@@ -239,11 +239,20 @@
   height: 100% !important;
   top: 0;
   left: 0;
+  right: 0;
+  bottom: 0;
   z-index: 0;
+  pointer-events: none !important;
+  overflow: hidden;
 }
 
-.hero-vanta-background canvas {
+.hero-vanta-background canvas,
+.login-vanta-background canvas,
+.register-vanta-background canvas,
+.forgot-password-vanta-background canvas,
+.reset-password-vanta-background canvas {
   width: 100% !important;
   height: 100% !important;
   display: block !important;
+  position: absolute !important;
 }

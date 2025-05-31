@@ -177,11 +177,11 @@ function RegisterPage() {
           colorMode="variance"
           birdSize={1.5}
           wingSpan={30.0}
-          speedLimit={3.0}
-          separation={90.0}
-          alignment={22.0}
-          cohesion={22.0}
-          quantity={3.5}
+          speedLimit={5.0}
+          separation={100.0}
+          alignment={20.0}
+          cohesion={20.0}
+          quantity={4.0}
           backgroundAlpha={0.0}
         />
         
@@ -271,11 +271,11 @@ function RegisterPage() {
         colorMode="variance"
         birdSize={1.5}
         wingSpan={30.0}
-        speedLimit={3.0}
-        separation={90.0}
-        alignment={22.0}
-        cohesion={22.0}
-        quantity={3.5}
+        speedLimit={5.0}
+        separation={100.0}
+        alignment={20.0}
+        cohesion={20.0}
+        quantity={4.0}
         backgroundAlpha={0.0}
       />
       
@@ -320,7 +320,7 @@ function RegisterPage() {
             variants={formVariants}
             initial="hidden"
             animate="visible"
-            className={`w-full mx-auto max-w-sm sm:max-w-md md:max-w-lg px-6 sm:px-8 py-8 rounded-2xl shadow-2xl ${
+            className={`w-full mx-auto max-w-sm sm:max-w-md md:max-w-xl lg:max-w-2xl px-6 sm:px-8 py-8 rounded-2xl shadow-2xl ${
               isDarkMode 
                 ? 'bg-gray-800/90 backdrop-blur-lg border border-gray-700' 
                 : 'bg-white/90 backdrop-blur-lg border border-gray-100'
