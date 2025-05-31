@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useRef, useState, useCallback } from 'react';
 import PropTypes from 'prop-types';
 
 const VantaBackground = ({ 
@@ -29,9 +29,17 @@ const VantaBackground = ({
   const [isMobile, setIsMobile] = useState(false);
   const [isScriptLoaded, setIsScriptLoaded] = useState(false);
   const [retryCount, setRetryCount] = useState(0);
-  const [devicePerformance, setDevicePerformance] = useState('high'); // 'low', 'medium', 'high'
+  const [devicePerformance, setDevicePerformance] = useState('high'); // 'very-low', 'low', 'medium', 'high'
+  const [isTabActive, setIsTabActive] = useState(true);
+  const [isInViewport, setIsInViewport] = useState(false);
+  const [mousePosition, setMousePosition] = useState({ x: 0, y: 0 });
+  const mousePositionRef = useRef({ x: 0, y: 0 });
+  const frameCounterRef = useRef(0);
+  const fpsMonitorRef = useRef(null);
+  const lastFpsUpdateRef = useRef(Date.now());
+  const actualFpsRef = useRef(60);
 
-  // Detect device performance
+  // Advanced performance detection
   useEffect(() => {
     const checkPerformance = () => {
       // Check if device is mobile first
@@ -41,26 +49,93 @@ const VantaBackground = ({
       );
       setIsMobile(mobile);
       
-      // Simple performance detection based on device memory and processor cores
+      // Advanced performance detection
       if (typeof window !== 'undefined') {
         // Check device memory if available
         const memory = navigator.deviceMemory || 4; // Default to 4GB if not available
         const cores = navigator.hardwareConcurrency || 4; // Default to 4 cores if not available
         
-        // Check if it's a low-end device
-        if (mobile && (memory <= 2 || cores <= 4)) {
+        // Try to detect low-end devices using various signals
+        const isLowEndDevice = () => {
+          // Check if it's a very old mobile device
+          const isOldMobile = mobile && userAgent.match(/Android 4|Android 5|iPhone OS [789]_/i);
+          
+          // Check if it's a low-memory device
+          const isLowMemory = memory <= 2;
+          
+          // Check if it's a low-core device
+          const isLowCore = cores <= 2;
+          
+          // Check if the device has a slow connection
+          const isSlowConnection = navigator.connection && 
+            (navigator.connection.saveData || 
+             navigator.connection.effectiveType === 'slow-2g' || 
+             navigator.connection.effectiveType === '2g');
+          
+          // Check if the browser is reporting a low-end experience
+          const hasLowEndExperience = window.matchMedia && 
+            window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+          
+          // Return true if multiple signals indicate a low-end device
+          return (isOldMobile && (isLowMemory || isLowCore)) || 
+                 (isLowMemory && isLowCore) || 
+                 (isSlowConnection && (isLowMemory || isLowCore)) ||
+                 hasLowEndExperience;
+        };
+
+        // Determine performance category
+        if (isLowEndDevice()) {
+          setDevicePerformance('very-low');
+        } else if (mobile && (memory <= 2 || cores <= 4)) {
           setDevicePerformance('low');
-        } 
-        // Check if it's a mid-range device
-        else if ((mobile && (memory <= 4 || cores <= 6)) || 
-                (!mobile && (memory <= 4 || cores <= 4))) {
+        } else if ((mobile && (memory <= 4 || cores <= 6)) || 
+                  (!mobile && (memory <= 4 || cores <= 4))) {
           setDevicePerformance('medium');
-        } 
-        // Otherwise it's a high-end device
-        else {
+        } else {
           setDevicePerformance('high');
         }
+        
+        // Start FPS monitoring for dynamic adjustments
+        startFpsMonitoring();
       }
+    };
+    
+    // FPS monitoring for dynamic performance adjustment
+    const startFpsMonitoring = () => {
+      if (fpsMonitorRef.current) return;
+      
+      let lastTime = performance.now();
+      let frames = 0;
+      
+      const checkFps = () => {
+        const now = performance.now();
+        frames++;
+        
+        // Update FPS every second
+        if (now - lastFpsUpdateRef.current >= 1000) {
+          const currentFps = Math.round((frames * 1000) / (now - lastFpsUpdateRef.current));
+          actualFpsRef.current = currentFps;
+          
+          // Dynamic performance adjustment based on actual FPS
+          if (currentFps < 30 && devicePerformance !== 'very-low') {
+            console.log(`FPS too low (${currentFps}), downgrading performance settings`);
+            setDevicePerformance(prev => {
+              if (prev === 'high') return 'medium';
+              if (prev === 'medium') return 'low';
+              if (prev === 'low') return 'very-low';
+              return prev;
+            });
+          }
+          
+          lastFpsUpdateRef.current = now;
+          frames = 0;
+        }
+        
+        lastTime = now;
+        fpsMonitorRef.current = requestAnimationFrame(checkFps);
+      };
+      
+      fpsMonitorRef.current = requestAnimationFrame(checkFps);
     };
     
     checkPerformance();
@@ -82,8 +157,14 @@ const VantaBackground = ({
       if (window.resizeThrottleTimeout) {
         clearTimeout(window.resizeThrottleTimeout);
       }
+      
+      // Clean up FPS monitoring
+      if (fpsMonitorRef.current) {
+        cancelAnimationFrame(fpsMonitorRef.current);
+        fpsMonitorRef.current = null;
+      }
     };
-  }, []);
+  }, [devicePerformance]);
 
   // Check if scripts are loaded
   useEffect(() => {
@@ -146,6 +227,38 @@ const VantaBackground = ({
     }
   }, [isScriptLoaded, retryCount]);
 
+  // Intersection Observer to check if component is in viewport
+  useEffect(() => {
+    if (!vantaRef.current) return;
+    
+    const observer = new IntersectionObserver(
+      (entries) => {
+        const entry = entries[0];
+        setIsInViewport(entry.isIntersecting);
+        
+        // Pause/resume animation based on visibility
+        if (vantaEffect && vantaEffect.setOptions) {
+          if (!entry.isIntersecting) {
+            vantaEffect.setOptions({ fps: 0 }); // Pause when not in viewport
+          } else if (isTabActive) {
+            // Resume only if tab is active
+            const fps = devicePerformance === 'very-low' ? 20 : 
+                       devicePerformance === 'low' ? 30 : 
+                       devicePerformance === 'medium' ? 45 : 60;
+            vantaEffect.setOptions({ fps });
+          }
+        }
+      },
+      { threshold: 0.1 } // Trigger when at least 10% is visible
+    );
+    
+    observer.observe(vantaRef.current);
+    
+    return () => {
+      observer.disconnect();
+    };
+  }, [vantaEffect, isTabActive, devicePerformance]);
+
   // Initialize Vanta effect
   useEffect(() => {
     // Only proceed if scripts are loaded
@@ -171,88 +284,144 @@ const VantaBackground = ({
       return;
     }
 
-    try {
-      console.log('Initializing Vanta effect');
-      
-      // Adjust parameters based on device performance
-      let performanceSettings = {
-        actualBirdSize: birdSize,
-        actualQuantity: quantity,
-        actualSpeedLimit: speedLimit,
-        actualFps: 60,
-        actualWingSpan: wingSpan
-      };
-      
-      // Apply performance-based settings
-      if (devicePerformance === 'low') {
-        performanceSettings = {
-          actualBirdSize: birdSize * 1.3, // Bigger birds = fewer birds needed
-          actualQuantity: Math.max(1, quantity * 0.5), // Significantly reduce bird count
-          actualSpeedLimit: speedLimit * 0.6, // Slower movement
-          actualFps: 30, // Lower FPS
-          actualWingSpan: wingSpan * 0.9 // Slightly smaller wingspan
-        };
-      } else if (devicePerformance === 'medium') {
-        performanceSettings = {
-          actualBirdSize: birdSize * 1.1,
-          actualQuantity: Math.max(1, quantity * 0.7),
-          actualSpeedLimit: speedLimit * 0.75,
-          actualFps: 45,
-          actualWingSpan: wingSpan * 0.95
-        };
-      } else {
-        // High performance devices get full settings
-        performanceSettings = {
+    // Use requestIdleCallback to initialize when browser is idle
+    const initializeVanta = () => {
+      try {
+        console.log('Initializing Vanta effect');
+        
+        // Adjust parameters based on device performance
+        let performanceSettings = {
           actualBirdSize: birdSize,
           actualQuantity: quantity,
           actualSpeedLimit: speedLimit,
           actualFps: 60,
-          actualWingSpan: wingSpan
+          actualWingSpan: wingSpan,
+          actualSeparation: separation,
+          actualAlignment: alignment,
+          actualCohesion: cohesion
         };
-      }
-      
-      // Use requestAnimationFrame to optimize rendering
-      let lastTime = 0;
-      const targetFps = performanceSettings.actualFps;
-      const frameInterval = 1000 / targetFps;
-      
-      // Initialize the effect with optimized settings
-      const effect = window.VANTA.BIRDS({
-        el: vantaRef.current,
-        mouseControls: devicePerformance !== 'low' && mouseControls,
-        touchControls: devicePerformance !== 'low' && touchControls,
-        gyroControls: devicePerformance === 'high' && gyroControls,
-        minHeight,
-        minWidth,
-        scale: isMobile ? scaleMobile : scale,
-        scaleMobile,
-        backgroundColor,
-        color1,
-        color2,
-        colorMode,
-        birdSize: performanceSettings.actualBirdSize,
-        wingSpan: performanceSettings.actualWingSpan,
-        speedLimit: performanceSettings.actualSpeedLimit,
-        separation: separation * (devicePerformance === 'low' ? 1.3 : (devicePerformance === 'medium' ? 1.1 : 1)),
-        alignment: alignment * (devicePerformance === 'low' ? 0.7 : (devicePerformance === 'medium' ? 0.85 : 1)),
-        cohesion: cohesion * (devicePerformance === 'low' ? 0.7 : (devicePerformance === 'medium' ? 0.85 : 1)),
-        quantity: performanceSettings.actualQuantity,
-        backgroundAlpha,
-        fps: performanceSettings.actualFps,
-        frameRequestCallback: (time) => {
-          // Throttle frame requests based on target FPS
-          if (time - lastTime >= frameInterval) {
-            lastTime = time;
-            return true;
-          }
-          return false;
+        
+        // Apply performance-based settings
+        if (devicePerformance === 'very-low') {
+          // Extremely reduced settings for very low-end devices
+          performanceSettings = {
+            actualBirdSize: birdSize * 1.5,
+            actualQuantity: Math.max(1, quantity * 0.3), // Drastically reduce bird count
+            actualSpeedLimit: speedLimit * 0.5, // Half speed
+            actualFps: 20, // Very low FPS
+            actualWingSpan: wingSpan * 0.8,
+            actualSeparation: separation * 1.5,
+            actualAlignment: alignment * 0.6,
+            actualCohesion: cohesion * 0.6
+          };
+        } else if (devicePerformance === 'low') {
+          performanceSettings = {
+            actualBirdSize: birdSize * 1.3, // Bigger birds = fewer birds needed
+            actualQuantity: Math.max(1, quantity * 0.5), // Significantly reduce bird count
+            actualSpeedLimit: speedLimit * 0.6, // Slower movement
+            actualFps: 30, // Lower FPS
+            actualWingSpan: wingSpan * 0.9, // Slightly smaller wingspan
+            actualSeparation: separation * 1.3,
+            actualAlignment: alignment * 0.7,
+            actualCohesion: cohesion * 0.7
+          };
+        } else if (devicePerformance === 'medium') {
+          performanceSettings = {
+            actualBirdSize: birdSize * 1.1,
+            actualQuantity: Math.max(1, quantity * 0.7),
+            actualSpeedLimit: speedLimit * 0.75,
+            actualFps: 45,
+            actualWingSpan: wingSpan * 0.95,
+            actualSeparation: separation * 1.1,
+            actualAlignment: alignment * 0.85,
+            actualCohesion: cohesion * 0.85
+          };
+        } else {
+          // High performance devices get full settings
+          performanceSettings = {
+            actualBirdSize: birdSize,
+            actualQuantity: quantity,
+            actualSpeedLimit: speedLimit,
+            actualFps: 60,
+            actualWingSpan: wingSpan,
+            actualSeparation: separation,
+            actualAlignment: alignment,
+            actualCohesion: cohesion
+          };
         }
-      });
+        
+        // Use requestAnimationFrame to optimize rendering
+        let lastTime = 0;
+        const targetFps = performanceSettings.actualFps;
+        const frameInterval = 1000 / targetFps;
+        
+        // Initialize the effect with optimized settings
+        const effect = window.VANTA.BIRDS({
+          el: vantaRef.current,
+          mouseControls: devicePerformance !== 'very-low' && mouseControls,
+          touchControls: devicePerformance !== 'very-low' && touchControls,
+          gyroControls: devicePerformance === 'high' && gyroControls,
+          minHeight,
+          minWidth,
+          scale: isMobile ? scaleMobile : scale,
+          scaleMobile,
+          backgroundColor,
+          color1,
+          color2,
+          colorMode,
+          birdSize: performanceSettings.actualBirdSize,
+          wingSpan: performanceSettings.actualWingSpan,
+          speedLimit: performanceSettings.actualSpeedLimit,
+          separation: performanceSettings.actualSeparation,
+          alignment: performanceSettings.actualAlignment,
+          cohesion: performanceSettings.actualCohesion,
+          quantity: performanceSettings.actualQuantity,
+          backgroundAlpha,
+          fps: isInViewport && isTabActive ? performanceSettings.actualFps : 0, // Start paused if not visible
+          frameRequestCallback: (time) => {
+            // Throttle frame requests based on target FPS
+            frameCounterRef.current++;
+            if (time - lastTime >= frameInterval) {
+              lastTime = time;
+              return true;
+            }
+            return false;
+          }
+        });
 
-      console.log('Vanta effect initialized successfully');
-      setVantaEffect(effect);
-    } catch (error) {
-      console.error('Error initializing Vanta effect:', error);
+        // Add renderer optimizations if available
+        if (effect && effect.renderer) {
+          // Optimize THREE.js renderer
+          effect.renderer.setPixelRatio(Math.min(1.5, window.devicePixelRatio || 1));
+          
+          if (devicePerformance === 'very-low' || devicePerformance === 'low') {
+            effect.renderer.setSize(
+              Math.min(1024, window.innerWidth), 
+              Math.min(768, window.innerHeight)
+            );
+          }
+          
+          // Disable shadow maps for better performance
+          effect.renderer.shadowMap.enabled = devicePerformance === 'high';
+          
+          // Set power preference to high-performance for desktop, low-power for mobile
+          if (effect.renderer.getContext && effect.renderer.getContext.powerPreference) {
+            effect.renderer.getContext.powerPreference = isMobile ? 'low-power' : 'high-performance';
+          }
+        }
+
+        console.log('Vanta effect initialized successfully');
+        setVantaEffect(effect);
+      } catch (error) {
+        console.error('Error initializing Vanta effect:', error);
+      }
+    };
+    
+    // Use requestIdleCallback if available, otherwise use setTimeout
+    if (window.requestIdleCallback) {
+      window.requestIdleCallback(initializeVanta, { timeout: 1000 });
+    } else {
+      setTimeout(initializeVanta, 100);
     }
 
     // Cleanup on unmount
@@ -284,8 +453,26 @@ const VantaBackground = ({
     alignment,
     cohesion,
     quantity,
-    backgroundAlpha
+    backgroundAlpha,
+    isInViewport,
+    isTabActive
   ]);
+
+  // Optimized mouse movement handler with debounce
+  const handleMouseMove = useCallback((e) => {
+    if (!vantaEffect || devicePerformance === 'very-low') return;
+    
+    // Store mouse position in ref to avoid re-renders
+    mousePositionRef.current = {
+      x: e.clientX / window.innerWidth,
+      y: e.clientY / window.innerHeight
+    };
+    
+    // Only update state occasionally to avoid re-renders
+    if (frameCounterRef.current % 10 === 0) {
+      setMousePosition(mousePositionRef.current);
+    }
+  }, [vantaEffect, devicePerformance]);
 
   // Handle window resize for better performance
   useEffect(() => {
@@ -294,13 +481,24 @@ const VantaBackground = ({
     const handleResize = () => {
       if (vantaEffect && vantaEffect.resize) {
         vantaEffect.resize();
+        
+        // Adjust renderer size based on device performance
+        if (vantaEffect.renderer) {
+          if (devicePerformance === 'very-low' || devicePerformance === 'low') {
+            vantaEffect.renderer.setSize(
+              Math.min(1024, window.innerWidth),
+              Math.min(768, window.innerHeight)
+            );
+          }
+        }
       }
     };
 
     // Throttle the resize handler for better performance
     let timeoutId;
     let lastExecution = 0;
-    const throttleDelay = 200; // ms
+    const throttleDelay = devicePerformance === 'very-low' ? 500 : 
+                         devicePerformance === 'low' ? 300 : 200; // ms
     
     const throttledResize = () => {
       const now = Date.now();
@@ -319,22 +517,23 @@ const VantaBackground = ({
       window.removeEventListener('resize', throttledResize);
       clearTimeout(timeoutId);
     };
-  }, [vantaEffect]);
+  }, [vantaEffect, devicePerformance]);
 
   // Add visibility change handler to pause animation when tab is not visible
   useEffect(() => {
-    if (!vantaEffect) return;
-    
     const handleVisibilityChange = () => {
-      if (document.hidden && vantaEffect) {
-        // Pause animation when tab is not visible
-        if (vantaEffect.setOptions) {
-          vantaEffect.setOptions({ fps: 0 }); // Completely pause when not visible
-        }
-      } else if (vantaEffect) {
-        // Resume normal animation when tab is visible again
-        if (vantaEffect.setOptions) {
-          const fps = devicePerformance === 'low' ? 30 : (devicePerformance === 'medium' ? 45 : 60);
+      const isVisible = !document.hidden;
+      setIsTabActive(isVisible);
+      
+      if (vantaEffect && vantaEffect.setOptions) {
+        if (!isVisible) {
+          // Pause animation when tab is not visible
+          vantaEffect.setOptions({ fps: 0 });
+        } else if (isInViewport) {
+          // Resume normal animation when tab is visible again and component is in viewport
+          const fps = devicePerformance === 'very-low' ? 20 : 
+                     devicePerformance === 'low' ? 30 : 
+                     devicePerformance === 'medium' ? 45 : 60;
           vantaEffect.setOptions({ fps });
         }
       }
@@ -345,7 +544,23 @@ const VantaBackground = ({
     return () => {
       document.removeEventListener('visibilitychange', handleVisibilityChange);
     };
-  }, [vantaEffect, devicePerformance]);
+  }, [vantaEffect, devicePerformance, isInViewport]);
+
+  // Add mouse event listeners with performance considerations
+  useEffect(() => {
+    if (devicePerformance === 'very-low') return; // Skip for very low-end devices
+    
+    // Add event listener only if mouse controls are enabled
+    if (mouseControls) {
+      window.addEventListener('mousemove', handleMouseMove, { passive: true });
+    }
+    
+    return () => {
+      if (mouseControls) {
+        window.removeEventListener('mousemove', handleMouseMove);
+      }
+    };
+  }, [mouseControls, handleMouseMove, devicePerformance]);
 
   return (
     <div 
@@ -363,7 +578,10 @@ const VantaBackground = ({
         transform: 'translateZ(0)',
         backfaceVisibility: 'hidden',
         // Additional optimizations
-        pointerEvents: 'none', // Prevent unnecessary hover events
+        pointerEvents: devicePerformance === 'very-low' ? 'none' : undefined, // Prevent unnecessary hover events on low-end devices
+        // Reduce quality on very low-end devices
+        filter: devicePerformance === 'very-low' ? 'blur(1px)' : undefined,
+        opacity: devicePerformance === 'very-low' ? 0.9 : 1,
       }}
       aria-hidden="true" // For accessibility, this is just decorative
     >
