@@ -325,14 +325,14 @@ const VantaBackground = ({
         if (forceHighPerformanceRef.current && isMobile) {
           // Mobile high performance mode - reduce complexity but maintain 60fps
           performanceSettings = {
-            actualBirdSize: birdSize * 1.2, // Slightly larger birds
-            actualQuantity: Math.max(1, quantity * 0.8), // Slightly reduce bird count
-            actualSpeedLimit: speedLimit * 0.9, // Slightly reduce speed
+            actualBirdSize: birdSize * 1.3, // Larger birds = fewer birds needed
+            actualQuantity: Math.max(1, quantity * 0.6), // Significantly reduce bird count
+            actualSpeedLimit: speedLimit * 0.7, // Reduce speed further
             actualFps: 60, // Always maintain 60fps
-            actualWingSpan: wingSpan * 0.95, // Slightly reduce wingspan
-            actualSeparation: separation * 1.1, // Slightly increase separation
-            actualAlignment: alignment * 0.9, // Slightly reduce alignment
-            actualCohesion: cohesion * 0.9 // Slightly reduce cohesion
+            actualWingSpan: wingSpan * 0.9, // Reduce wingspan
+            actualSeparation: separation * 1.3, // Increase separation further
+            actualAlignment: alignment * 0.7, // Reduce alignment calculation load
+            actualCohesion: cohesion * 0.7 // Reduce cohesion calculation load
           };
         } else if (devicePerformance === 'very-low') {
           // Extremely reduced settings for very low-end devices
@@ -426,16 +426,24 @@ const VantaBackground = ({
           // Optimize THREE.js renderer
           if (forceHighPerformanceRef.current && isMobile) {
             // For mobile high performance mode, use a lower pixel ratio but maintain quality
-            effect.renderer.setPixelRatio(Math.min(1.5, devicePixelRatioRef.current));
+            effect.renderer.setPixelRatio(Math.min(1.2, devicePixelRatioRef.current));
             
-            // Use smaller canvas size on mobile for better performance
-            const canvasWidth = Math.min(1440, window.innerWidth);
-            const canvasHeight = Math.min(900, window.innerHeight);
+            // Use even smaller canvas size on mobile for better performance
+            const canvasWidth = Math.min(1200, window.innerWidth);
+            const canvasHeight = Math.min(800, window.innerHeight);
             effect.renderer.setSize(canvasWidth, canvasHeight);
             
-            // Optimize renderer settings for mobile
+            // Additional mobile performance optimizations
             if (effect.renderer.shadowMap) {
               effect.renderer.shadowMap.enabled = false;
+            }
+            
+            // Disable unnecessary features for mobile
+            if (effect.setOptions) {
+              effect.setOptions({
+                mouseControls: false, // Disable mouse tracking on mobile for performance
+                touchControls: true   // Keep touch enabled but simplified
+              });
             }
             
             // Use high performance context on mobile
