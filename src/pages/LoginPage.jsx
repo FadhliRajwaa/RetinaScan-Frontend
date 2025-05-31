@@ -296,8 +296,8 @@ function LoginPage() {
         color1={isDarkMode ? 0x0077ff : 0x0077ff}
         color2={isDarkMode ? 0x4b0082 : 0x4169e1}
         colorMode="variance"
-        birdSize={1.1}
-        wingSpan={22.0}
+        birdSize={1.5}
+        wingSpan={30.0}
         speedLimit={3.0}
         separation={90.0}
         alignment={22.0}
@@ -350,7 +350,7 @@ function LoginPage() {
       </div>
 
       <div className="min-h-screen flex items-center justify-center px-4 py-16 relative z-10">
-        <div className="w-full max-w-md">
+        <div className="w-full max-w-lg">
       <motion.div
         initial={{ opacity: 0, y: -20 }}
         animate={{ opacity: 1, y: 0 }}
@@ -369,7 +369,7 @@ function LoginPage() {
             variants={formVariants}
             initial="hidden"
             animate="visible"
-            className={`p-8 rounded-2xl shadow-2xl ${
+            className={`p-10 rounded-2xl shadow-2xl ${
           isDarkMode 
                 ? 'bg-gray-800/90 backdrop-blur-lg border border-gray-700' 
                 : 'bg-white/90 backdrop-blur-lg border border-gray-100'
