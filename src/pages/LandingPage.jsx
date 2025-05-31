@@ -1,5 +1,5 @@
 import { Link } from 'react-router-dom';
-import { motion, useScroll, useTransform, AnimatePresence, useMotionValue, useSpring } from 'framer-motion';
+import { motion, useScroll, useTransform, AnimatePresence } from 'framer-motion';
 import { useTheme } from '../context/ThemeContext';
 import { useRef, useEffect, useState } from 'react';
 import { 
@@ -18,7 +18,6 @@ import {
   BeakerIcon
 } from '@heroicons/react/24/outline';
 import { withPageTransition } from '../context/ThemeContext';
-import { ParallaxBanner, Parallax, useParallax, ParallaxProvider } from 'react-scroll-parallax';
 
 function LandingPage() {
   const { theme, animations, isDarkMode } = useTheme();
@@ -29,8 +28,6 @@ function LandingPage() {
     testimonials: false,
     cta: false
   });
-  const [x, setX] = useState(0);
-  const [y, setY] = useState(0);
   const [scrollY, setScrollY] = useState(0);
   
   // Environment variables
@@ -223,39 +220,6 @@ function LandingPage() {
     }
   };
 
-  // Enhanced mouse follow animation with spring effect
-  const mouseX = useMotionValue(0);
-  const mouseY = useMotionValue(0);
-  
-  // Increase damping and stiffness for smoother motion
-  const smoothMouseX = useSpring(mouseX, { stiffness: 50, damping: 30, mass: 1.2 });
-  const smoothMouseY = useSpring(mouseY, { stiffness: 50, damping: 30, mass: 1.2 });
-  
-  useEffect(() => {
-    const handleMouseMove = (e) => {
-      // Use requestAnimationFrame for better performance
-      requestAnimationFrame(() => {
-        // Reduce mouse movement multiplier by 70-80% for smoother effect
-        mouseX.set((e.clientX - window.innerWidth / 2) * 0.3);
-        mouseY.set((e.clientY - window.innerHeight / 2) * 0.3);
-      });
-    };
-    
-    // Debounce instead of throttle for even smoother effect with mouse
-    let timeoutId;
-    const debounceMouseMove = (e) => {
-      clearTimeout(timeoutId);
-      timeoutId = setTimeout(() => handleMouseMove(e), 5);
-    };
-    
-    window.addEventListener("mousemove", debounceMouseMove);
-    
-    return () => {
-      window.removeEventListener("mousemove", debounceMouseMove);
-      clearTimeout(timeoutId);
-    };
-  }, [mouseX, mouseY]);
-
   // Features data
   const features = [
     {
@@ -320,7 +284,7 @@ function LandingPage() {
 
   return (
     <div className={`${isDarkMode ? 'bg-gray-900 text-white' : 'bg-white text-gray-900'} transition-colors duration-300`}>
-      {/* Hero Section - Enhanced Modern Design with Better Parallax */}
+      {/* Hero Section - Enhanced Modern Design */}
       <section className="relative min-h-[100svh] flex items-center justify-center overflow-hidden" ref={heroRef}>
         {/* Enhanced animated gradient background */}
         <motion.div 
@@ -374,67 +338,17 @@ function LandingPage() {
           />
           
           {/* Subtle mouse-responsive overlay */}
-          <motion.div 
+          <div 
             className="absolute inset-0"
             style={{
               background: isDarkMode 
                 ? 'radial-gradient(circle at 50% 50%, rgba(30, 64, 175, 0.05), rgba(10, 10, 10, 0))'
                 : 'radial-gradient(circle at 50% 50%, rgba(59, 130, 246, 0.1), rgba(255, 255, 255, 0))',
               backgroundSize: '120% 120%',
-              // Reduce movement multiplier and slow down transitions
-              backgroundPosition: `${50 + x * 5}% ${50 + y * 5}%`,
-              transition: 'background-position 2.5s cubic-bezier(0.19, 1, 0.22, 1)',
+              backgroundPosition: '50% 50%',
             }}
           />
         </motion.div>
-
-        {/* Enhanced animated floating elements */}
-        <div className="absolute inset-0 overflow-hidden pointer-events-none">
-          {/* Animated circles with improved responsiveness */}
-          <Parallax 
-            translateY={['-100px', '100px']} 
-            className={`absolute top-1/4 left-[5%] sm:left-[15%] w-32 sm:w-64 h-32 sm:h-64 rounded-full ${
-              isDarkMode ? 'bg-blue-500/10' : 'bg-blue-300/20'
-            } blur-3xl`}
-          />
-          
-          <Parallax 
-            translateY={['100px', '-100px']} 
-            className={`absolute bottom-1/4 right-[5%] sm:right-[15%] w-40 sm:w-80 h-40 sm:h-80 rounded-full ${
-              isDarkMode ? 'bg-purple-500/10' : 'bg-purple-300/20'
-            } blur-3xl`}
-          />
-          
-          {/* Animated grid pattern with better mobile optimization */}
-          <div className="absolute inset-0 opacity-5 sm:opacity-10">
-            <div className="absolute inset-0 bg-grid-pattern bg-[length:30px_30px] sm:bg-[length:50px_50px] [mask-image:radial-gradient(ellipse_at_center,white_20%,transparent_80%)]"></div>
-          </div>
-          
-          {/* Optimized floating particles for mobile and desktop */}
-          {[...Array(8)].map((_, i) => (
-            <motion.div 
-              key={i}
-              className={`absolute rounded-full ${
-                isDarkMode ? 'bg-blue-400/30' : 'bg-blue-500/20'
-              } w-1 h-1 sm:w-2 sm:h-2`}
-              style={{
-                left: `${Math.random() * 100}%`,
-                top: `${Math.random() * 100}%`,
-              }}
-              animate={{
-                y: [0, -80, 0],
-                opacity: [0, 0.7, 0],
-              }}
-              transition={{
-                // Slower and smoother animation
-                duration: 10 + Math.random() * 12,
-                repeat: Infinity,
-                delay: Math.random() * 8,
-                ease: "easeInOut"
-              }}
-            />
-          ))}
-        </div>
 
         {/* Hero Content - Enhanced Responsive Design */}
         <div className="container mx-auto px-4 sm:px-6 lg:px-8 relative z-10 flex flex-col items-center">
@@ -673,10 +587,6 @@ function LandingPage() {
               className="relative"
               style={{
                 transformStyle: "preserve-3d",
-              }}
-              animate={{
-                rotateX: smoothMouseY.get() * 0.01,
-                rotateY: smoothMouseX.get() * -0.01,
               }}
             >
               {/* Decorative elements with better mobile support */}
@@ -968,19 +878,19 @@ function LandingPage() {
         </div>
       </section>
 
-      {/* About Section with Parallax */}
+      {/* About Section */}
       <section 
         id="about" 
         ref={aboutRef}
         className={`py-20 relative overflow-hidden ${isDarkMode ? 'bg-gray-800' : 'bg-white'}`}
       >
-        <Parallax speed={-10} className="absolute inset-0 z-0">
+        <div className="absolute inset-0 z-0">
           <div className={`absolute inset-0 ${
             isDarkMode 
               ? 'bg-gradient-to-br from-blue-900/20 to-purple-900/20' 
               : 'bg-gradient-to-br from-blue-100/50 to-purple-100/50'
           }`} />
-        </Parallax>
+        </div>
         
         <div className="container mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
@@ -1255,16 +1165,14 @@ function LandingPage() {
           />
           
           {/* Subtle mouse-responsive overlay */}
-          <motion.div 
+          <div 
             className="absolute inset-0"
             style={{
               background: isDarkMode 
-                ? 'radial-gradient(circle at 50% 50%, rgba(79, 70, 229, 0.05), rgba(10, 10, 10, 0))'
-                : 'radial-gradient(circle at 50% 50%, rgba(79, 70, 229, 0.1), rgba(255, 255, 255, 0))',
+                ? 'radial-gradient(circle at 50% 50%, rgba(30, 64, 175, 0.05), rgba(10, 10, 10, 0))'
+                : 'radial-gradient(circle at 50% 50%, rgba(59, 130, 246, 0.1), rgba(255, 255, 255, 0))',
               backgroundSize: '120% 120%',
-              // Reduce movement multiplier
-              backgroundPosition: `${50 + x * 5}% ${50 + y * 5}%`,
-              transition: 'background-position 2.5s cubic-bezier(0.19, 1, 0.22, 1)',
+              backgroundPosition: '50% 50%',
             }}
           />
           
@@ -1299,29 +1207,6 @@ function LandingPage() {
             }}
             transition={{ duration: 8, repeat: Infinity, ease: "easeInOut" }}
           />
-          
-          {/* Floating particles */}
-          {[...Array(5)].map((_, i) => (
-            <motion.div 
-              key={i}
-              className={`absolute rounded-full ${isDarkMode ? 'bg-blue-400/30' : 'bg-blue-500/20'} w-2 h-2`}
-              style={{
-                left: `${Math.random() * 100}%`,
-                top: `${Math.random() * 100}%`,
-              }}
-              animate={{
-                y: [0, -80, 0],
-                opacity: [0, 0.7, 0],
-              }}
-              transition={{
-                // Slower and smoother animation
-                duration: 15 + Math.random() * 15,
-                repeat: Infinity,
-                delay: Math.random() * 8,
-                ease: "easeInOut"
-              }}
-            />
-          ))}
         </div>
         
         <div className="container mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
