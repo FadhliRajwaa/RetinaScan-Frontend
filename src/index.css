@@ -471,29 +471,3 @@ body {
     transform: scale(1.05) translate(0, -5%);
   }
 }
-
-/* Metaballs Animation Styles */
-.metaballs-container {
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  z-index: 0;
-  pointer-events: none;
-  overflow: hidden;
-}
-
-.metaballs-canvas {
-  width: 100%;
-  height: 100%;
-  position: absolute;
-  top: 0;
-  left: 0;
-}
-
-/* Make sure all content is above the canvas */
-main, header, footer, section {
-  position: relative;
-  z-index: 1;
-}

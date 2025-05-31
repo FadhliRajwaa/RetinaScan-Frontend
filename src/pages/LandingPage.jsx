@@ -18,7 +18,6 @@ import {
   BeakerIcon
 } from '@heroicons/react/24/outline';
 import { withPageTransition } from '../context/ThemeContext';
-import MetaballsBackground from '../components/common/MetaballsBackground';
 
 function LandingPage() {
   const { theme, animations, isDarkMode } = useTheme();
@@ -30,8 +29,6 @@ function LandingPage() {
     cta: false
   });
   const [scrollY, setScrollY] = useState(0);
-  const [x, setX] = useState(0);
-  const [y, setY] = useState(0);
   
   // Environment variables
   const DASHBOARD_URL = import.meta.env.VITE_DASHBOARD_URL || 'http://localhost:3000';
@@ -287,9 +284,6 @@ function LandingPage() {
 
   return (
     <div className={`${isDarkMode ? 'bg-gray-900 text-white' : 'bg-white text-gray-900'} transition-colors duration-300`}>
-      {/* Metaballs Background Animation */}
-      <MetaballsBackground numBalls={30} opacity={0.6} />
-      
       {/* Hero Section - Enhanced Modern Design */}
       <section className="relative min-h-[100svh] flex items-center justify-center overflow-hidden" ref={heroRef}>
         {/* Enhanced animated gradient background */}
@@ -1215,7 +1209,6 @@ function LandingPage() {
           />
         </div>
         
-        {/* CTA Content */}
         <div className="container mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
           <motion.div 
             className="max-w-4xl mx-auto text-center"
@@ -1288,7 +1281,7 @@ function LandingPage() {
                       className={`px-8 py-4 rounded-lg font-medium flex items-center justify-center ${
                         isDarkMode 
                           ? 'bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-500 hover:to-indigo-500 text-white' 
-                        : 'bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white'
+                          : 'bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white'
                       } transition-all duration-300 shadow-lg`}
                     >
                       <span>Daftar Sekarang</span>
@@ -1308,7 +1301,7 @@ function LandingPage() {
                       className={`px-8 py-4 rounded-lg font-medium flex items-center justify-center ${
                         isDarkMode 
                           ? 'bg-gray-800 hover:bg-gray-700 text-white border border-gray-700' 
-                        : 'bg-white hover:bg-gray-100 text-gray-900 border border-gray-200 shadow-md'
+                          : 'bg-white hover:bg-gray-100 text-gray-900 border border-gray-200 shadow-md'
                       } transition-colors duration-300`}
                     >
                       Login
