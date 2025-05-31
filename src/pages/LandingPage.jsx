@@ -18,6 +18,7 @@ import {
   BeakerIcon
 } from '@heroicons/react/24/outline';
 import { withPageTransition } from '../context/ThemeContext';
+import VantaBackground from '../components/animations/VantaBackground';
 
 function LandingPage() {
   const { theme, animations, isDarkMode } = useTheme();
@@ -286,90 +287,32 @@ function LandingPage() {
     <div className={`${isDarkMode ? 'bg-gray-900 text-white' : 'bg-white text-gray-900'} transition-colors duration-300`}>
       {/* Hero Section - Enhanced Modern Design */}
       <section className="relative min-h-[100svh] flex items-center justify-center overflow-hidden" ref={heroRef}>
-        {/* Enhanced animated gradient background */}
-        <motion.div 
-          className="absolute inset-0 z-0 overflow-hidden"
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ duration: 1.5 }}
-        >
-          {/* Main animated gradient with CSS */}
-          <div className="absolute inset-0 animated-gradient" 
-            style={{
-              background: isDarkMode 
-                ? 'linear-gradient(120deg, rgba(29, 78, 216, 0.1), rgba(67, 56, 202, 0.1), rgba(124, 58, 237, 0.1))'
-                : 'linear-gradient(120deg, rgba(59, 130, 246, 0.15), rgba(79, 70, 229, 0.15), rgba(139, 92, 246, 0.15))'
-            }}
-          />
-          
-          {/* Animated blobs */}
-          <div className="blob bg-blue-400 dark:bg-blue-600 h-96 w-96 top-0 left-0 opacity-10 dark:opacity-5" />
-          <div className="blob bg-indigo-400 dark:bg-indigo-600 h-96 w-96 bottom-0 right-0 opacity-10 dark:opacity-5" 
-               style={{animationDelay: '-2s'}} />
-          <div className="blob bg-purple-400 dark:bg-purple-600 h-64 w-64 top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 opacity-10 dark:opacity-5"
-               style={{animationDelay: '-4s'}} />
-          
-          {/* Main animated gradient - use Framer Motion for more control */}
-          <motion.div 
-            className="absolute -inset-[100px] filter blur-3xl opacity-30"
-            animate={{
-              background: isDarkMode 
-                ? [
-                    'radial-gradient(circle at 20% 20%, rgba(14, 165, 233, 0.15) 0%, rgba(79, 70, 229, 0.1) 50%, rgba(10, 10, 10, 0) 80%)',
-                    'radial-gradient(circle at 40% 70%, rgba(14, 165, 233, 0.15) 0%, rgba(79, 70, 229, 0.1) 50%, rgba(10, 10, 10, 0) 80%)',
-                    'radial-gradient(circle at 60% 30%, rgba(14, 165, 233, 0.15) 0%, rgba(79, 70, 229, 0.1) 50%, rgba(10, 10, 10, 0) 80%)',
-                    'radial-gradient(circle at 20% 20%, rgba(14, 165, 233, 0.15) 0%, rgba(79, 70, 229, 0.1) 50%, rgba(10, 10, 10, 0) 80%)',
-                  ]
-                : [
-                    'radial-gradient(circle at 20% 20%, rgba(56, 189, 248, 0.4) 0%, rgba(59, 130, 246, 0.3) 50%, rgba(255, 255, 255, 0) 80%)',
-                    'radial-gradient(circle at 40% 70%, rgba(56, 189, 248, 0.4) 0%, rgba(59, 130, 246, 0.3) 50%, rgba(255, 255, 255, 0) 80%)',
-                    'radial-gradient(circle at 60% 30%, rgba(56, 189, 248, 0.4) 0%, rgba(59, 130, 246, 0.3) 50%, rgba(255, 255, 255, 0) 80%)',
-                    'radial-gradient(circle at 20% 20%, rgba(56, 189, 248, 0.4) 0%, rgba(59, 130, 246, 0.3) 50%, rgba(255, 255, 255, 0) 80%)',
-                  ],
-            }}
-            transition={{
-              background: {
-                duration: 15,
-                repeat: Infinity,
-                ease: "easeInOut",
-                times: [0, 0.33, 0.66, 1]
-              }
-            }}
-          />
-          
-          {/* Subtle mouse-responsive overlay */}
-          <div 
-            className="absolute inset-0"
-            style={{
-              background: isDarkMode 
-                ? 'radial-gradient(circle at 50% 50%, rgba(30, 64, 175, 0.05), rgba(10, 10, 10, 0))'
-                : 'radial-gradient(circle at 50% 50%, rgba(59, 130, 246, 0.1), rgba(255, 255, 255, 0))',
-              backgroundSize: '120% 120%',
-              backgroundPosition: '50% 50%',
-            }}
-          />
-        </motion.div>
+        {/* Vanta.js Background */}
+        <VantaBackground
+          className="hero-vanta-background"
+          mouseControls={true}
+          touchControls={true}
+          gyroControls={false}
+          minHeight={200}
+          minWidth={200}
+          scale={1.00}
+          scaleMobile={0.75}
+          backgroundColor={isDarkMode ? 0x0a0a0a : 0xffffff}
+          color1={isDarkMode ? 0x0077ff : 0x0077ff}
+          color2={isDarkMode ? 0x4b0082 : 0x4169e1}
+          colorMode="variance"
+          birdSize={1.0}
+          wingSpan={20.0}
+          speedLimit={3.0}
+          separation={80.0}
+          alignment={30.0}
+          cohesion={30.0}
+          quantity={2.0}
+          backgroundAlpha={0.0}
+        />
 
         {/* Hero Content - Enhanced Responsive Design */}
         <div className="container mx-auto px-4 sm:px-6 lg:px-8 relative z-10 flex flex-col items-center">
-          {/* Enhanced Animated Blob Background */}
-          <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 -z-10">
-            <motion.div 
-              className={`w-[300px] h-[300px] sm:w-[600px] sm:h-[600px] rounded-full filter blur-3xl opacity-20 ${
-                isDarkMode ? 'bg-blue-700' : 'bg-blue-400'
-              }`}
-              animate={{
-                scale: [1, 1.1, 1],
-                borderRadius: ["60% 40% 70% 30%", "40% 60% 30% 70%", "60% 40% 70% 30%"],
-              }}
-              transition={{
-                duration: 8,
-                repeat: Infinity,
-                repeatType: "reverse",
-              }}
-            />
-          </div>
-        
           {/* Logo Icon with Enhanced Glow Effect */}
           <motion.div 
             initial={{ opacity: 0, scale: 0.5 }}
@@ -1281,7 +1224,7 @@ function LandingPage() {
                       className={`px-8 py-4 rounded-lg font-medium flex items-center justify-center ${
                         isDarkMode 
                           ? 'bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-500 hover:to-indigo-500 text-white' 
-                          : 'bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white'
+                        : 'bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white'
                       } transition-all duration-300 shadow-lg`}
                     >
                       <span>Daftar Sekarang</span>
@@ -1301,7 +1244,7 @@ function LandingPage() {
                       className={`px-8 py-4 rounded-lg font-medium flex items-center justify-center ${
                         isDarkMode 
                           ? 'bg-gray-800 hover:bg-gray-700 text-white border border-gray-700' 
-                          : 'bg-white hover:bg-gray-100 text-gray-900 border border-gray-200 shadow-md'
+                        : 'bg-white hover:bg-gray-100 text-gray-900 border border-gray-200 shadow-md'
                       } transition-colors duration-300`}
                     >
                       Login
