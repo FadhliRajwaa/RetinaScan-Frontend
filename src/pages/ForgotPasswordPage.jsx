@@ -163,11 +163,11 @@ function ForgotPasswordPage() {
         colorMode="variance"
         birdSize={1.5}
         wingSpan={30.0}
-        speedLimit={5.0}
-        separation={100.0}
-        alignment={20.0}
-        cohesion={20.0}
-        quantity={4.0}
+        speedLimit={3.0}
+        separation={90.0}
+        alignment={22.0}
+        cohesion={22.0}
+        quantity={3.5}
         backgroundAlpha={0.0}
       />
       

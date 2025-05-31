@@ -1,12 +1,5 @@
 @import "tailwindcss";
 
-/* Ensure Vanta background doesn't affect layout */
-.vanta-background {
-  position: absolute !important;
-  z-index: -1 !important;
-  pointer-events: none !important;
-}
-
 :root {
   --primary: #3B82F6;
   --secondary: #10B981;

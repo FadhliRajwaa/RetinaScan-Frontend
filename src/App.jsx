@@ -22,9 +22,9 @@ function AppContent() {
   
   return (
     <ParallaxProvider>
-      <div className="flex flex-col min-h-screen w-full">
+      <div className="flex flex-col min-h-screen">
         {showNavbarFooter && <Navbar />}
-        <main className="flex-grow w-full">
+        <main className="flex-grow">
         <AnimatePresence mode="wait">
           <motion.div
             key={location.pathname}

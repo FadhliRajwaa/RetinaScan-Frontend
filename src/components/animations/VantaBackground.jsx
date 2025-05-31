@@ -200,36 +200,57 @@ const VantaBackground = ({
           actualFps: 45,
           actualWingSpan: wingSpan * 0.95
         };
+      } else {
+        // High performance devices get full settings
+        performanceSettings = {
+          actualBirdSize: birdSize,
+          actualQuantity: quantity,
+          actualSpeedLimit: speedLimit,
+          actualFps: 60,
+          actualWingSpan: wingSpan
+        };
       }
       
-      const newEffect = window.VANTA.BIRDS({
+      // Use requestAnimationFrame to optimize rendering
+      let lastTime = 0;
+      const targetFps = performanceSettings.actualFps;
+      const frameInterval = 1000 / targetFps;
+      
+      // Initialize the effect with optimized settings
+      const effect = window.VANTA.BIRDS({
         el: vantaRef.current,
-        mouseControls: mouseControls,
-        touchControls: touchControls,
-        gyroControls: gyroControls,
-        minHeight: minHeight,
-        minWidth: minWidth,
+        mouseControls: devicePerformance !== 'low' && mouseControls,
+        touchControls: devicePerformance !== 'low' && touchControls,
+        gyroControls: devicePerformance === 'high' && gyroControls,
+        minHeight,
+        minWidth,
         scale: isMobile ? scaleMobile : scale,
-        scaleMobile: scaleMobile,
-        backgroundColor: backgroundColor,
-        color1: color1,
-        color2: color2,
-        colorMode: colorMode,
+        scaleMobile,
+        backgroundColor,
+        color1,
+        color2,
+        colorMode,
         birdSize: performanceSettings.actualBirdSize,
         wingSpan: performanceSettings.actualWingSpan,
         speedLimit: performanceSettings.actualSpeedLimit,
-        separation: separation,
-        alignment: alignment,
-        cohesion: cohesion,
+        separation: separation * (devicePerformance === 'low' ? 1.3 : (devicePerformance === 'medium' ? 1.1 : 1)),
+        alignment: alignment * (devicePerformance === 'low' ? 0.7 : (devicePerformance === 'medium' ? 0.85 : 1)),
+        cohesion: cohesion * (devicePerformance === 'low' ? 0.7 : (devicePerformance === 'medium' ? 0.85 : 1)),
         quantity: performanceSettings.actualQuantity,
-        backgroundAlpha: backgroundAlpha,
-        // Make sure vanta doesn't affect layout
-        position: 'absolute',
-        zIndex: '-1',
-        pointerEvents: 'none'
+        backgroundAlpha,
+        fps: performanceSettings.actualFps,
+        frameRequestCallback: (time) => {
+          // Throttle frame requests based on target FPS
+          if (time - lastTime >= frameInterval) {
+            lastTime = time;
+            return true;
+          }
+          return false;
+        }
       });
-      
-      setVantaEffect(newEffect);
+
+      console.log('Vanta effect initialized successfully');
+      setVantaEffect(effect);
     } catch (error) {
       console.error('Error initializing Vanta effect:', error);
     }
