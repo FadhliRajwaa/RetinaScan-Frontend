@@ -99,12 +99,23 @@ function LandingPage() {
   
   // Enhanced mouse parallax effect with better performance
   useEffect(() => {
+    // Membuat variabel lokal untuk posisi mouse
+    let mouseX = 0;
+    let mouseY = 0;
+    
     const handleMouseMove = (e) => {
       // Use requestAnimationFrame for better performance
       requestAnimationFrame(() => {
-        // Reduce mouse movement multiplier by 70-80% for smoother effect
-        setX((e.clientX / window.innerWidth - 0.5) * 0.3);
-        setY((e.clientY / window.innerHeight - 0.5) * 0.3);
+        // Store mouse position in local variables instead of state
+        mouseX = (e.clientX / window.innerWidth - 0.5) * 0.3;
+        mouseY = (e.clientY / window.innerHeight - 0.5) * 0.3;
+        
+        // Apply parallax effect to elements that need it
+        const elements = document.querySelectorAll('.parallax-element');
+        elements.forEach(el => {
+          const speed = el.dataset.speed || 1;
+          el.style.transform = `translate(${mouseX * speed * 100}px, ${mouseY * speed * 100}px)`;
+        });
       });
     };
     

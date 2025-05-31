@@ -1,5 +1,7 @@
 import { useEffect, useRef, useState } from 'react';
 import { useTheme } from '../../context/ThemeContext';
+import THREE from './preloadThree';
+import { initVantaBirds } from './initVanta';
 
 const VantaBirdsBackground = ({ children, className }) => {
   const [vantaEffect, setVantaEffect] = useState(null);
@@ -56,6 +58,8 @@ const VantaBirdsBackground = ({ children, className }) => {
           battery.removeEventListener('levelchange', handleChange);
           battery.removeEventListener('chargingchange', handleChange);
         };
+      }).catch(() => {
+        // Ignore battery API errors
       });
     }
   }, []);
@@ -67,41 +71,44 @@ const VantaBirdsBackground = ({ children, className }) => {
     // Skip if there's an error or user prefers reduced motion
     if (error || prefersReducedMotion || !vantaRef.current) return;
     
-    // Dynamic import to prevent crashes if libraries aren't available
-    const setupVanta = async () => {
+    // Prevent multiple initializations
+    if (vantaEffect) return;
+    
+    // Initialize Vanta effect
+    const setupVantaEffect = async () => {
       try {
-        // Dynamically import Three.js and Vanta
-        const THREE = await import('three');
-        const BIRDS = (await import('vanta/dist/vanta.birds.min')).default;
+        // Configure options based on device capabilities and theme
+        const options = {
+          el: vantaRef.current,
+          mouseControls: !shouldSimplify,
+          touchControls: !shouldSimplify,
+          gyroControls: false,
+          minHeight: 200.00,
+          minWidth: 200.00,
+          scale: shouldSimplify ? 0.5 : 1.00,
+          scaleMobile: 0.5,
+          backgroundColor: isDarkMode ? 0x0f172a : 0xf8fafc, // dark: slate-900, light: slate-50
+          color1: isDarkMode ? 0x60a5fa : 0x3b82f6, // dark: blue-400, light: blue-500
+          color2: isDarkMode ? 0x3b82f6 : 0x2563eb, // dark: blue-500, light: blue-600
+          colorMode: "variance",
+          birdSize: shouldSimplify ? 1.0 : 1.2,
+          wingSpan: shouldSimplify ? 15.0 : 30.0,
+          speedLimit: shouldSimplify ? 3.0 : 5.0,
+          separation: shouldSimplify ? 40.0 : 50.0,
+          alignment: 50.0,
+          cohesion: 50.0,
+          quantity: shouldSimplify ? 1.0 : 3.0,
+          backgroundAlpha: 0.0, // Transparent background
+          fps: shouldSimplify ? 30 : 60
+        };
         
-        if (!vantaEffect && vantaRef.current) {
-          const effect = BIRDS({
-            el: vantaRef.current,
-            THREE: THREE,
-            mouseControls: !shouldSimplify,
-            touchControls: !shouldSimplify,
-            gyroControls: false,
-            minHeight: 200.00,
-            minWidth: 200.00,
-            scale: shouldSimplify ? 0.5 : 1.00,
-            scaleMobile: 0.5,
-            backgroundColor: isDarkMode ? 0x0f172a : 0xf8fafc, // dark: slate-900, light: slate-50
-            color1: isDarkMode ? 0x60a5fa : 0x3b82f6, // dark: blue-400, light: blue-500
-            color2: isDarkMode ? 0x3b82f6 : 0x2563eb, // dark: blue-500, light: blue-600
-            colorMode: "variance",
-            birdSize: shouldSimplify ? 1.0 : 1.2,
-            wingSpan: shouldSimplify ? 15.0 : 30.0,
-            speedLimit: shouldSimplify ? 3.0 : 5.0,
-            separation: shouldSimplify ? 40.0 : 50.0,
-            alignment: 50.0,
-            cohesion: 50.0,
-            quantity: shouldSimplify ? 1.0 : 3.0,
-            backgroundAlpha: 0.0, // Transparent background
-            // Reduce framerate for better performance
-            fps: shouldSimplify ? 30 : 60
-          });
-          
+        // Initialize effect using our helper
+        const effect = await initVantaBirds(vantaRef.current, options);
+        
+        if (effect) {
           setVantaEffect(effect);
+        } else {
+          setError(true);
         }
       } catch (err) {
         console.error('Failed to load Vanta.js:', err);
@@ -109,7 +116,7 @@ const VantaBirdsBackground = ({ children, className }) => {
       }
     };
     
-    setupVanta();
+    setupVantaEffect();
     
     // Cleanup
     return () => {
