@@ -326,7 +326,7 @@ const VantaBackground = ({
           // Mobile high performance mode - reduce complexity but maintain 60fps
           performanceSettings = {
             actualBirdSize: birdSize * 1.3, // Larger birds = fewer birds needed
-            actualQuantity: Math.max(1, quantity * 0.6), // Significantly reduce bird count
+            actualQuantity: Math.max(1, quantity * 0.4), // Drastically reduce bird count
             actualSpeedLimit: speedLimit * 0.7, // Reduce speed further
             actualFps: 60, // Always maintain 60fps
             actualWingSpan: wingSpan * 0.9, // Reduce wingspan
@@ -338,7 +338,7 @@ const VantaBackground = ({
           // Extremely reduced settings for very low-end devices
           performanceSettings = {
             actualBirdSize: birdSize * 1.5,
-            actualQuantity: Math.max(1, quantity * 0.3), // Drastically reduce bird count
+            actualQuantity: Math.max(1, quantity * 0.2), // Even more drastically reduce bird count
             actualSpeedLimit: speedLimit * 0.5, // Half speed
             actualFps: 20, // Very low FPS
             actualWingSpan: wingSpan * 0.8,
@@ -349,7 +349,7 @@ const VantaBackground = ({
         } else if (devicePerformance === 'low') {
           performanceSettings = {
             actualBirdSize: birdSize * 1.3, // Bigger birds = fewer birds needed
-            actualQuantity: Math.max(1, quantity * 0.5), // Significantly reduce bird count
+            actualQuantity: Math.max(1, quantity * 0.3), // Further reduce bird count
             actualSpeedLimit: speedLimit * 0.6, // Slower movement
             actualFps: 30, // Lower FPS
             actualWingSpan: wingSpan * 0.9, // Slightly smaller wingspan
@@ -360,7 +360,7 @@ const VantaBackground = ({
         } else if (devicePerformance === 'medium') {
           performanceSettings = {
             actualBirdSize: birdSize * 1.1,
-            actualQuantity: Math.max(1, quantity * 0.7),
+            actualQuantity: Math.max(1, quantity * 0.5), // Reduce bird count
             actualSpeedLimit: speedLimit * 0.75,
             actualFps: 45,
             actualWingSpan: wingSpan * 0.95,

@@ -85,7 +85,7 @@ function LandingPage() {
                 separation : 120.0,
                 alignment : 15.0,
                 cohesion : 15.0,
-                quantity : 2.0,
+                quantity : 1.5,
                 backgroundAlpha: 0.0,
                 forceMobileHighPerformance: true
               });
@@ -387,7 +387,7 @@ function LandingPage() {
           separation={120.0}
           alignment={15.0}
           cohesion={15.0}
-          quantity={2.0}
+          quantity={1.5}
           backgroundAlpha={0.0}
           forceMobileHighPerformance={true}
         />

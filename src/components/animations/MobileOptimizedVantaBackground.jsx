@@ -82,7 +82,7 @@ const MobileOptimizedVantaBackground = ({
     };
     
     // Buat particles sederhana
-    const particleCount = Math.min(25, Math.floor(windowSize.width * windowSize.height / 30000));
+    const particleCount = Math.min(15, Math.floor(windowSize.width * windowSize.height / 50000));
     const particles = [];
     
     for (let i = 0; i < particleCount; i++) {

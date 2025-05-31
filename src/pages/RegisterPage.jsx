@@ -7,7 +7,7 @@ import { HomeIcon, ArrowLeftOnRectangleIcon, EyeIcon, EyeSlashIcon, UserIcon, At
 import { useTheme } from '../context/ThemeContext';
 import { withPageTransition } from '../context/ThemeContext';
 import { ParallaxBanner, Parallax } from 'react-scroll-parallax';
-import VantaBackground from '../components/animations/VantaBackground';
+import OptimizedBackgroundSwitch from '../components/animations/OptimizedBackgroundSwitch';
 
 function RegisterPage() {
   const [name, setName] = useState('');
@@ -161,8 +161,8 @@ function RegisterPage() {
           ? 'bg-gradient-to-br from-gray-900 to-gray-800' 
           : 'bg-gradient-to-br from-blue-50 to-indigo-100'
       }`}>
-        {/* Vanta.js Background */}
-        <VantaBackground
+        {/* Optimized Background */}
+        <OptimizedBackgroundSwitch
           className="register-vanta-background"
           mouseControls={true}
           touchControls={true}
@@ -170,7 +170,7 @@ function RegisterPage() {
           minHeight={window.innerHeight || 800}
           minWidth={window.innerWidth || 1200}
           scale={1.00}
-          scaleMobile={0.75}
+          scaleMobile={0.60}
           backgroundColor={isDarkMode ? 0x000000 : 0xffffff}
           color1={isDarkMode ? 0x0077ff : 0x0077ff}
           color2={isDarkMode ? 0x4b0082 : 0x4169e1}
@@ -181,7 +181,7 @@ function RegisterPage() {
           separation={90.0}
           alignment={22.0}
           cohesion={22.0}
-          quantity={3.0}
+          quantity={1.5}
           backgroundAlpha={0.0}
           forceMobileHighPerformance={true}
         />
@@ -256,8 +256,8 @@ function RegisterPage() {
         ? 'bg-gradient-to-br from-gray-900 to-gray-800' 
         : 'bg-gradient-to-br from-blue-50 to-indigo-100'
     } relative overflow-hidden`}>
-      {/* Vanta.js Background */}
-      <VantaBackground
+      {/* Optimized Background */}
+      <OptimizedBackgroundSwitch
         className="register-vanta-background"
         mouseControls={true}
         touchControls={true}
@@ -265,7 +265,7 @@ function RegisterPage() {
         minHeight={window.innerHeight || 800}
         minWidth={window.innerWidth || 1200}
         scale={1.00}
-        scaleMobile={0.75}
+        scaleMobile={0.60}
         backgroundColor={isDarkMode ? 0x000000 : 0xffffff}
         color1={isDarkMode ? 0x0077ff : 0x0077ff}
         color2={isDarkMode ? 0x4b0082 : 0x4169e1}
@@ -276,7 +276,7 @@ function RegisterPage() {
         separation={90.0}
         alignment={22.0}
         cohesion={22.0}
-        quantity={3.0}
+        quantity={1.5}
         backgroundAlpha={0.0}
         forceMobileHighPerformance={true}
       />

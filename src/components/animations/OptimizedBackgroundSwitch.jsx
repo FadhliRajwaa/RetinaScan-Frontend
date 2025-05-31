@@ -44,12 +44,14 @@ const OptimizedBackgroundSwitch = (props) => {
         console.log('WebGL detection error:', e);
       }
       
-      // Deteksi GPU mobile yang lemah
+      // Deteksi GPU mobile yang lemah - sekarang lebih agresif untuk semua GPU mobile
       const hasWeakGPU = renderer && (
-        /Adreno (5|4|3|2|1)\d\d/i.test(renderer) || 
-        /Apple A[1-9]/i.test(renderer) ||
-        /Mali-(4|3|2)/i.test(renderer) ||
-        /PowerVR/i.test(renderer)
+        /Adreno/i.test(renderer) || 
+        /Apple A/i.test(renderer) ||
+        /Mali/i.test(renderer) ||
+        /PowerVR/i.test(renderer) ||
+        /Intel/i.test(renderer) ||
+        /Google SwiftShader/i.test(renderer)
       );
       
       // Cek apakah browser dalam mode data saver
@@ -59,11 +61,18 @@ const OptimizedBackgroundSwitch = (props) => {
       const prefersReducedMotion = window.matchMedia && 
         window.matchMedia('(prefers-reduced-motion: reduce)').matches;
       
+      // Cek ukuran layar (layar kecil biasanya menandakan perangkat dengan GPU lebih lemah)
+      const hasSmallScreen = window.innerWidth < 768;
+      
       // Jika beberapa faktor risiko terdeteksi, gunakan versi optimized
+      // Kita lebih agresif dalam mendeteksi perangkat yang perlu dioptimalkan
       if (
-        (lowMemory && (lowCpu || hasWeakGPU)) || 
+        isMobile || // Semua perangkat mobile akan menggunakan optimized background
+        lowMemory || 
+        lowCpu || 
         hasWeakGPU || 
         saveData || 
+        hasSmallScreen ||
         prefersReducedMotion
       ) {
         console.log('Switching to optimized background for better performance');
