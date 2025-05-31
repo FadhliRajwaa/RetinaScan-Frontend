@@ -320,11 +320,12 @@ function RegisterPage() {
             variants={formVariants}
             initial="hidden"
             animate="visible"
-            className={`w-full px-8 py-8 rounded-2xl shadow-2xl max-h-fit ${
+            className={`w-full min-w-[400px] px-8 py-8 rounded-2xl shadow-2xl max-h-fit ${
               isDarkMode 
                 ? 'bg-gray-800/90 backdrop-blur-lg border border-gray-700' 
                 : 'bg-white/90 backdrop-blur-lg border border-gray-100'
             }`}
+            style={{ width: '100%' }}
           >
             <motion.h2 
               variants={itemVariants}

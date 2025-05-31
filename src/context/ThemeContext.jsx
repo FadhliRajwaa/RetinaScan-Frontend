@@ -126,7 +126,9 @@ export const withPageTransition = (Component) => {
           style={{ 
             willChange: 'opacity, transform',
             transform: 'translateZ(0)',
-            transition: 'opacity 0.3s ease'
+            transition: 'opacity 0.3s ease',
+            width: '100%',
+            maxWidth: '100%'
           }}
         >
           <Component {...props} />
