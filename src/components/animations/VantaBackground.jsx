@@ -27,6 +27,8 @@ const VantaBackground = ({
   const vantaRef = useRef(null);
   const [vantaEffect, setVantaEffect] = useState(null);
   const [isMobile, setIsMobile] = useState(false);
+  const [isScriptLoaded, setIsScriptLoaded] = useState(false);
+  const [retryCount, setRetryCount] = useState(0);
 
   // Detect mobile devices
   useEffect(() => {
@@ -49,57 +51,118 @@ const VantaBackground = ({
     return () => window.removeEventListener('resize', handleResize);
   }, []);
 
+  // Check if scripts are loaded
   useEffect(() => {
+    const checkScriptsLoaded = () => {
+      if (typeof window !== 'undefined' && window.THREE && window.VANTA && window.VANTA.BIRDS) {
+        console.log('THREE and VANTA scripts detected');
+        setIsScriptLoaded(true);
+        return true;
+      }
+      return false;
+    };
+
+    // Initial check
+    const isLoaded = checkScriptsLoaded();
+    if (!isLoaded) {
+      console.log('Scripts not detected, waiting for load event');
+      
+      // Listen for custom event from index.html
+      const handleVantaLoaded = () => {
+        console.log('Vanta loaded event received');
+        setIsScriptLoaded(true);
+      };
+      
+      document.addEventListener('vantaLoaded', handleVantaLoaded);
+      
+      // Check again after a delay (in case the scripts are still loading)
+      const timeoutId = setTimeout(() => {
+        if (!isScriptLoaded && retryCount < 3) {
+          console.log(`Retry check #${retryCount + 1}`);
+          setRetryCount(prev => prev + 1);
+          checkScriptsLoaded();
+        }
+      }, 1000);
+      
+      return () => {
+        document.removeEventListener('vantaLoaded', handleVantaLoaded);
+        clearTimeout(timeoutId);
+      };
+    }
+  }, [isScriptLoaded, retryCount]);
+
+  // Initialize Vanta effect
+  useEffect(() => {
+    // Only proceed if scripts are loaded
+    if (!isScriptLoaded) return;
+    
     // Check if we're in a browser environment (not SSR)
     if (typeof window === 'undefined') return;
     
     // Cleanup previous effect
-    if (vantaEffect) vantaEffect.destroy();
+    if (vantaEffect) {
+      console.log('Destroying previous Vanta effect');
+      vantaEffect.destroy();
+    }
     
     // Only initialize if the ref exists and scripts are loaded
-    if (!vantaRef.current || !window.VANTA || !window.VANTA.BIRDS) {
+    if (!vantaRef.current) {
+      console.log('Ref not available yet');
+      return;
+    }
+    
+    if (!window.VANTA || !window.VANTA.BIRDS) {
       console.error('Vanta.js or Three.js not loaded properly');
       return;
     }
 
-    // Adjust parameters for mobile devices
-    const actualBirdSize = isMobile ? birdSize * 0.8 : birdSize;
-    const actualQuantity = isMobile ? Math.max(1, quantity * 0.7) : quantity;
-    const actualSpeedLimit = isMobile ? speedLimit * 0.8 : speedLimit;
-    
-    // Initialize the effect with optimized settings
-    const effect = window.VANTA.BIRDS({
-      el: vantaRef.current,
-      mouseControls,
-      touchControls: isMobile ? true : touchControls,
-      gyroControls: isMobile ? false : gyroControls,
-      minHeight,
-      minWidth,
-      scale,
-      scaleMobile,
-      backgroundColor,
-      color1,
-      color2,
-      colorMode,
-      birdSize: actualBirdSize,
-      wingSpan,
-      speedLimit: actualSpeedLimit,
-      separation,
-      alignment,
-      cohesion,
-      quantity: actualQuantity,
-      backgroundAlpha,
-      fps: isMobile ? 30 : 60, // Lower FPS on mobile
-    });
+    try {
+      console.log('Initializing Vanta effect');
+      // Adjust parameters for mobile devices
+      const actualBirdSize = isMobile ? birdSize * 0.8 : birdSize;
+      const actualQuantity = isMobile ? Math.max(1, quantity * 0.7) : quantity;
+      const actualSpeedLimit = isMobile ? speedLimit * 0.8 : speedLimit;
+      
+      // Initialize the effect with optimized settings
+      const effect = window.VANTA.BIRDS({
+        el: vantaRef.current,
+        mouseControls,
+        touchControls: isMobile ? true : touchControls,
+        gyroControls: isMobile ? false : gyroControls,
+        minHeight,
+        minWidth,
+        scale,
+        scaleMobile,
+        backgroundColor,
+        color1,
+        color2,
+        colorMode,
+        birdSize: actualBirdSize,
+        wingSpan,
+        speedLimit: actualSpeedLimit,
+        separation,
+        alignment,
+        cohesion,
+        quantity: actualQuantity,
+        backgroundAlpha,
+        fps: isMobile ? 30 : 60, // Lower FPS on mobile
+      });
 
-    setVantaEffect(effect);
-    console.log('Vanta effect initialized:', effect);
+      console.log('Vanta effect initialized successfully');
+      setVantaEffect(effect);
+    } catch (error) {
+      console.error('Error initializing Vanta effect:', error);
+    }
 
     // Cleanup on unmount
     return () => {
-      if (effect) effect.destroy();
+      if (vantaEffect) {
+        console.log('Cleaning up Vanta effect');
+        vantaEffect.destroy();
+      }
     };
   }, [
+    isScriptLoaded,
     isMobile,
     mouseControls,
     touchControls,

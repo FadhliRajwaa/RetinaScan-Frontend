@@ -13,9 +13,37 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-    <!-- Vanta.js Dependencies -->
-    <script src="/js/three.r134.min.js"></script>
-    <script src="/js/vanta.birds.min.js"></script>
+    <!-- Vanta.js Dependencies - Local Files -->
+    <script src="./js/three.r134.min.js"></script>
+    <script src="./js/vanta.birds.min.js"></script>
+    <!-- Vanta.js Dependencies - CDN Fallback -->
+    <script>
+      // Check if THREE is loaded from local files, if not load from CDN
+      window.addEventListener('DOMContentLoaded', function() {
+        if (typeof THREE === 'undefined') {
+          console.log('Loading THREE.js from CDN');
+          var threeScript = document.createElement('script');
+          threeScript.src = 'https://cdn.jsdelivr.net/npm/three@0.134.0/build/three.min.js';
+          document.head.appendChild(threeScript);
+          
+          threeScript.onload = function() {
+            console.log('THREE.js loaded from CDN');
+            // Load Vanta after THREE is loaded
+            if (typeof VANTA === 'undefined') {
+              console.log('Loading Vanta.js from CDN');
+              var vantaScript = document.createElement('script');
+              vantaScript.src = 'https://cdn.jsdelivr.net/npm/vanta@latest/dist/vanta.birds.min.js';
+              document.head.appendChild(vantaScript);
+              vantaScript.onload = function() {
+                console.log('Vanta.js loaded from CDN');
+                // Dispatch custom event to notify components
+                document.dispatchEvent(new Event('vantaLoaded'));
+              };
+            }
+          };
+        }
+      });
+    </script>
   </head>
   <body>
     <div id="root"></div>

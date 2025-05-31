@@ -32,9 +32,79 @@ function LandingPage() {
   const [scrollY, setScrollY] = useState(0);
   const [x, setX] = useState(0);
   const [y, setY] = useState(0);
+  const [vantaInitialized, setVantaInitialized] = useState(false);
+  const heroSectionRef = useRef(null);
   
   // Environment variables
   const DASHBOARD_URL = import.meta.env.VITE_DASHBOARD_URL || 'http://localhost:3000';
+  
+  // Fallback for direct Vanta initialization if component approach fails
+  useEffect(() => {
+    // Only attempt direct initialization if Vanta component hasn't worked after 2 seconds
+    const timeoutId = setTimeout(() => {
+      if (heroSectionRef.current && !vantaInitialized && typeof window !== 'undefined') {
+        // Try to load scripts directly if they're not available
+        const loadScripts = async () => {
+          try {
+            if (!window.THREE) {
+              console.log('Loading THREE.js directly');
+              const threeScript = document.createElement('script');
+              threeScript.src = 'https://cdn.jsdelivr.net/npm/three@0.134.0/build/three.min.js';
+              document.head.appendChild(threeScript);
+              await new Promise(resolve => threeScript.onload = resolve);
+            }
+            
+            if (!window.VANTA || !window.VANTA.BIRDS) {
+              console.log('Loading Vanta.js directly');
+              const vantaScript = document.createElement('script');
+              vantaScript.src = 'https://cdn.jsdelivr.net/npm/vanta@latest/dist/vanta.birds.min.js';
+              document.head.appendChild(vantaScript);
+              await new Promise(resolve => vantaScript.onload = resolve);
+            }
+
+            // Initialize Vanta directly
+            if (window.VANTA && window.VANTA.BIRDS) {
+              console.log('Initializing Vanta directly');
+              const effect = window.VANTA.BIRDS({
+                el: heroSectionRef.current,
+                mouseControls: true,
+                touchControls: true,
+                gyroControls: false,
+                minHeight: 200,
+                minWidth: 200,
+                scale: 1.00,
+                scaleMobile: 0.75,
+                backgroundColor: isDarkMode ? 0x000000 : 0xffffff,
+                color1: isDarkMode ? 0x0077ff : 0x0077ff,
+                color2: isDarkMode ? 0x4b0082 : 0x4169e1,
+                colorMode: "variance",
+                birdSize: 1.0,
+                wingSpan: 20.0,
+                speedLimit: 3.0,
+                separation: 80.0,
+                alignment: 30.0,
+                cohesion: 30.0,
+                quantity: 3.0,
+                backgroundAlpha: 0.0
+              });
+              setVantaInitialized(true);
+              
+              // Clean up on component unmount
+              return () => {
+                if (effect) effect.destroy();
+              };
+            }
+          } catch (error) {
+            console.error('Error initializing Vanta directly:', error);
+          }
+        };
+        
+        loadScripts();
+      }
+    }, 2000);
+    
+    return () => clearTimeout(timeoutId);
+  }, [isDarkMode, vantaInitialized]);
   
   // Check authentication status
   useEffect(() => {
@@ -288,7 +358,13 @@ function LandingPage() {
   return (
     <div className={`${isDarkMode ? 'bg-gray-900 text-white' : 'bg-white text-gray-900'} transition-colors duration-300`}>
       {/* Hero Section - Enhanced Modern Design */}
-      <section className="relative min-h-[100svh] flex items-center justify-center overflow-hidden" ref={heroRef}>
+      <section 
+        className="relative min-h-[100svh] flex items-center justify-center overflow-hidden" 
+        ref={heroRef}
+      >
+        {/* Container for fallback Vanta initialization */}
+        <div ref={heroSectionRef} className="absolute inset-0 z-0"></div>
+        
         {/* Vanta.js Background */}
         <VantaBackground
           className="hero-vanta-background"
