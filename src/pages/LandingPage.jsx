@@ -336,75 +336,29 @@ function LandingPage() {
             <div className="absolute inset-0 bg-grid-pattern bg-[length:30px_30px] sm:bg-[length:50px_50px] [mask-image:radial-gradient(ellipse_at_center,white_20%,transparent_80%)]"></div>
           </div>
           
-          {/* Floating particles */}
-          {[...Array(15)].map((_, i) => (
+          {/* Optimized floating particles for mobile and desktop */}
+          {[...Array(10)].map((_, i) => (
             <motion.div 
-              key={`cta-particle-${i}`}
+              key={i}
               className={`absolute rounded-full ${
                 isDarkMode ? 'bg-blue-400/30' : 'bg-blue-500/20'
-              } ${i % 3 === 0 ? 'w-3 h-3' : 'w-2 h-2'}`}
+              } w-1 h-1 sm:w-2 sm:h-2`}
               style={{
-                x: mousePosition.x * -5 * (i % 3 + 1),
-                y: mousePosition.y * -5 * (i % 3 + 1),
                 left: `${Math.random() * 100}%`,
                 top: `${Math.random() * 100}%`,
-                filter: i % 4 === 0 ? 'blur(1px)' : 'none',
               }}
               animate={{
-                x: [
-                  0, 
-                  (Math.random() - 0.5) * 80, 
-                  (Math.random() - 0.5) * 40,
-                  (Math.random() - 0.5) * 80, 
-                  0
-                ],
-                y: [0, -40, -80, -40, 0],
-                opacity: [0, 0.6, 1, 0.6, 0],
-                scale: [0.8, 1.1, 1.3, 1.1, 0.8],
+                y: [0, -100, 0],
+                opacity: [0, 1, 0],
               }}
               transition={{
-                duration: 10 + Math.random() * 15,
+                duration: 8 + Math.random() * 8,
                 repeat: Infinity,
                 delay: Math.random() * 5,
-                ease: "easeInOut",
-                times: [0, 0.25, 0.5, 0.75, 1],
-                x: { type: "spring", stiffness: 20, damping: 25 },
-                y: { type: "spring", stiffness: 20, damping: 25 },
+                ease: "easeInOut"
               }}
-              whileHover={{ scale: 1.8, opacity: 0.8, transition: { duration: 0.8 } }}
             />
           ))}
-
-          {/* Interactive glowing dots */}
-          <div className="absolute inset-0 z-0 overflow-hidden pointer-events-none">
-            {[...Array(12)].map((_, i) => (
-              <motion.div
-                key={`cta-glow-${i}`}
-                className={`absolute rounded-full ${
-                  isDarkMode ? 'bg-indigo-500/20' : 'bg-indigo-600/15'
-                } w-2 h-2`}
-                style={{
-                  left: `${10 + (i % 4) * 25}%`,
-                  top: `${20 + Math.floor(i / 4) * 25}%`,
-                  boxShadow: isDarkMode 
-                    ? '0 0 8px 2px rgba(99, 102, 241, 0.3)' 
-                    : '0 0 8px 2px rgba(99, 102, 241, 0.2)',
-                }}
-                animate={{
-                  x: mousePosition.x * -15 * (1 + Math.sin(i * 0.5)),
-                  y: mousePosition.y * -15 * (1 + Math.cos(i * 0.5)),
-                  opacity: [0.4, 0.7, 0.4],
-                  scale: [1, 1.3, 1],
-                }}
-                transition={{
-                  x: { type: "spring", stiffness: 15, damping: 30 },
-                  y: { type: "spring", stiffness: 15, damping: 30 },
-                  opacity: { duration: 3 + i % 3, repeat: Infinity, ease: "easeInOut" },
-                  scale: { duration: 4 + i % 2, repeat: Infinity, ease: "easeInOut" },
-                }}
-              />
-            ))}
-          </div>
         </div>
 
         {/* Hero Content - Enhanced Responsive Design */}
@@ -1188,33 +1142,27 @@ function LandingPage() {
             transition={{ duration: 8, repeat: Infinity, ease: "easeInOut" }}
           />
           
-          {/* Interactive particle grid for background */}
-          <div className="absolute inset-0 z-0 overflow-hidden pointer-events-none">
-            {[...Array(30)].map((_, i) => (
-              <motion.div
-                key={`hero-grid-${i}`}
-                className={`absolute rounded-full ${
-                  isDarkMode ? 'bg-blue-500/10' : 'bg-blue-600/10'
-                } w-1 h-1 sm:w-1.5 sm:h-1.5`}
-                style={{
-                  left: `${(i % 6) * 20}%`,
-                  top: `${Math.floor(i / 6) * 20}%`,
-                }}
-                animate={{
-                  x: mousePosition.x * -12 * (1 + Math.sin(i)),
-                  y: mousePosition.y * -12 * (1 + Math.cos(i)),
-                  opacity: [0.3, 0.5, 0.3],
-                  scale: [1, 1.2, 1],
-                }}
-                transition={{
-                  x: { type: "spring", stiffness: 10, damping: 30 },
-                  y: { type: "spring", stiffness: 10, damping: 30 },
-                  opacity: { duration: 2 + i % 4, repeat: Infinity, ease: "easeInOut" },
-                  scale: { duration: 3 + i % 3, repeat: Infinity, ease: "easeInOut" },
-                }}
-              />
-            ))}
-          </div>
+          {/* Floating particles */}
+          {[...Array(5)].map((_, i) => (
+            <motion.div 
+              key={i}
+              className={`absolute rounded-full ${isDarkMode ? 'bg-blue-400/30' : 'bg-blue-500/20'} w-2 h-2`}
+              style={{
+                left: `${Math.random() * 100}%`,
+                top: `${Math.random() * 100}%`,
+              }}
+              animate={{
+                y: [0, -100, 0],
+                opacity: [0, 1, 0],
+              }}
+              transition={{
+                duration: 10 + Math.random() * 10,
+                repeat: Infinity,
+                delay: Math.random() * 5,
+                ease: "easeInOut"
+              }}
+            />
+          ))}
         </div>
         
         <div className="container mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
