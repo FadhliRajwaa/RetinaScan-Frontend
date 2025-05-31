@@ -29,7 +29,8 @@ function LandingPage() {
     testimonials: false,
     cta: false
   });
-  const [mousePosition, setMousePosition] = useState({ x: 0, y: 0 });
+  const [x, setX] = useState(0);
+  const [y, setY] = useState(0);
   const [scrollY, setScrollY] = useState(0);
   
   // Environment variables
@@ -74,10 +75,8 @@ function LandingPage() {
     const handleMouseMove = (e) => {
       // Use requestAnimationFrame for better performance
       requestAnimationFrame(() => {
-        setMousePosition({
-          x: e.clientX / window.innerWidth - 0.5,
-          y: e.clientY / window.innerHeight - 0.5,
-        });
+        setX(e.clientX / window.innerWidth - 0.5);
+        setY(e.clientY / window.innerHeight - 0.5);
       });
     };
     
@@ -287,32 +286,70 @@ function LandingPage() {
     <div className={`${isDarkMode ? 'bg-gray-900 text-white' : 'bg-white text-gray-900'} transition-colors duration-300`}>
       {/* Hero Section - Enhanced Modern Design with Better Parallax */}
       <section className="relative min-h-[100svh] flex items-center justify-center overflow-hidden" ref={heroRef}>
-        {/* Background layers with parallax effect */}
-        <div className="absolute inset-0 z-0">
-          {/* Main background image with enhanced parallax */}
-          <ParallaxBanner
-            className="absolute inset-0 w-full h-full"
-            layers={[
-              {
-                image: isDarkMode 
-                  ? 'https://images.unsplash.com/photo-1579548122080-c35fd6820ecb?auto=format&fit=crop&q=80&w=2070&ixlib=rb-4.0.3'
-                  : 'https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?auto=format&fit=crop&q=80&w=2064&ixlib=rb-4.0.3',
-                speed: -25, // Enhanced speed
-                opacity: isDarkMode ? 0.4 : 0.6,
-                scale: [1.05, 1.2], // Enhanced scale
-                easing: 'easeOutQuad',
-                translateY: [0, 30], // Added vertical movement
+        {/* Enhanced animated gradient background */}
+        <motion.div 
+          className="absolute inset-0 z-0 overflow-hidden"
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ duration: 1.5 }}
+        >
+          {/* Main animated gradient with CSS */}
+          <div className="absolute inset-0 animated-gradient" 
+            style={{
+              background: isDarkMode 
+                ? 'linear-gradient(120deg, rgba(29, 78, 216, 0.1), rgba(67, 56, 202, 0.1), rgba(124, 58, 237, 0.1))'
+                : 'linear-gradient(120deg, rgba(59, 130, 246, 0.15), rgba(79, 70, 229, 0.15), rgba(139, 92, 246, 0.15))'
+            }}
+          />
+          
+          {/* Animated blobs */}
+          <div className="blob bg-blue-400 dark:bg-blue-600 h-96 w-96 top-0 left-0 opacity-10 dark:opacity-5" />
+          <div className="blob bg-indigo-400 dark:bg-indigo-600 h-96 w-96 bottom-0 right-0 opacity-10 dark:opacity-5" 
+               style={{animationDelay: '-2s'}} />
+          <div className="blob bg-purple-400 dark:bg-purple-600 h-64 w-64 top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 opacity-10 dark:opacity-5"
+               style={{animationDelay: '-4s'}} />
+          
+          {/* Main animated gradient - use Framer Motion for more control */}
+          <motion.div 
+            className="absolute -inset-[100px] filter blur-3xl opacity-30"
+            animate={{
+              background: isDarkMode 
+                ? [
+                    'radial-gradient(circle at 20% 20%, rgba(14, 165, 233, 0.15) 0%, rgba(79, 70, 229, 0.1) 50%, rgba(10, 10, 10, 0) 80%)',
+                    'radial-gradient(circle at 40% 70%, rgba(14, 165, 233, 0.15) 0%, rgba(79, 70, 229, 0.1) 50%, rgba(10, 10, 10, 0) 80%)',
+                    'radial-gradient(circle at 60% 30%, rgba(14, 165, 233, 0.15) 0%, rgba(79, 70, 229, 0.1) 50%, rgba(10, 10, 10, 0) 80%)',
+                    'radial-gradient(circle at 20% 20%, rgba(14, 165, 233, 0.15) 0%, rgba(79, 70, 229, 0.1) 50%, rgba(10, 10, 10, 0) 80%)',
+                  ]
+                : [
+                    'radial-gradient(circle at 20% 20%, rgba(56, 189, 248, 0.4) 0%, rgba(59, 130, 246, 0.3) 50%, rgba(255, 255, 255, 0) 80%)',
+                    'radial-gradient(circle at 40% 70%, rgba(56, 189, 248, 0.4) 0%, rgba(59, 130, 246, 0.3) 50%, rgba(255, 255, 255, 0) 80%)',
+                    'radial-gradient(circle at 60% 30%, rgba(56, 189, 248, 0.4) 0%, rgba(59, 130, 246, 0.3) 50%, rgba(255, 255, 255, 0) 80%)',
+                    'radial-gradient(circle at 20% 20%, rgba(56, 189, 248, 0.4) 0%, rgba(59, 130, 246, 0.3) 50%, rgba(255, 255, 255, 0) 80%)',
+                  ],
+            }}
+            transition={{
+              background: {
+                duration: 15,
+                repeat: Infinity,
+                ease: "easeInOut",
+                times: [0, 0.33, 0.66, 1]
               }
-            ]}
-          >
-            {/* Enhanced gradient overlay with better mobile support */}
-            <div className={`absolute inset-0 ${
-              isDarkMode 
-                ? 'bg-gradient-to-b from-gray-900/95 via-gray-900/85 to-gray-900/95'
-                : 'bg-gradient-to-b from-blue-500/30 via-white/40 to-white/90'
-              }`} />
-          </ParallaxBanner>
-        </div>
+            }}
+          />
+          
+          {/* Subtle mouse-responsive overlay */}
+          <motion.div 
+            className="absolute inset-0"
+            style={{
+              background: isDarkMode 
+                ? 'radial-gradient(circle at 50% 50%, rgba(30, 64, 175, 0.05), rgba(10, 10, 10, 0))'
+                : 'radial-gradient(circle at 50% 50%, rgba(59, 130, 246, 0.1), rgba(255, 255, 255, 0))',
+              backgroundSize: '120% 120%',
+              backgroundPosition: `${50 + x * 10}% ${50 + y * 10}%`,
+              transition: 'background-position 2s cubic-bezier(0.19, 1, 0.22, 1)',
+            }}
+          />
+        </motion.div>
 
         {/* Enhanced animated floating elements */}
         <div className="absolute inset-0 overflow-hidden pointer-events-none">
@@ -1115,6 +1152,75 @@ function LandingPage() {
             : 'bg-gradient-to-br from-blue-50 via-indigo-50 to-blue-50 text-gray-900'
         }`}
       >
+        {/* Enhanced animated gradient background */}
+        <motion.div 
+          className="absolute inset-0 z-0 overflow-hidden"
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ duration: 1.5 }}
+        >
+          {/* Main animated gradient with CSS */}
+          <div className="absolute inset-0 animated-gradient" 
+            style={{
+              background: isDarkMode 
+                ? 'linear-gradient(120deg, rgba(79, 70, 229, 0.1), rgba(67, 56, 202, 0.1), rgba(29, 78, 216, 0.1))'
+                : 'linear-gradient(120deg, rgba(139, 92, 246, 0.15), rgba(79, 70, 229, 0.15), rgba(59, 130, 246, 0.15))'
+            }}
+          />
+          
+          {/* Animated blobs */}
+          <div className="blob bg-indigo-400 dark:bg-indigo-600 h-96 w-96 top-0 right-0 opacity-10 dark:opacity-5" />
+          <div className="blob bg-blue-400 dark:bg-blue-600 h-96 w-96 bottom-0 left-0 opacity-10 dark:opacity-5" 
+               style={{animationDelay: '-3s'}} />
+          <div className="blob bg-purple-400 dark:bg-purple-600 h-72 w-72 top-1/2 right-1/3 -translate-y-1/2 opacity-10 dark:opacity-5"
+               style={{animationDelay: '-5s'}} />
+          
+          {/* Main animated gradient with Framer Motion */}
+          <motion.div 
+            className="absolute -inset-[100px] filter blur-3xl opacity-30"
+            animate={{
+              background: isDarkMode 
+                ? [
+                    'radial-gradient(circle at 70% 30%, rgba(79, 70, 229, 0.15) 0%, rgba(14, 165, 233, 0.1) 50%, rgba(10, 10, 10, 0) 80%)',
+                    'radial-gradient(circle at 30% 60%, rgba(79, 70, 229, 0.15) 0%, rgba(14, 165, 233, 0.1) 50%, rgba(10, 10, 10, 0) 80%)',
+                    'radial-gradient(circle at 50% 40%, rgba(79, 70, 229, 0.15) 0%, rgba(14, 165, 233, 0.1) 50%, rgba(10, 10, 10, 0) 80%)',
+                    'radial-gradient(circle at 70% 30%, rgba(79, 70, 229, 0.15) 0%, rgba(14, 165, 233, 0.1) 50%, rgba(10, 10, 10, 0) 80%)',
+                  ]
+                : [
+                    'radial-gradient(circle at 70% 30%, rgba(79, 70, 229, 0.3) 0%, rgba(56, 189, 248, 0.2) 50%, rgba(255, 255, 255, 0) 80%)',
+                    'radial-gradient(circle at 30% 60%, rgba(79, 70, 229, 0.3) 0%, rgba(56, 189, 248, 0.2) 50%, rgba(255, 255, 255, 0) 80%)',
+                    'radial-gradient(circle at 50% 40%, rgba(79, 70, 229, 0.3) 0%, rgba(56, 189, 248, 0.2) 50%, rgba(255, 255, 255, 0) 80%)',
+                    'radial-gradient(circle at 70% 30%, rgba(79, 70, 229, 0.3) 0%, rgba(56, 189, 248, 0.2) 50%, rgba(255, 255, 255, 0) 80%)',
+                  ],
+            }}
+            transition={{
+              background: {
+                duration: 18,
+                repeat: Infinity,
+                ease: "easeInOut",
+                times: [0, 0.33, 0.66, 1]
+              }
+            }}
+          />
+          
+          {/* Subtle mouse-responsive overlay */}
+          <motion.div 
+            className="absolute inset-0"
+            style={{
+              background: isDarkMode 
+                ? 'radial-gradient(circle at 50% 50%, rgba(79, 70, 229, 0.05), rgba(10, 10, 10, 0))'
+                : 'radial-gradient(circle at 50% 50%, rgba(79, 70, 229, 0.1), rgba(255, 255, 255, 0))',
+              backgroundSize: '120% 120%',
+              backgroundPosition: `${50 + x * 10}% ${50 + y * 10}%`,
+              transition: 'background-position 2s cubic-bezier(0.19, 1, 0.22, 1)',
+            }}
+          />
+          
+          {/* Grid pattern overlay */}
+          <div className="absolute inset-0 bg-grid-pattern opacity-30 dark:opacity-10 
+                         bg-[length:20px_20px] sm:bg-[length:30px_30px]"></div>
+        </motion.div>
+        
         {/* Background elements */}
         <div className="absolute inset-0 overflow-hidden pointer-events-none">
           <motion.div 

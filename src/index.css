@@ -413,5 +413,61 @@ body {
 }
 
 .animate-fadeInDown {
-  animation: fadeInDown 0.8s ease forwards;
+  animation: fadeInDown 1s ease forwards;
+}
+
+/* Grid pattern untuk background */
+.bg-grid-pattern {
+  background-image: 
+    linear-gradient(to right, rgba(99, 102, 241, 0.1) 1px, transparent 1px),
+    linear-gradient(to bottom, rgba(99, 102, 241, 0.1) 1px, transparent 1px);
+}
+
+.dark .bg-grid-pattern {
+  background-image: 
+    linear-gradient(to right, rgba(99, 102, 241, 0.05) 1px, transparent 1px),
+    linear-gradient(to bottom, rgba(99, 102, 241, 0.05) 1px, transparent 1px);
+}
+
+/* Animated background gradients */
+.animated-gradient {
+  background-size: 400% 400%;
+  animation: gradient-shift 15s ease infinite;
+}
+
+@keyframes gradient-shift {
+  0% {
+    background-position: 0% 50%;
+  }
+  50% {
+    background-position: 100% 50%;
+  }
+  100% {
+    background-position: 0% 50%;
+  }
+}
+
+/* Smooth blob animation */
+.blob {
+  border-radius: 50%;
+  filter: blur(80px);
+  opacity: 0.3;
+  position: absolute;
+  z-index: -1;
+  animation: blob-pulse 8s ease-in-out infinite alternate;
+}
+
+@keyframes blob-pulse {
+  0% {
+    transform: scale(1) translate(0, 0);
+  }
+  33% {
+    transform: scale(1.1) translate(5%, 5%);
+  }
+  66% {
+    transform: scale(0.9) translate(-5%, 5%);
+  }
+  100% {
+    transform: scale(1.05) translate(0, -5%);
+  }
 }
