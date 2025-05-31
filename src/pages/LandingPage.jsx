@@ -2,6 +2,8 @@ import { Link } from 'react-router-dom';
 import { motion, useScroll, useTransform, AnimatePresence } from 'framer-motion';
 import { useTheme } from '../context/ThemeContext';
 import { useRef, useEffect, useState } from 'react';
+import VantaBirdsBackground from '../components/animations/VantaBirdsBackground';
+import '../components/animations/VantaBirdsBackground.css';
 import { 
   ArrowRightIcon, 
   ShieldCheckIcon, 
@@ -29,9 +31,23 @@ function LandingPage() {
     cta: false
   });
   const [scrollY, setScrollY] = useState(0);
+  const [isScrolled, setIsScrolled] = useState(false);
+  const [showBackground, setShowBackground] = useState(false);
   
   // Environment variables
   const DASHBOARD_URL = import.meta.env.VITE_DASHBOARD_URL || 'http://localhost:3000';
+  
+  // Show background after component mount with a slight delay for performance
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setShowBackground(true);
+    }, 100);
+    
+    return () => {
+      clearTimeout(timer);
+      setShowBackground(false);
+    };
+  }, []);
   
   // Check authentication status
   useEffect(() => {
@@ -47,6 +63,7 @@ function LandingPage() {
   useEffect(() => {
     const handleScroll = () => {
       setScrollY(window.scrollY);
+      setIsScrolled(window.scrollY > 100); // Set scrolled state when scrolled more than 100px
     };
     
     window.addEventListener('scroll', handleScroll);
@@ -283,9 +300,19 @@ function LandingPage() {
   ];
 
   return (
-    <div className={`${isDarkMode ? 'bg-gray-900 text-white' : 'bg-white text-gray-900'} transition-colors duration-300`}>
+    <div 
+      className={`landing-page ${isDarkMode ? 'bg-gray-900 text-white' : 'bg-white text-gray-900'} transition-colors duration-300 relative min-h-screen`}
+      data-scroll={isScrolled ? "true" : "false"}
+    >
+      {/* Only render VantaBirdsBackground when showBackground is true */}
+      {showBackground && (
+        <VantaBirdsBackground 
+          className={`landing-background z-0 ${isScrolled ? 'opacity-30' : ''}`} 
+        />
+      )}
+      
       {/* Hero Section - Enhanced Modern Design */}
-      <section className="relative min-h-[100svh] flex items-center justify-center overflow-hidden" ref={heroRef}>
+      <section className="relative min-h-[100svh] flex items-center justify-center overflow-hidden z-10" ref={heroRef}>
         {/* Enhanced animated gradient background */}
         <motion.div 
           className="absolute inset-0 z-0 overflow-hidden"
@@ -1131,7 +1158,7 @@ function LandingPage() {
           
           {/* Animated blobs */}
           <div className="blob bg-indigo-400 dark:bg-indigo-600 h-96 w-96 top-0 right-0 opacity-10 dark:opacity-5" />
-          <div className="blob bg-blue-400 dark:bg-blue-600 h-96 w-96 bottom-0 left-0 opacity-10 dark:opacity-5" 
+          <div className="blob bg-blue-400 dark:bg-blue-600 h-96 bottom-0 left-0 opacity-10 dark:opacity-5" 
                style={{animationDelay: '-3s'}} />
           <div className="blob bg-purple-400 dark:bg-purple-600 h-72 w-72 top-1/2 right-1/3 -translate-y-1/2 opacity-10 dark:opacity-5"
                style={{animationDelay: '-5s'}} />

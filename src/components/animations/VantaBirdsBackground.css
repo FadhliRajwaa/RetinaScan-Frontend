@@ -1,0 +1,73 @@
+.vanta-birds-bg {
+  position: fixed;
+  left: 0;
+  right: 0;
+  top: 0;
+  bottom: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 0;
+  overflow: hidden;
+  transition: opacity 0.5s ease;
+  pointer-events: none; /* Ensure all clicks pass through to content below */
+}
+
+/* Make sure the background stays fixed during scroll */
+.vanta-canvas {
+  position: fixed !important;
+  z-index: 0 !important;
+  pointer-events: none !important; /* Ensure all clicks pass through */
+}
+
+/* Add subtle fade effect when scrolling */
+.landing-page {
+  position: relative;
+}
+
+/* Adjust background opacity based on scroll position */
+.landing-page[data-scroll="true"] .vanta-birds-bg {
+  opacity: 0.3;
+}
+
+/* Increase z-index for interactive elements to ensure they're above the background */
+.landing-page button,
+.landing-page a,
+.landing-page input,
+.landing-page form {
+  position: relative;
+  z-index: 1;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+  .vanta-birds-bg {
+    opacity: 0.4 !important; /* Reduce opacity on mobile */
+  }
+  
+  /* Optimize rendering performance */
+  .vanta-canvas {
+    transform: scale(0.8); /* Slightly reduce scale on mobile for better performance */
+  }
+}
+
+/* Optimize performance on small mobile devices */
+@media (max-width: 480px) {
+  .vanta-birds-bg {
+    opacity: 0.3 !important;
+  }
+  
+  .vanta-canvas {
+    transform: scale(0.6); /* Further reduce scale on very small screens */
+  }
+}
+
+/* Disable animation on very small devices or when battery is low */
+@media (max-width: 360px), (prefers-reduced-motion: reduce) {
+  .vanta-birds-bg {
+    opacity: 0.2 !important;
+  }
+  
+  .vanta-canvas {
+    transform: scale(0.5); /* Minimal animation on very small screens */
+  }
+} 

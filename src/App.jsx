@@ -12,6 +12,7 @@ import ForgotPasswordPage from './pages/ForgotPasswordPage';
 import ResetPasswordPage from './pages/ResetPasswordPage';
 import RetinaScanPage from './pages/RetinaScanPage';
 import ProtectedRoute from './components/common/ProtectedRoute';
+import './components/animations/VantaBirdsBackground.css';
 
 function AppContent() {
   const location = useLocation();
