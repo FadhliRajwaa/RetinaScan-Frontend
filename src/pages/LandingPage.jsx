@@ -270,19 +270,19 @@ function LandingPage() {
       quote: "RetinaScan telah membantu kami mendeteksi kasus retinopati diabetik lebih awal, sehingga pasien mendapatkan perawatan yang tepat waktu.",
       name: "dr. Siti Rahmawati",
       title: "Dokter Spesialis Mata, RS Premier Jakarta",
-      image: "https://randomuser.me/api/portraits/women/45.jpg"
+      image: "" // Removed external image URL
     },
     {
       quote: "Teknologi AI dari RetinaScan sangat membantu praktik saya. Akurasinya tinggi dan sangat menghemat waktu dalam diagnosis.",
       name: "dr. Budi Santoso",
       title: "Dokter Spesialis Mata, Klinik Mata Sehat",
-      image: "https://randomuser.me/api/portraits/men/32.jpg"
+      image: "" // Removed external image URL
     },
     {
       quote: "Sebagai penyandang diabetes, RetinaScan memberikan saya ketenangan karena bisa memantau kondisi retina secara rutin dengan mudah.",
       name: "Ani Wijaya",
       title: "Pasien Diabetes",
-      image: "https://randomuser.me/api/portraits/women/68.jpg"
+      image: "" // Removed external image URL
     }
   ];
 

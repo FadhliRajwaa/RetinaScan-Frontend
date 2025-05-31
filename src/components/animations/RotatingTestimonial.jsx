@@ -1,6 +1,6 @@
 import React, { useRef, useState } from 'react';
 import { useFrame } from '@react-three/fiber';
-import { Text, RoundedBox, Image } from '@react-three/drei';
+import { Text } from '@react-three/drei';
 import * as THREE from 'three';
 import { useTheme } from '../../context/ThemeContext';
 
@@ -14,7 +14,7 @@ export default function RotatingTestimonial({
   quote = "Testimonial text goes here",
   name = "User Name",
   title = "User Title",
-  imageUrl = "https://randomuser.me/api/portraits/women/45.jpg",
+  imageUrl = "",
   delayFactor = 0 // Untuk staggering efek
 }) {
   const { isDarkMode } = useTheme();
@@ -63,53 +63,37 @@ export default function RotatingTestimonial({
       onPointerOut={() => setHovered(false)}
     >
       {/* Kartu testimonial */}
-      <RoundedBox
-        args={[width, height, depth]}
-        radius={0.2}
-        smoothness={4}
-      >
+      <mesh>
+        <boxGeometry args={[width, height, depth]} />
         <meshStandardMaterial
           color={bgColor}
           roughness={0.2}
           metalness={0.1}
           envMapIntensity={isDarkMode ? 0.3 : 0.7}
         />
-      </RoundedBox>
+      </mesh>
 
       {/* Garis aksen */}
-      <RoundedBox
-        args={[width * 0.8, 0.05, depth * 1.1]}
-        radius={0.025}
-        smoothness={4}
-        position={[0, height * 0.3, 0.01]}
-      >
+      <mesh position={[0, height * 0.3, 0.01]}>
+        <boxGeometry args={[width * 0.8, 0.05, depth * 0.1]} />
         <meshStandardMaterial
           color={accentColor}
           emissive={accentColor}
           emissiveIntensity={isDarkMode ? 0.7 : 0.3}
         />
-      </RoundedBox>
+      </mesh>
 
-      {/* Foto profil */}
-      <group position={[0, height * 0.35, depth / 2 + 0.01]}>
-        <mesh>
-          <circleGeometry args={[0.5, 32]} />
-          <meshBasicMaterial color={isDarkMode ? "#0F172A" : "#E2E8F0"} />
-        </mesh>
-        <Image
-          url={imageUrl}
-          transparent
-          scale={[0.9, 0.9, 1]}
-          position={[0, 0, 0.01]}
-        />
-      </group>
+      {/* Foto profil (simplified) */}
+      <mesh position={[0, height * 0.35, depth / 2 + 0.01]}>
+        <circleGeometry args={[0.5, 32]} />
+        <meshBasicMaterial color={accentColor} />
+      </mesh>
 
       {/* Text Quote */}
       <Text
         position={[0, 0, depth / 2 + 0.01]}
         fontSize={0.18}
         color={textColor}
-        font="/fonts/Inter-Regular.woff"
         anchorX="center"
         anchorY="middle"
         maxWidth={width * 0.75}
@@ -123,7 +107,6 @@ export default function RotatingTestimonial({
         position={[0, -height * 0.35, depth / 2 + 0.01]}
         fontSize={0.22}
         color={textColor}
-        font="/fonts/Inter-Bold.woff"
         anchorX="center"
         anchorY="middle"
       >
@@ -135,7 +118,6 @@ export default function RotatingTestimonial({
         position={[0, -height * 0.42, depth / 2 + 0.01]}
         fontSize={0.16}
         color={subTextColor}
-        font="/fonts/Inter-Regular.woff"
         anchorX="center"
         anchorY="middle"
       >

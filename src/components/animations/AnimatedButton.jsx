@@ -1,6 +1,6 @@
 import React, { useRef, useState } from 'react';
 import { useFrame } from '@react-three/fiber';
-import { Text, RoundedBox } from '@react-three/drei';
+import { Text } from '@react-three/drei';
 import * as THREE from 'three';
 import { useTheme } from '../../context/ThemeContext';
 
@@ -88,7 +88,7 @@ export default function AnimatedButton({
     >
       {/* Glow effect */}
       <mesh position={[0, -0.1, -0.1]} scale={[1.05, 1.05, 1]}>
-        <roundedBoxGeometry args={[width, height, depth * 0.5, 8, 0.1]} />
+        <boxGeometry args={[width, height, depth * 0.5]} />
         <meshBasicMaterial 
           color={colors.glow} 
           transparent 
@@ -98,26 +98,18 @@ export default function AnimatedButton({
       </mesh>
       
       {/* Button base/back */}
-      <RoundedBox
-        args={[width, height, depth]}
-        radius={0.1}
-        smoothness={4}
-        position={[0, 0, -0.05]}
-      >
+      <mesh position={[0, 0, -0.05]}>
+        <boxGeometry args={[width, height, depth]} />
         <meshStandardMaterial
           color={colors.side}
           roughness={0.3}
           metalness={0.2}
         />
-      </RoundedBox>
+      </mesh>
 
       {/* Button front face */}
-      <RoundedBox
-        args={[width, height, depth * 0.9]}
-        radius={0.1}
-        smoothness={4}
-        position={[0, 0, 0.02]}
-      >
+      <mesh position={[0, 0, 0.02]}>
+        <boxGeometry args={[width, height, depth * 0.9]} />
         <meshStandardMaterial
           color={colors.body}
           roughness={0.2}
@@ -125,14 +117,13 @@ export default function AnimatedButton({
           emissive={colors.body}
           emissiveIntensity={isDarkMode ? 0.2 : 0.1}
         />
-      </RoundedBox>
+      </mesh>
 
       {/* Button text */}
       <Text
         position={[0, 0, depth / 2 + 0.01]}
         fontSize={0.25}
         color={colors.text}
-        font="/fonts/Inter-Bold.woff"
         anchorX="center"
         anchorY="middle"
         maxWidth={width * 0.8}

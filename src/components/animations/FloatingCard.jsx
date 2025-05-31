@@ -1,6 +1,6 @@
 import React, { useRef, useState } from 'react';
 import { useFrame } from '@react-three/fiber';
-import { Text, RoundedBox } from '@react-three/drei';
+import { Text } from '@react-three/drei';
 import * as THREE from 'three';
 import { useTheme } from '../../context/ThemeContext';
 
@@ -55,27 +55,20 @@ export default function FloatingCard({
       onPointerOver={() => setHovered(true)}
       onPointerOut={() => setHovered(false)}
     >
-      {/* Kartu 3D dengan sudut membulat */}
-      <RoundedBox
-        args={[width, height, depth]}
-        radius={0.2}
-        smoothness={4}
-      >
+      {/* Kartu 3D dengan sudut membulat (menggunakan box biasa) */}
+      <mesh>
+        <boxGeometry args={[width, height, depth]} />
         <meshStandardMaterial 
           color={backColor}
           roughness={0.3}
           metalness={0.1}
           envMapIntensity={isDarkMode ? 0.5 : 1}
         />
-      </RoundedBox>
+      </mesh>
 
       {/* Indikator warna di bagian atas */}
-      <RoundedBox
-        args={[width, height * 0.15, depth * 1.1]}
-        radius={0.1}
-        smoothness={4}
-        position={[0, height * 0.425, 0.01]}
-      >
+      <mesh position={[0, height * 0.425, depth/2 + 0.01]}>
+        <boxGeometry args={[width, height * 0.15, depth * 0.1]} />
         <meshStandardMaterial 
           color={cardColor} 
           roughness={0.3}
@@ -83,14 +76,13 @@ export default function FloatingCard({
           emissive={cardColor}
           emissiveIntensity={isDarkMode ? 0.6 : 0.2}
         />
-      </RoundedBox>
+      </mesh>
 
       {/* Text Judul */}
       <Text
         position={[0, -0.1, depth / 2 + 0.01]}
         fontSize={0.3}
         color={textColor}
-        font="/fonts/Inter-Bold.woff"
         anchorX="center"
         anchorY="middle"
         maxWidth={width * 0.8}

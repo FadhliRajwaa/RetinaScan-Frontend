@@ -1,4 +1,4 @@
-import React, { Suspense, useRef } from 'react';
+import React, { Suspense, useRef, useState, useEffect } from 'react';
 import { Canvas, useThree, useFrame } from '@react-three/fiber';
 import { OrbitControls, Environment, PerspectiveCamera, useProgress, Html } from '@react-three/drei';
 import * as THREE from 'three';
@@ -59,8 +59,6 @@ function SceneSetup({ children, cameraPosition = [0, 0, 10], controls = true }) 
         position={[5, 5, 5]} 
         intensity={isDarkMode ? 0.7 : 1} 
         castShadow
-        shadow-mapSize-width={1024}
-        shadow-mapSize-height={1024}
       />
       
       {/* Fill light untuk mengurangi bayangan */}
@@ -89,9 +87,53 @@ export default function Scene3D({
   controls = false,
   style = {}
 }) {
+  const [webGLSupported, setWebGLSupported] = useState(true);
+  
+  // Check if WebGL is supported
+  useEffect(() => {
+    try {
+      const canvas = document.createElement('canvas');
+      const gl = canvas.getContext('webgl') || 
+                 canvas.getContext('experimental-webgl');
+      
+      setWebGLSupported(!!gl);
+    } catch (e) {
+      setWebGLSupported(false);
+      console.error('WebGL not supported:', e);
+    }
+  }, []);
+  
+  // Fallback jika WebGL tidak didukung
+  if (!webGLSupported) {
+    return (
+      <div 
+        className={`${className} flex items-center justify-center bg-gray-100 dark:bg-gray-800 rounded-lg`}
+        style={{ ...style }}
+      >
+        <div className="text-center p-4">
+          <p className="text-sm text-gray-500 dark:text-gray-400">
+            3D effects require WebGL support
+          </p>
+        </div>
+      </div>
+    );
+  }
+  
   return (
     <div className={`${className}`} style={{ ...style }}>
-      <Canvas shadows dpr={[1, 2]} gl={{ antialias: true }}>
+      <Canvas 
+        shadows 
+        dpr={[1, 2]} 
+        gl={{ 
+          antialias: true,
+          powerPreference: 'default',
+          failIfMajorPerformanceCaveat: false,
+          preserveDrawingBuffer: false
+        }}
+        onCreated={({ gl }) => {
+          gl.setClearColor(new THREE.Color(0, 0, 0, 0));
+        }}
+      >
         <Suspense fallback={<Loader />}>
           <SceneSetup cameraPosition={cameraPosition} controls={controls}>
             {children}
