@@ -18,6 +18,7 @@ import {
   BeakerIcon
 } from '@heroicons/react/24/outline';
 import { withPageTransition } from '../context/ThemeContext';
+import MetaballsBackground from '../components/common/MetaballsBackground';
 
 function LandingPage() {
   const { theme, animations, isDarkMode } = useTheme();
@@ -29,6 +30,8 @@ function LandingPage() {
     cta: false
   });
   const [scrollY, setScrollY] = useState(0);
+  const [x, setX] = useState(0);
+  const [y, setY] = useState(0);
   
   // Environment variables
   const DASHBOARD_URL = import.meta.env.VITE_DASHBOARD_URL || 'http://localhost:3000';
@@ -284,6 +287,9 @@ function LandingPage() {
 
   return (
     <div className={`${isDarkMode ? 'bg-gray-900 text-white' : 'bg-white text-gray-900'} transition-colors duration-300`}>
+      {/* Metaballs Background Animation */}
+      <MetaballsBackground numBalls={30} opacity={0.6} />
+      
       {/* Hero Section - Enhanced Modern Design */}
       <section className="relative min-h-[100svh] flex items-center justify-center overflow-hidden" ref={heroRef}>
         {/* Enhanced animated gradient background */}
@@ -1222,128 +1228,4 @@ function LandingPage() {
               transition={{ duration: 0.6, delay: 0.2 }}
               className={`inline-flex items-center justify-center p-3 rounded-full mb-6 ${
                 isDarkMode ? 'bg-blue-900/50' : 'bg-blue-100'
-              }`}
-            >
-              <EyeIcon className={`h-8 w-8 ${isDarkMode ? 'text-blue-400' : 'text-blue-600'}`} />
-            </motion.div>
-            
-            <motion.h2 
-              className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-bold mb-6"
-              initial={{ opacity: 0, y: 20 }}
-              animate={isVisible.cta ? { opacity: 1, y: 0 } : {}}
-              transition={{ duration: 0.6, delay: 0.3 }}
-            >
-              Mulai Deteksi Dini Retinopati Diabetik Sekarang
-            </motion.h2>
-            
-            <motion.p 
-              className={`text-lg sm:text-xl mb-8 max-w-2xl mx-auto ${
-                isDarkMode ? 'text-gray-300' : 'text-gray-700'
-              }`}
-              initial={{ opacity: 0, y: 20 }}
-              animate={isVisible.cta ? { opacity: 1, y: 0 } : {}}
-              transition={{ duration: 0.6, delay: 0.4 }}
-            >
-              Lindungi kesehatan mata Anda dengan teknologi AI terkini. Daftar sekarang dan dapatkan analisis retina pertama secara gratis.
-            </motion.p>
-            
-            <motion.div
-              className="flex flex-col sm:flex-row gap-4 justify-center items-center"
-              initial={{ opacity: 0, y: 20 }}
-              animate={isVisible.cta ? { opacity: 1, y: 0 } : {}}
-              transition={{ duration: 0.6, delay: 0.5 }}
-            >
-              {isAuthenticated ? (
-                <motion.div whileHover="hover" whileTap="tap" variants={buttonVariants}>
-                  <a 
-                    href={DASHBOARD_URL} 
-                    className={`px-8 py-4 rounded-lg font-medium flex items-center justify-center ${
-                      isDarkMode 
-                        ? 'bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-500 hover:to-indigo-500 text-white' 
-                        : 'bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white'
-                    } transition-all duration-300 shadow-lg`}
-                  >
-                    <span>Buka Dashboard</span>
-                    <motion.span
-                      initial={{ x: 0 }}
-                      whileHover={{ x: 5 }}
-                      transition={{ duration: 0.3 }}
-                    >
-                      <ArrowRightIcon className="ml-2 h-5 w-5" />
-                    </motion.span>
-                  </a>
-                </motion.div>
-              ) : (
-                <>
-                  <motion.div whileHover="hover" whileTap="tap" variants={buttonVariants}>
-                    <Link 
-                      to="/register" 
-                      className={`px-8 py-4 rounded-lg font-medium flex items-center justify-center ${
-                        isDarkMode 
-                          ? 'bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-500 hover:to-indigo-500 text-white' 
-                          : 'bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white'
-                      } transition-all duration-300 shadow-lg`}
-                    >
-                      <span>Daftar Sekarang</span>
-                      <motion.span
-                        initial={{ x: 0 }}
-                        whileHover={{ x: 5 }}
-                        transition={{ duration: 0.3 }}
-                      >
-                        <ArrowRightIcon className="ml-2 h-5 w-5" />
-                      </motion.span>
-                    </Link>
-                  </motion.div>
-                  
-                  <motion.div whileHover="hover" whileTap="tap" variants={buttonVariants}>
-                    <Link 
-                      to="/login" 
-                      className={`px-8 py-4 rounded-lg font-medium flex items-center justify-center ${
-                        isDarkMode 
-                          ? 'bg-gray-800 hover:bg-gray-700 text-white border border-gray-700' 
-                          : 'bg-white hover:bg-gray-100 text-gray-900 border border-gray-200 shadow-md'
-                      } transition-colors duration-300`}
-                    >
-                      Login
-                    </Link>
-                  </motion.div>
-                </>
-              )}
-            </motion.div>
-            
-            {/* Trust indicators */}
-            <motion.div 
-              className="mt-12 flex flex-col sm:flex-row items-center justify-center gap-4 sm:gap-10"
-              initial={{ opacity: 0 }}
-              animate={isVisible.cta ? { opacity: 1 } : {}}
-              transition={{ duration: 0.8, delay: 0.7 }}
-            >
-              <div className="flex items-center">
-                <ShieldCheckIcon className={`h-5 w-5 mr-2 ${isDarkMode ? 'text-green-400' : 'text-green-600'}`} />
-                <span className={`text-sm ${isDarkMode ? 'text-gray-300' : 'text-gray-600'}`}>
-                  Data Aman & Terenkripsi
-                </span>
-              </div>
-              
-              <div className="flex items-center">
-                <CheckCircleIcon className={`h-5 w-5 mr-2 ${isDarkMode ? 'text-green-400' : 'text-green-600'}`} />
-                <span className={`text-sm ${isDarkMode ? 'text-gray-300' : 'text-gray-600'}`}>
-                  Terintegrasi dengan 50+ Rumah Sakit
-                </span>
-              </div>
-              
-              <div className="flex items-center">
-                <BeakerIcon className={`h-5 w-5 mr-2 ${isDarkMode ? 'text-green-400' : 'text-green-600'}`} />
-                <span className={`text-sm ${isDarkMode ? 'text-gray-300' : 'text-gray-600'}`}>
-                  Diuji Secara Klinis
-                </span>
-              </div>
-            </motion.div>
-          </motion.div>
-        </div>
-      </section>
-    </div>
-  );
-}
-
-export default withPageTransition(LandingPage);
+              }`
