@@ -2,8 +2,16 @@ import { Link } from 'react-router-dom';
 import { motion, useScroll, useTransform, AnimatePresence } from 'framer-motion';
 import { useTheme } from '../context/ThemeContext';
 import { useRef, useEffect, useState } from 'react';
+// Import dari Three.js dan Vanta dengan cara yang lebih aman
 import * as THREE from 'three';
-import BIRDS from 'vanta/dist/vanta.birds.min';
+// Impor Vanta Birds dengan menangani kemungkinan error
+let BIRDS;
+try {
+  BIRDS = require('vanta/dist/vanta.birds.min').default;
+} catch (error) {
+  console.error('Error importing Vanta Birds:', error);
+  BIRDS = null;
+}
 import { 
   ArrowRightIcon, 
   ShieldCheckIcon, 
@@ -31,6 +39,8 @@ function LandingPage() {
     cta: false
   });
   const [scrollY, setScrollY] = useState(0);
+  const [mouseX, setMouseX] = useState(0);
+  const [mouseY, setMouseY] = useState(0);
   const vantaRef = useRef(null);
   const [vantaEffect, setVantaEffect] = useState(null);
   
@@ -132,44 +142,59 @@ function LandingPage() {
   useEffect(() => {
     if (!heroRef.current) return;
     
+    // Periksa apakah Vanta tersedia
+    if (!BIRDS) {
+      console.error('Vanta Birds tidak tersedia, animasi tidak akan dijalankan');
+      return;
+    }
+    
     // Fungsi untuk membuat atau memperbarui Vanta effect
     const createOrUpdateVantaEffect = () => {
-      // Gunakan devicePerformance yang sudah disiapkan sebelumnya
-      const { isMobile, isLowPerformance, isLowPower } = devicePerformance;
-      const performanceLevel = isMobile 
-        ? (isLowPerformance || isLowPower ? 0 : 1) 
-        : (isLowPerformance ? 1 : 2);
-      
-      const config = {
-        el: vantaRef.current,
-        THREE: THREE,
-        mouseControls: performanceLevel > 0,
-        touchControls: performanceLevel > 0,
-        gyroControls: false,
-        minHeight: 200.00,
-        minWidth: 200.00,
-        scale: isMobile ? 0.75 : 1.00,
-        scaleMobile: 0.75,
-        backgroundColor: isDarkMode ? 0x0a0a0a : 0xffffff,
-        color1: isDarkMode ? 0x3b82f6 : 0x3b82f6,
-        color2: isDarkMode ? 0x8b5cf6 : 0x8b5cf6,
-        colorMode: "variance",
-        birdSize: 1.00,
-        wingSpan: 30.00,
-        speedLimit: performanceLevel === 0 ? 3.00 : (performanceLevel === 1 ? 4.00 : 5.00),
-        separation: 35.00,
-        alignment: 35.00,
-        cohesion: 35.00,
-        quantity: performanceLevel === 0 ? 1 : (performanceLevel === 1 ? 2 : 3),
-        backgroundAlpha: 0.0,
-      };
-      
-      if (vantaEffect) {
-        // Update konfigurasi jika effect sudah ada
-        vantaEffect.setOptions(config);
-      } else if (vantaRef.current) {
-        // Buat effect baru jika belum ada
-        setVantaEffect(BIRDS(config));
+      try {
+        // Gunakan devicePerformance yang sudah disiapkan sebelumnya
+        const { isMobile, isLowPerformance, isLowPower } = devicePerformance;
+        const performanceLevel = isMobile 
+          ? (isLowPerformance || isLowPower ? 0 : 1) 
+          : (isLowPerformance ? 1 : 2);
+        
+        const config = {
+          el: vantaRef.current,
+          THREE: THREE,
+          mouseControls: performanceLevel > 0,
+          touchControls: performanceLevel > 0,
+          gyroControls: false,
+          minHeight: 200.00,
+          minWidth: 200.00,
+          scale: isMobile ? 0.75 : 1.00,
+          scaleMobile: 0.75,
+          backgroundColor: isDarkMode ? 0x0a0a0a : 0xffffff,
+          color1: isDarkMode ? 0x3b82f6 : 0x3b82f6,
+          color2: isDarkMode ? 0x8b5cf6 : 0x8b5cf6,
+          colorMode: "variance",
+          birdSize: 1.00,
+          wingSpan: 30.00,
+          speedLimit: performanceLevel === 0 ? 3.00 : (performanceLevel === 1 ? 4.00 : 5.00),
+          separation: 35.00,
+          alignment: 35.00,
+          cohesion: 35.00,
+          quantity: performanceLevel === 0 ? 1 : (performanceLevel === 1 ? 2 : 3),
+          backgroundAlpha: 0.0,
+        };
+        
+        if (vantaEffect) {
+          // Update konfigurasi jika effect sudah ada
+          vantaEffect.setOptions(config);
+        } else if (vantaRef.current) {
+          // Buat effect baru jika belum ada dan THREE tersedia
+          if (typeof THREE === 'undefined' || typeof BIRDS === 'undefined') {
+            console.error('THREE atau BIRDS tidak tersedia');
+            return;
+          }
+          const effect = BIRDS(config);
+          setVantaEffect(effect);
+        }
+      } catch (error) {
+        console.error('Error saat membuat Vanta effect:', error);
       }
     };
     
@@ -187,7 +212,11 @@ function LandingPage() {
             // Destroy Vanta ketika hero section tidak terlihat lagi
             // untuk menghemat performa
             if (vantaEffect) {
-              vantaEffect.destroy();
+              try {
+                vantaEffect.destroy();
+              } catch (error) {
+                console.error('Error saat menghancurkan Vanta effect:', error);
+              }
               setVantaEffect(null);
             }
           }
@@ -200,9 +229,13 @@ function LandingPage() {
     const handleResize = () => {
       // Perbarui Vanta effect jika sudah ada dan hero section terlihat
       if (vantaEffect && heroRef.current) {
-        const entry = observer.takeRecords().find(e => e.target === heroRef.current);
-        if (entry && entry.isIntersecting) {
-          createOrUpdateVantaEffect();
+        try {
+          const entry = observer.takeRecords().find(e => e.target === heroRef.current);
+          if (entry && entry.isIntersecting) {
+            createOrUpdateVantaEffect();
+          }
+        } catch (error) {
+          console.error('Error saat resize Vanta effect:', error);
         }
       }
     };
@@ -215,11 +248,15 @@ function LandingPage() {
         observer.unobserve(heroRef.current);
       }
       if (vantaEffect) {
-        vantaEffect.destroy();
+        try {
+          vantaEffect.destroy();
+        } catch (error) {
+          console.error('Error saat cleanup Vanta effect:', error);
+        }
       }
       window.removeEventListener('resize', handleResize);
     };
-  }, [heroRef, vantaRef, vantaEffect, isDarkMode, devicePerformance]);
+  }, [heroRef, vantaRef, vantaEffect, isDarkMode, devicePerformance, BIRDS]);
   
   // Update vantaEffect warna ketika tema berubah
   useEffect(() => {
@@ -285,8 +322,8 @@ function LandingPage() {
       // Use requestAnimationFrame for better performance
       requestAnimationFrame(() => {
         // Reduce mouse movement multiplier by 70-80% for smoother effect
-        setX((e.clientX / window.innerWidth - 0.5) * 0.3);
-        setY((e.clientY / window.innerHeight - 0.5) * 0.3);
+        setMouseX((e.clientX / window.innerWidth - 0.5) * 0.3);
+        setMouseY((e.clientY / window.innerHeight - 0.5) * 0.3);
       });
     };
     
