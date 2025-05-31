@@ -186,18 +186,18 @@ const VantaBackground = ({
       // Apply performance-based settings
       if (devicePerformance === 'low') {
         performanceSettings = {
-          actualBirdSize: birdSize * 1.2, // Bigger birds = fewer birds needed
-          actualQuantity: Math.max(1, quantity * 0.4), // Significantly reduce bird count
-          actualSpeedLimit: speedLimit * 0.7, // Slower movement
+          actualBirdSize: birdSize * 1.3, // Bigger birds = fewer birds needed
+          actualQuantity: Math.max(1, quantity * 0.5), // Significantly reduce bird count
+          actualSpeedLimit: speedLimit * 0.6, // Slower movement
           actualFps: 30, // Lower FPS
           actualWingSpan: wingSpan * 0.9 // Slightly smaller wingspan
         };
       } else if (devicePerformance === 'medium') {
         performanceSettings = {
           actualBirdSize: birdSize * 1.1,
-          actualQuantity: Math.max(1, quantity * 0.6),
-          actualSpeedLimit: speedLimit * 0.8,
-          actualFps: 40,
+          actualQuantity: Math.max(1, quantity * 0.7),
+          actualSpeedLimit: speedLimit * 0.75,
+          actualFps: 45,
           actualWingSpan: wingSpan * 0.95
         };
       } else {
@@ -210,6 +210,11 @@ const VantaBackground = ({
           actualWingSpan: wingSpan
         };
       }
+      
+      // Use requestAnimationFrame to optimize rendering
+      let lastTime = 0;
+      const targetFps = performanceSettings.actualFps;
+      const frameInterval = 1000 / targetFps;
       
       // Initialize the effect with optimized settings
       const effect = window.VANTA.BIRDS({
@@ -228,12 +233,20 @@ const VantaBackground = ({
         birdSize: performanceSettings.actualBirdSize,
         wingSpan: performanceSettings.actualWingSpan,
         speedLimit: performanceSettings.actualSpeedLimit,
-        separation: separation * (devicePerformance === 'low' ? 1.2 : 1),
-        alignment: alignment * (devicePerformance === 'low' ? 0.8 : 1),
-        cohesion: cohesion * (devicePerformance === 'low' ? 0.8 : 1),
+        separation: separation * (devicePerformance === 'low' ? 1.3 : (devicePerformance === 'medium' ? 1.1 : 1)),
+        alignment: alignment * (devicePerformance === 'low' ? 0.7 : (devicePerformance === 'medium' ? 0.85 : 1)),
+        cohesion: cohesion * (devicePerformance === 'low' ? 0.7 : (devicePerformance === 'medium' ? 0.85 : 1)),
         quantity: performanceSettings.actualQuantity,
         backgroundAlpha,
         fps: performanceSettings.actualFps,
+        frameRequestCallback: (time) => {
+          // Throttle frame requests based on target FPS
+          if (time - lastTime >= frameInterval) {
+            lastTime = time;
+            return true;
+          }
+          return false;
+        }
       });
 
       console.log('Vanta effect initialized successfully');
@@ -321,7 +334,7 @@ const VantaBackground = ({
       } else if (vantaEffect) {
         // Resume normal animation when tab is visible again
         if (vantaEffect.setOptions) {
-          const fps = devicePerformance === 'low' ? 30 : (devicePerformance === 'medium' ? 40 : 60);
+          const fps = devicePerformance === 'low' ? 30 : (devicePerformance === 'medium' ? 45 : 60);
           vantaEffect.setOptions({ fps });
         }
       }

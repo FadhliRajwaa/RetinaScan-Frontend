@@ -78,13 +78,13 @@ function LandingPage() {
                 color1: isDarkMode ? 0x0077ff : 0x0077ff,
                 color2: isDarkMode ? 0x4b0082 : 0x4169e1,
                 colorMode: "variance",
-                birdSize: 1.2,
-                wingSpan: 20.0,
-                speedLimit: 2.5,
-                separation: 100.0,
-                alignment: 25.0,
-                cohesion: 25.0,
-                quantity: 2.0,
+                birdSize: 1.1,
+                wingSpan: 22.0,
+                speedLimit: 3.0,
+                separation: 90.0,
+                alignment: 22.0,
+                cohesion: 22.0,
+                quantity: 3.5,
                 backgroundAlpha: 0.0
               });
               setVantaInitialized(true);
@@ -379,13 +379,13 @@ function LandingPage() {
           color1={isDarkMode ? 0x0077ff : 0x0077ff}
           color2={isDarkMode ? 0x4b0082 : 0x4169e1}
           colorMode="variance"
-          birdSize={1.2}
-          wingSpan={20.0}
-          speedLimit={2.5}
-          separation={100.0}
-          alignment={25.0}
-          cohesion={25.0}
-          quantity={2.0}
+          birdSize={1.1}
+          wingSpan={22.0}
+          speedLimit={3.0}
+          separation={90.0}
+          alignment={22.0}
+          cohesion={22.0}
+          quantity={3.5}
           backgroundAlpha={0.0}
         />
 

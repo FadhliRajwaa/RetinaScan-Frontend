@@ -6,6 +6,7 @@ import { useTheme } from '../context/ThemeContext';
 import { withPageTransition } from '../context/ThemeContext';
 import { ParallaxBanner, Parallax } from 'react-scroll-parallax';
 import { AtSymbolIcon, KeyIcon, ArrowRightIcon, ExclamationCircleIcon, CheckCircleIcon, EnvelopeIcon, ShieldCheckIcon } from '@heroicons/react/24/outline';
+import VantaBackground from '../components/animations/VantaBackground';
 
 function ForgotPasswordPage() {
   const [email, setEmail] = useState('');
@@ -142,6 +143,30 @@ function ForgotPasswordPage() {
 
   return (
     <div className="min-h-screen w-full relative overflow-hidden">
+      {/* Vanta.js Background */}
+      <VantaBackground
+        className="forgot-password-vanta-background"
+        mouseControls={true}
+        touchControls={true}
+        gyroControls={false}
+        minHeight={200}
+        minWidth={200}
+        scale={1.00}
+        scaleMobile={0.75}
+        backgroundColor={isDarkMode ? 0x000000 : 0xffffff}
+        color1={isDarkMode ? 0x0077ff : 0x0077ff}
+        color2={isDarkMode ? 0x4b0082 : 0x4169e1}
+        colorMode="variance"
+        birdSize={1.1}
+        wingSpan={22.0}
+        speedLimit={3.0}
+        separation={90.0}
+        alignment={22.0}
+        cohesion={22.0}
+        quantity={3.5}
+        backgroundAlpha={0.0}
+      />
+      
       {/* Parallax background */}
       <ParallaxBanner
         layers={[

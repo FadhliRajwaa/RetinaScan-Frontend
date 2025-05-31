@@ -7,6 +7,7 @@ import { HomeIcon, ArrowLeftOnRectangleIcon, EyeIcon, EyeSlashIcon, UserIcon, At
 import { useTheme } from '../context/ThemeContext';
 import { withPageTransition } from '../context/ThemeContext';
 import { ParallaxBanner, Parallax } from 'react-scroll-parallax';
+import VantaBackground from '../components/animations/VantaBackground';
 
 function RegisterPage() {
   const [name, setName] = useState('');
@@ -160,6 +161,30 @@ function RegisterPage() {
           ? 'bg-gradient-to-br from-gray-900 to-gray-800' 
           : 'bg-gradient-to-br from-blue-50 to-indigo-100'
       }`}>
+        {/* Vanta.js Background */}
+        <VantaBackground
+          className="register-vanta-background"
+          mouseControls={true}
+          touchControls={true}
+          gyroControls={false}
+          minHeight={200}
+          minWidth={200}
+          scale={1.00}
+          scaleMobile={0.75}
+          backgroundColor={isDarkMode ? 0x000000 : 0xffffff}
+          color1={isDarkMode ? 0x0077ff : 0x0077ff}
+          color2={isDarkMode ? 0x4b0082 : 0x4169e1}
+          colorMode="variance"
+          birdSize={1.1}
+          wingSpan={22.0}
+          speedLimit={3.0}
+          separation={90.0}
+          alignment={22.0}
+          cohesion={22.0}
+          quantity={3.5}
+          backgroundAlpha={0.0}
+        />
+        
         <motion.div
           initial={{ opacity: 0, scale: 0.9 }}
           animate={{ opacity: 1, scale: 1 }}
@@ -225,29 +250,35 @@ function RegisterPage() {
   }
 
   return (
-    <div className="min-h-screen w-full relative overflow-hidden">
-      {/* Parallax background */}
-      <ParallaxBanner
-        layers={[
-          { 
-            image: isDarkMode 
-              ? 'https://images.unsplash.com/photo-1551076805-e1869033e561?auto=format&fit=crop&q=80&w=2070&ixlib=rb-4.0.3' 
-              : 'https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?auto=format&fit=crop&q=80&w=2064&ixlib=rb-4.0.3',
-            speed: -20,
-            opacity: isDarkMode ? 0.3 : 0.7,
-            scale: [1, 1.15, 'easeOutCubic']
-          }
-        ]}
-        className="absolute inset-0"
-      >
-        {/* Overlay gradient */}
-        <div className={`absolute inset-0 ${
-          isDarkMode 
-            ? 'bg-gradient-to-br from-gray-900/90 via-gray-900/80 to-gray-900/90'
-            : 'bg-gradient-to-br from-blue-500/20 via-indigo-500/20 to-white/80'
-        }`} />
-      </ParallaxBanner>
-
+    <div className={`min-h-screen flex items-center justify-center px-4 py-20 ${
+      isDarkMode 
+        ? 'bg-gradient-to-br from-gray-900 to-gray-800' 
+        : 'bg-gradient-to-br from-blue-50 to-indigo-100'
+    } relative overflow-hidden`}>
+      {/* Vanta.js Background */}
+      <VantaBackground
+        className="register-vanta-background"
+        mouseControls={true}
+        touchControls={true}
+        gyroControls={false}
+        minHeight={200}
+        minWidth={200}
+        scale={1.00}
+        scaleMobile={0.75}
+        backgroundColor={isDarkMode ? 0x000000 : 0xffffff}
+        color1={isDarkMode ? 0x0077ff : 0x0077ff}
+        color2={isDarkMode ? 0x4b0082 : 0x4169e1}
+        colorMode="variance"
+        birdSize={1.1}
+        wingSpan={22.0}
+        speedLimit={3.0}
+        separation={90.0}
+        alignment={22.0}
+        cohesion={22.0}
+        quantity={3.5}
+        backgroundAlpha={0.0}
+      />
+      
       {/* Decorative shapes */}
       <div className="absolute inset-0 overflow-hidden">
         <motion.div 
