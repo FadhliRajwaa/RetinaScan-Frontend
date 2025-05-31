@@ -18,6 +18,8 @@ import {
   BeakerIcon
 } from '@heroicons/react/24/outline';
 import { withPageTransition } from '../context/ThemeContext';
+// Import komponen animasi 3D
+import { Scene3D, FloatingEye, FloatingCard, RotatingTestimonial, AnimatedButton } from '../components/animations';
 
 function LandingPage() {
   const { theme, animations, isDarkMode } = useTheme();
@@ -29,6 +31,8 @@ function LandingPage() {
     cta: false
   });
   const [scrollY, setScrollY] = useState(0);
+  const [x, setX] = useState(0);
+  const [y, setY] = useState(0);
   
   // Environment variables
   const DASHBOARD_URL = import.meta.env.VITE_DASHBOARD_URL || 'http://localhost:3000';
@@ -391,10 +395,19 @@ function LandingPage() {
                 ease: "easeInOut"
               }}
             />
-            <div className={`relative z-10 p-3 sm:p-4 rounded-full ${
-              isDarkMode ? 'bg-gray-800' : 'bg-white'
-            } shadow-xl`}>
-              <EyeIcon className={`h-12 w-12 sm:h-16 sm:w-16 ${isDarkMode ? 'text-blue-400' : 'text-blue-600'}`} />
+            
+            {/* 3D Eye Animation - Replacing the static icon */}
+            <div className="relative z-10 w-32 h-32 sm:w-40 sm:h-40">
+              <Scene3D 
+                className="w-full h-full"
+                cameraPosition={[0, 0, 5]}
+              >
+                <FloatingEye 
+                  position={[0, 0, 0]} 
+                  scale={1.2}
+                  rotation={[0, -Math.PI / 6, 0]}
+                />
+              </Scene3D>
             </div>
           </motion.div>
             
@@ -575,7 +588,7 @@ function LandingPage() {
             ))}
           </motion.div>
 
-          {/* Enhanced Hero Image with Glass Effect */}
+          {/* Enhanced Hero Image with 3D Effect */}
           <motion.div
             className="w-full max-w-xs sm:max-w-lg lg:max-w-3xl mx-auto"
             style={{ perspective: 1000 }}
@@ -599,77 +612,100 @@ function LandingPage() {
                   transition: { duration: 8, repeat: Infinity, ease: "easeInOut" }
                 }}
               />
+              
               <motion.div
                 className={`absolute -inset-2 sm:-inset-4 rounded-xl sm:rounded-3xl ${
-                  isDarkMode ? 'bg-purple-500/10' : 'bg-purple-100'
-                } transform rotate-3`}
+                  isDarkMode ? 'bg-indigo-500/10' : 'bg-indigo-100'
+                } transform rotate-2`}
                 animate={{
-                  rotate: [3, 5, 3],
+                  rotate: [2, 4, 2],
                   transition: { duration: 8, repeat: Infinity, ease: "easeInOut" }
                 }}
               />
               
-              {/* Enhanced Hero Image with Glass Effect */}
-              <motion.div 
-                className={`relative rounded-xl sm:rounded-3xl overflow-hidden border ${
-                  isDarkMode ? 'border-gray-700' : 'border-gray-200'
-                } shadow-2xl max-h-[300px] sm:max-h-[400px] md:max-h-[450px]`}
-                whileHover={{ scale: 1.02 }}
-                transition={{ type: "spring", stiffness: 300, damping: 20 }}
-              >
-                <div className={`absolute inset-0 ${
-                  isDarkMode ? 'bg-gradient-to-br from-blue-500/10 to-purple-500/10' : 'bg-gradient-to-br from-blue-100/50 to-purple-100/50'
-                }`}></div>
-                <img 
-                  src="https://images.unsplash.com/photo-1576091160550-2173dba999ef?auto=format&fit=crop&q=80&w=2070" 
-                  alt="Retina Scan Technology" 
-                  className="w-full h-full object-cover rounded-xl sm:rounded-3xl relative z-10"
-                />
-                <div className={`absolute inset-0 ${
-                  isDarkMode ? 'bg-gradient-to-t from-gray-900/80 to-transparent' : 'bg-gradient-to-t from-white/80 to-transparent'
-                }`}></div>
+              {/* 3D Retina Scan Visualization */}
+              <div className="h-[200px] sm:h-[300px] md:h-[400px] relative rounded-xl overflow-hidden">
+                <Scene3D
+                  className="w-full h-full"
+                  cameraPosition={[0, 0, 5]}
+                  controls={true}
+                >
+                  {/* Retina Background */}
+                  <mesh position={[0, 0, -0.5]} rotation={[0, 0, 0]}>
+                    <planeGeometry args={[10, 6]} />
+                    <meshStandardMaterial 
+                      color={isDarkMode ? "#1F2937" : "#F9FAFB"}
+                      roughness={0.8}
+                      metalness={0.2}
+                    />
+                  </mesh>
+                  
+                  {/* Retina Circle */}
+                  <mesh position={[0, 0, 0]} rotation={[0, 0, 0]}>
+                    <ringGeometry args={[1.8, 2, 64]} />
+                    <meshStandardMaterial 
+                      color={isDarkMode ? "#3B82F6" : "#2563EB"}
+                      emissive={isDarkMode ? "#1E40AF" : "#3B82F6"}
+                      emissiveIntensity={0.5}
+                      roughness={0.3}
+                      metalness={0.7}
+                    />
+                  </mesh>
+                  
+                  {/* Inner Retina */}
+                  <mesh position={[0, 0, 0]} rotation={[0, 0, 0]}>
+                    <ringGeometry args={[0.6, 1.8, 64]} />
+                    <meshStandardMaterial 
+                      color={isDarkMode ? "#EC4899" : "#DB2777"}
+                      roughness={0.4}
+                      metalness={0.6}
+                    />
+                  </mesh>
+                  
+                  {/* Scan Lines */}
+                  <group position={[0, 0, 0.1]}>
+                    {[...Array(8)].map((_, i) => (
+                      <mesh 
+                        key={i} 
+                        position={[0, 0, 0.01 * i]} 
+                        rotation={[0, 0, Math.PI * i / 4]}
+                      >
+                        <planeGeometry args={[4, 0.03]} />
+                        <meshBasicMaterial 
+                          color={isDarkMode ? "#60A5FA" : "#3B82F6"} 
+                          transparent 
+                          opacity={0.6}
+                        />
+                      </mesh>
+                    ))}
+                  </group>
+                  
+                  {/* Scanning Effect */}
+                  <mesh position={[0, 0, 0.2]}>
+                    <planeGeometry args={[4, 0.05]} />
+                    <meshBasicMaterial 
+                      color="#38BDF8" 
+                      transparent 
+                      opacity={0.8}
+                    />
+                  </mesh>
+                  
+                  {/* Center Point */}
+                  <mesh position={[0, 0, 0.2]}>
+                    <sphereGeometry args={[0.2, 32, 32]} />
+                    <meshStandardMaterial 
+                      color={isDarkMode ? "#F87171" : "#EF4444"}
+                      emissive={isDarkMode ? "#B91C1C" : "#EF4444"}
+                      emissiveIntensity={0.8}
+                      roughness={0.3}
+                      metalness={0.7}
+                    />
+                  </mesh>
+                </Scene3D>
                 
-                {/* Interactive Hotspots */}
-                {[
-                  { top: '25%', left: '20%', color: 'blue', label: 'AI Detection' },
-                  { top: '60%', left: '75%', color: 'purple', label: 'High Precision' },
-                  { top: '80%', left: '30%', color: 'green', label: 'Fast Results' }
-                ].map((spot, index) => (
-                  <motion.div
-                    key={index}
-                    className="absolute"
-                    style={{ top: spot.top, left: spot.left }}
-                    initial={{ scale: 0, opacity: 0 }}
-                    animate={{ scale: 1, opacity: 1 }}
-                    transition={{ delay: 1.5 + index * 0.2, duration: 0.5 }}
-                  >
-                    <motion.div
-                      className={`w-2 h-2 sm:w-3 sm:h-3 rounded-full ${
-                        spot.color === 'blue' ? 'bg-blue-500' : 
-                        spot.color === 'purple' ? 'bg-purple-500' : 'bg-green-500'
-                      } relative z-20 cursor-pointer group`}
-                      animate={{ scale: [1, 1.3, 1] }}
-                      transition={{ duration: 2, repeat: Infinity }}
-                    >
-                      <motion.div
-                        className={`absolute inset-0 rounded-full ${
-                          spot.color === 'blue' ? 'bg-blue-500' : 
-                          spot.color === 'purple' ? 'bg-purple-500' : 'bg-green-500'
-                        } opacity-50`}
-                        animate={{ scale: [1, 1.5, 1] }}
-                        transition={{ duration: 2, repeat: Infinity }}
-                      ></motion.div>
-                      
-                      {/* Tooltip on hover */}
-                      <div className={`absolute opacity-0 group-hover:opacity-100 bottom-full left-1/2 transform -translate-x-1/2 mb-1 px-1.5 py-0.5 text-xs font-medium rounded ${
-                        isDarkMode ? 'bg-gray-800 text-white' : 'bg-white text-gray-900 shadow-md'
-                      } whitespace-nowrap pointer-events-none transition-opacity duration-200`}>
-                        {spot.label}
-                      </div>
-                    </motion.div>
-                  </motion.div>
-                ))}
-              </motion.div>
+                {/* Glass effect overlay */}
+                <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/10 to-transparent pointer-events-none" />
+              </div>
             </motion.div>
           </motion.div>
           
@@ -778,7 +814,26 @@ function LandingPage() {
               animate={isVisible.features ? { opacity: 1, y: 0 } : {}}
               transition={{ duration: 0.6, delay: 0.3 }}
             >
-              Kenapa Memilih RetinaScan?
+              <div className="relative inline-block">
+                Kenapa Memilih RetinaScan?
+                {/* 3D Animation Effect for Title */}
+                <div className="absolute -top-10 -right-10 w-16 h-16 opacity-70 pointer-events-none">
+                  <Scene3D
+                    className="w-full h-full"
+                    cameraPosition={[0, 0, 5]}
+                  >
+                    <mesh rotation={[0, 0, 0]}>
+                      <torusGeometry args={[2, 0.5, 16, 32]} />
+                      <meshStandardMaterial 
+                        color={isDarkMode ? "#3B82F6" : "#2563EB"} 
+                        emissive={isDarkMode ? "#1E40AF" : "#3B82F6"}
+                        emissiveIntensity={0.5}
+                        wireframe={true}
+                      />
+                    </mesh>
+                  </Scene3D>
+                </div>
+              </div>
             </motion.h2>
             
             <motion.p 
@@ -811,6 +866,29 @@ function LandingPage() {
                     : 'bg-white/90 border border-gray-100 hover:border-gray-200 shadow-lg hover:shadow-xl'
                 } transition-all duration-300`}
               >
+                {/* 3D Card Feature (Hidden on small screens) */}
+                <div className="hidden md:block absolute top-0 left-0 w-full h-full -z-10">
+                  <div className="relative w-full h-[300px]">
+                    <Scene3D
+                      className="w-full h-full pointer-events-none"
+                      cameraPosition={[0, 0, 5]}
+                    >
+                      <FloatingCard
+                        position={[0, 0, 0]}
+                        title={feature.title}
+                        color={
+                          feature.color === 'blue' ? '#3B82F6' :
+                          feature.color === 'purple' ? '#8B5CF6' :
+                          feature.color === 'green' ? '#10B981' :
+                          feature.color === 'red' ? '#EF4444' :
+                          feature.color === 'amber' ? '#F59E0B' : '#6366F1'
+                        }
+                        delayFactor={index}
+                      />
+                    </Scene3D>
+                  </div>
+                </div>
+                
                 {/* Animated background gradient */}
                 <motion.div 
                   className={`absolute top-0 left-0 w-full h-full opacity-0 group-hover:opacity-100 -z-10 transition-opacity duration-300 ${
@@ -1022,7 +1100,26 @@ function LandingPage() {
               animate={isVisible.testimonials ? { opacity: 1, y: 0 } : {}}
               transition={{ duration: 0.6, delay: 0.3 }}
             >
-              Apa Kata Mereka?
+              <div className="relative inline-block">
+                Apa Kata Mereka?
+                {/* 3D Animation for Title */}
+                <div className="absolute -top-10 -right-10 w-14 h-14 opacity-70 pointer-events-none">
+                  <Scene3D
+                    className="w-full h-full"
+                    cameraPosition={[0, 0, 5]}
+                  >
+                    <mesh rotation={[0, 0, 0]}>
+                      <octahedronGeometry args={[1.5, 0]} />
+                      <meshStandardMaterial 
+                        color={isDarkMode ? "#8B5CF6" : "#7C3AED"} 
+                        emissive={isDarkMode ? "#6D28D9" : "#8B5CF6"}
+                        emissiveIntensity={0.5}
+                        wireframe={true}
+                      />
+                    </mesh>
+                  </Scene3D>
+                </div>
+              </div>
             </motion.h2>
             
             <motion.p 
@@ -1055,6 +1152,25 @@ function LandingPage() {
                     : 'bg-white border border-gray-100 shadow-lg'
                 } relative overflow-hidden group`}
               >
+                {/* 3D Testimonial Card */}
+                <div className="hidden md:block absolute top-0 left-0 w-full h-full -z-10">
+                  <div className="relative w-full h-[350px]">
+                    <Scene3D
+                      className="w-full h-full pointer-events-none"
+                      cameraPosition={[0, 0, 5]}
+                    >
+                      <RotatingTestimonial
+                        position={[0, 0, 0]}
+                        quote={testimonial.quote}
+                        name={testimonial.name}
+                        title={testimonial.title}
+                        imageUrl={testimonial.image}
+                        delayFactor={index}
+                      />
+                    </Scene3D>
+                  </div>
+                </div>
+                
                 {/* Decorative quotation mark */}
                 <div className={`absolute top-4 right-4 text-6xl leading-none ${
                   isDarkMode ? 'text-gray-700' : 'text-gray-100'
@@ -1233,7 +1349,33 @@ function LandingPage() {
               animate={isVisible.cta ? { opacity: 1, y: 0 } : {}}
               transition={{ duration: 0.6, delay: 0.3 }}
             >
-              Mulai Deteksi Dini Retinopati Diabetik Sekarang
+              <div className="relative inline-block">
+                Mulai Deteksi Dini Retinopati Diabetik Sekarang
+                {/* 3D Decoration */}
+                <div className="absolute -top-12 -right-12 w-20 h-20 opacity-70 pointer-events-none">
+                  <Scene3D
+                    className="w-full h-full"
+                    cameraPosition={[0, 0, 5]}
+                  >
+                    <group rotation={[0, 0, 0]}>
+                      <mesh position={[0, 0, 0]}>
+                        <sphereGeometry args={[1, 16, 16]} />
+                        <meshStandardMaterial 
+                          color={isDarkMode ? "#3B82F6" : "#2563EB"} 
+                          wireframe={true}
+                        />
+                      </mesh>
+                      <mesh position={[0, 0, 0]} rotation={[Math.PI/4, Math.PI/4, 0]}>
+                        <boxGeometry args={[1.5, 1.5, 1.5]} />
+                        <meshStandardMaterial 
+                          color={isDarkMode ? "#6366F1" : "#4F46E5"} 
+                          wireframe={true}
+                        />
+                      </mesh>
+                    </group>
+                  </Scene3D>
+                </div>
+              </div>
             </motion.h2>
             
             <motion.p 
@@ -1253,38 +1395,54 @@ function LandingPage() {
               animate={isVisible.cta ? { opacity: 1, y: 0 } : {}}
               transition={{ duration: 0.6, delay: 0.5 }}
             >
-              {isAuthenticated ? (
-                <motion.div whileHover="hover" whileTap="tap" variants={buttonVariants}>
-                  <a 
-                    href={DASHBOARD_URL} 
-                    className={`px-8 py-4 rounded-lg font-medium flex items-center justify-center ${
-                      isDarkMode 
-                        ? 'bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-500 hover:to-indigo-500 text-white' 
-                        : 'bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white'
-                    } transition-all duration-300 shadow-lg`}
-                  >
-                    <span>Buka Dashboard</span>
-                    <motion.span
-                      initial={{ x: 0 }}
-                      whileHover={{ x: 5 }}
-                      transition={{ duration: 0.3 }}
-                    >
-                      <ArrowRightIcon className="ml-2 h-5 w-5" />
-                    </motion.span>
-                  </a>
-                </motion.div>
-              ) : (
-                <>
+              {/* 3D Buttons (visible on medium screens and up) */}
+              <div className="w-full hidden md:block h-32 relative">
+                <Scene3D
+                  className="w-full h-full"
+                  cameraPosition={[0, 0, 5]}
+                >
+                  {isAuthenticated ? (
+                    <AnimatedButton 
+                      position={[0, 0, 0]} 
+                      text="Buka Dashboard"
+                      width={4}
+                      primary={true}
+                      onClick={() => window.location.href = DASHBOARD_URL}
+                    />
+                  ) : (
+                    <group>
+                      <AnimatedButton 
+                        position={[-2.2, 0, 0]} 
+                        text="Daftar Sekarang"
+                        width={4}
+                        primary={true}
+                        onClick={() => window.location.href = '/register'}
+                      />
+                      <AnimatedButton 
+                        position={[2.2, 0, 0]} 
+                        text="Login"
+                        width={3}
+                        primary={false}
+                        onClick={() => window.location.href = '/login'}
+                      />
+                    </group>
+                  )}
+                </Scene3D>
+              </div>
+              
+              {/* Regular Buttons (visible on smaller screens) */}
+              <div className="md:hidden w-full">
+                {isAuthenticated ? (
                   <motion.div whileHover="hover" whileTap="tap" variants={buttonVariants}>
-                    <Link 
-                      to="/register" 
+                    <a 
+                      href={DASHBOARD_URL} 
                       className={`px-8 py-4 rounded-lg font-medium flex items-center justify-center ${
                         isDarkMode 
                           ? 'bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-500 hover:to-indigo-500 text-white' 
                           : 'bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white'
                       } transition-all duration-300 shadow-lg`}
                     >
-                      <span>Daftar Sekarang</span>
+                      <span>Buka Dashboard</span>
                       <motion.span
                         initial={{ x: 0 }}
                         whileHover={{ x: 5 }}
@@ -1292,23 +1450,45 @@ function LandingPage() {
                       >
                         <ArrowRightIcon className="ml-2 h-5 w-5" />
                       </motion.span>
-                    </Link>
+                    </a>
                   </motion.div>
-                  
-                  <motion.div whileHover="hover" whileTap="tap" variants={buttonVariants}>
-                    <Link 
-                      to="/login" 
-                      className={`px-8 py-4 rounded-lg font-medium flex items-center justify-center ${
-                        isDarkMode 
-                          ? 'bg-gray-800 hover:bg-gray-700 text-white border border-gray-700' 
-                          : 'bg-white hover:bg-gray-100 text-gray-900 border border-gray-200 shadow-md'
-                      } transition-colors duration-300`}
-                    >
-                      Login
-                    </Link>
-                  </motion.div>
-                </>
-              )}
+                ) : (
+                  <>
+                    <motion.div whileHover="hover" whileTap="tap" variants={buttonVariants}>
+                      <Link 
+                        to="/register" 
+                        className={`px-8 py-4 rounded-lg font-medium flex items-center justify-center ${
+                          isDarkMode 
+                            ? 'bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-500 hover:to-indigo-500 text-white' 
+                            : 'bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white'
+                        } transition-all duration-300 shadow-lg`}
+                      >
+                        <span>Daftar Sekarang</span>
+                        <motion.span
+                          initial={{ x: 0 }}
+                          whileHover={{ x: 5 }}
+                          transition={{ duration: 0.3 }}
+                        >
+                          <ArrowRightIcon className="ml-2 h-5 w-5" />
+                        </motion.span>
+                      </Link>
+                    </motion.div>
+                    
+                    <motion.div whileHover="hover" whileTap="tap" variants={buttonVariants} className="mt-4 sm:mt-0">
+                      <Link 
+                        to="/login" 
+                        className={`px-8 py-4 rounded-lg font-medium flex items-center justify-center ${
+                          isDarkMode 
+                            ? 'bg-gray-800 hover:bg-gray-700 text-white border border-gray-700' 
+                            : 'bg-white hover:bg-gray-100 text-gray-900 border border-gray-200 shadow-md'
+                        } transition-colors duration-300`}
+                      >
+                        Login
+                      </Link>
+                    </motion.div>
+                  </>
+                )}
+              </div>
             </motion.div>
             
             {/* Trust indicators */}
