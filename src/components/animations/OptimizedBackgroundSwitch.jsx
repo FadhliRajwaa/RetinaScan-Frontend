@@ -23,8 +23,8 @@ const OptimizedBackgroundSwitch = (props) => {
       }
       
       // Cek RAM dan CPU jika tersedia
-      const lowMemory = navigator.deviceMemory && navigator.deviceMemory < 4;
-      const lowCpu = navigator.hardwareConcurrency && navigator.hardwareConcurrency < 4;
+      const lowMemory = navigator.deviceMemory && navigator.deviceMemory < 2; // Hanya RAM sangat rendah
+      const lowCpu = navigator.hardwareConcurrency && navigator.hardwareConcurrency < 3; // Hanya CPU sangat lemah
       
       // Deteksi browser dengan kemampuan WebGL terbatas
       const canvas = document.createElement('canvas');
@@ -44,13 +44,12 @@ const OptimizedBackgroundSwitch = (props) => {
         console.log('WebGL detection error:', e);
       }
       
-      // Deteksi GPU mobile yang lemah - sekarang lebih agresif untuk semua GPU mobile
-      const hasWeakGPU = renderer && (
-        /Adreno/i.test(renderer) || 
-        /Apple A/i.test(renderer) ||
-        /Mali/i.test(renderer) ||
+      // Deteksi GPU mobile yang sangat lemah (hanya GPU lama/rendah)
+      const hasVeryWeakGPU = renderer && (
+        /Adreno (3|2)\d\d/i.test(renderer) || 
+        /Apple A[1-6]/i.test(renderer) ||
+        /Mali-(4|3|2)/i.test(renderer) ||
         /PowerVR/i.test(renderer) ||
-        /Intel/i.test(renderer) ||
         /Google SwiftShader/i.test(renderer)
       );
       
@@ -61,23 +60,23 @@ const OptimizedBackgroundSwitch = (props) => {
       const prefersReducedMotion = window.matchMedia && 
         window.matchMedia('(prefers-reduced-motion: reduce)').matches;
       
-      // Cek ukuran layar (layar kecil biasanya menandakan perangkat dengan GPU lebih lemah)
-      const hasSmallScreen = window.innerWidth < 768;
+      // Cek ukuran layar (hanya layar sangat kecil)
+      const hasVerySmallScreen = window.innerWidth < 480;
       
       // Jika beberapa faktor risiko terdeteksi, gunakan versi optimized
-      // Kita lebih agresif dalam mendeteksi perangkat yang perlu dioptimalkan
+      // Kita lebih selektif sekarang, tidak semua perangkat mobile otomatis menggunakan optimized
       if (
-        isMobile || // Semua perangkat mobile akan menggunakan optimized background
-        lowMemory || 
-        lowCpu || 
-        hasWeakGPU || 
-        saveData || 
-        hasSmallScreen ||
-        prefersReducedMotion
+        (lowMemory && lowCpu) || // Perangkat sangat lemah
+        hasVeryWeakGPU || // GPU sangat lemah
+        saveData || // Mode hemat data
+        hasVerySmallScreen || // Layar sangat kecil
+        prefersReducedMotion // User memilih reduce motion
       ) {
         console.log('Switching to optimized background for better performance');
         setUseOptimized(true);
       } else {
+        // Perangkat mobile dengan performa baik menggunakan versi normal
+        console.log('Using standard background for mobile with good performance');
         setUseOptimized(false);
       }
       

@@ -323,50 +323,50 @@ const VantaBackground = ({
         
         // Apply performance-based settings - use optimized settings for mobile but maintain 60fps
         if (forceHighPerformanceRef.current && isMobile) {
-          // Mobile high performance mode - reduce complexity but maintain 60fps
+          // Mobile high performance mode - more similar to desktop
           performanceSettings = {
-            actualBirdSize: birdSize * 1.3, // Larger birds = fewer birds needed
-            actualQuantity: Math.max(1, quantity * 0.4), // Drastically reduce bird count
-            actualSpeedLimit: speedLimit * 0.7, // Reduce speed further
+            actualBirdSize: birdSize * 1.1, // Slightly larger birds
+            actualQuantity: Math.max(1, quantity * 0.8), // Slightly reduce bird count
+            actualSpeedLimit: speedLimit * 0.9, // Almost same speed
             actualFps: 60, // Always maintain 60fps
-            actualWingSpan: wingSpan * 0.9, // Reduce wingspan
-            actualSeparation: separation * 1.3, // Increase separation further
-            actualAlignment: alignment * 0.7, // Reduce alignment calculation load
-            actualCohesion: cohesion * 0.7 // Reduce cohesion calculation load
+            actualWingSpan: wingSpan * 0.95, // Almost same wingspan
+            actualSeparation: separation * 1.1, // Slightly more separation
+            actualAlignment: alignment * 0.9, // Almost same alignment
+            actualCohesion: cohesion * 0.9 // Almost same cohesion
           };
         } else if (devicePerformance === 'very-low') {
-          // Extremely reduced settings for very low-end devices
+          // Reduced settings for very low-end devices, but still closer to desktop
           performanceSettings = {
-            actualBirdSize: birdSize * 1.5,
-            actualQuantity: Math.max(1, quantity * 0.2), // Even more drastically reduce bird count
-            actualSpeedLimit: speedLimit * 0.5, // Half speed
-            actualFps: 20, // Very low FPS
-            actualWingSpan: wingSpan * 0.8,
-            actualSeparation: separation * 1.5,
-            actualAlignment: alignment * 0.6,
-            actualCohesion: cohesion * 0.6
+            actualBirdSize: birdSize * 1.2,
+            actualQuantity: Math.max(1, quantity * 0.6), // Less reduction in bird count
+            actualSpeedLimit: speedLimit * 0.8, // Closer to normal speed
+            actualFps: 30, // Improved FPS
+            actualWingSpan: wingSpan * 0.9,
+            actualSeparation: separation * 1.2,
+            actualAlignment: alignment * 0.8,
+            actualCohesion: cohesion * 0.8
           };
         } else if (devicePerformance === 'low') {
           performanceSettings = {
-            actualBirdSize: birdSize * 1.3, // Bigger birds = fewer birds needed
-            actualQuantity: Math.max(1, quantity * 0.3), // Further reduce bird count
-            actualSpeedLimit: speedLimit * 0.6, // Slower movement
-            actualFps: 30, // Lower FPS
-            actualWingSpan: wingSpan * 0.9, // Slightly smaller wingspan
-            actualSeparation: separation * 1.3,
-            actualAlignment: alignment * 0.7,
-            actualCohesion: cohesion * 0.7
+            actualBirdSize: birdSize * 1.1, // More similar to desktop
+            actualQuantity: Math.max(1, quantity * 0.7), // Less reduction
+            actualSpeedLimit: speedLimit * 0.85, // Closer to normal speed
+            actualFps: 45, // Higher FPS
+            actualWingSpan: wingSpan * 0.95, // Almost same wingspan
+            actualSeparation: separation * 1.1,
+            actualAlignment: alignment * 0.9,
+            actualCohesion: cohesion * 0.9
           };
         } else if (devicePerformance === 'medium') {
           performanceSettings = {
-            actualBirdSize: birdSize * 1.1,
-            actualQuantity: Math.max(1, quantity * 0.5), // Reduce bird count
-            actualSpeedLimit: speedLimit * 0.75,
-            actualFps: 45,
-            actualWingSpan: wingSpan * 0.95,
-            actualSeparation: separation * 1.1,
-            actualAlignment: alignment * 0.85,
-            actualCohesion: cohesion * 0.85
+            actualBirdSize: birdSize * 1.05, // Very close to desktop
+            actualQuantity: Math.max(1, quantity * 0.8), // Slight reduction
+            actualSpeedLimit: speedLimit * 0.9,
+            actualFps: 60, // Full FPS
+            actualWingSpan: wingSpan * 0.98, // Almost identical
+            actualSeparation: separation * 1.05,
+            actualAlignment: alignment * 0.95,
+            actualCohesion: cohesion * 0.95
           };
         } else {
           // High performance devices get full settings
@@ -425,12 +425,12 @@ const VantaBackground = ({
         if (effect && effect.renderer) {
           // Optimize THREE.js renderer
           if (forceHighPerformanceRef.current && isMobile) {
-            // For mobile high performance mode, use a lower pixel ratio but maintain quality
-            effect.renderer.setPixelRatio(Math.min(1.2, devicePixelRatioRef.current));
+            // For mobile high performance mode, use a similar pixel ratio to desktop
+            effect.renderer.setPixelRatio(Math.min(1.5, devicePixelRatioRef.current));
             
-            // Use even smaller canvas size on mobile for better performance
-            const canvasWidth = Math.min(1200, window.innerWidth);
-            const canvasHeight = Math.min(800, window.innerHeight);
+            // Use similar canvas size to desktop for better consistency
+            const canvasWidth = Math.min(1440, window.innerWidth);
+            const canvasHeight = Math.min(900, window.innerHeight);
             effect.renderer.setSize(canvasWidth, canvasHeight);
             
             // Additional mobile performance optimizations
@@ -438,11 +438,11 @@ const VantaBackground = ({
               effect.renderer.shadowMap.enabled = false;
             }
             
-            // Disable unnecessary features for mobile
+            // Keep mouse controls for better experience parity with desktop
             if (effect.setOptions) {
               effect.setOptions({
-                mouseControls: false, // Disable mouse tracking on mobile for performance
-                touchControls: true   // Keep touch enabled but simplified
+                mouseControls: true,
+                touchControls: true
               });
             }
             
