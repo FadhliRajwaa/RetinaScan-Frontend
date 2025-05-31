@@ -559,7 +559,8 @@ function LoginPage() {
         </div>
       </div>
     </div>
-  );
+  </div>
+);
 }
 
 export default withPageTransition(LoginPage);
