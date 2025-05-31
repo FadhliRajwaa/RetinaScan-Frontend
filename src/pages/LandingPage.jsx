@@ -75,14 +75,27 @@ function LandingPage() {
     const handleMouseMove = (e) => {
       // Use requestAnimationFrame for better performance
       requestAnimationFrame(() => {
-        setX(e.clientX / window.innerWidth - 0.5);
-        setY(e.clientY / window.innerHeight - 0.5);
+        // Reduce mouse movement multiplier by 70-80% for smoother effect
+        setX((e.clientX / window.innerWidth - 0.5) * 0.3);
+        setY((e.clientY / window.innerHeight - 0.5) * 0.3);
       });
     };
     
-    window.addEventListener('mousemove', handleMouseMove);
+    // Use throttle to reduce event firing frequency
+    let timeout;
+    const throttledHandleMouseMove = (e) => {
+      if (!timeout) {
+        timeout = setTimeout(() => {
+          handleMouseMove(e);
+          timeout = null;
+        }, 16); // ~60fps
+      }
+    };
+    
+    window.addEventListener('mousemove', throttledHandleMouseMove);
     return () => {
-      window.removeEventListener('mousemove', handleMouseMove);
+      window.removeEventListener('mousemove', throttledHandleMouseMove);
+      clearTimeout(timeout);
     };
   }, []);
   
@@ -201,22 +214,32 @@ function LandingPage() {
   const mouseX = useMotionValue(0);
   const mouseY = useMotionValue(0);
   
-  const smoothMouseX = useSpring(mouseX, { stiffness: 100, damping: 20 });
-  const smoothMouseY = useSpring(mouseY, { stiffness: 100, damping: 20 });
+  // Increase damping and stiffness for smoother motion
+  const smoothMouseX = useSpring(mouseX, { stiffness: 50, damping: 30, mass: 1.2 });
+  const smoothMouseY = useSpring(mouseY, { stiffness: 50, damping: 30, mass: 1.2 });
   
   useEffect(() => {
     const handleMouseMove = (e) => {
       // Use requestAnimationFrame for better performance
       requestAnimationFrame(() => {
-        mouseX.set(e.clientX - window.innerWidth / 2);
-        mouseY.set(e.clientY - window.innerHeight / 2);
+        // Reduce mouse movement multiplier by 70-80% for smoother effect
+        mouseX.set((e.clientX - window.innerWidth / 2) * 0.3);
+        mouseY.set((e.clientY - window.innerHeight / 2) * 0.3);
       });
     };
     
-    window.addEventListener("mousemove", handleMouseMove);
+    // Debounce instead of throttle for even smoother effect with mouse
+    let timeoutId;
+    const debounceMouseMove = (e) => {
+      clearTimeout(timeoutId);
+      timeoutId = setTimeout(() => handleMouseMove(e), 5);
+    };
+    
+    window.addEventListener("mousemove", debounceMouseMove);
     
     return () => {
-      window.removeEventListener("mousemove", handleMouseMove);
+      window.removeEventListener("mousemove", debounceMouseMove);
+      clearTimeout(timeoutId);
     };
   }, [mouseX, mouseY]);
 
@@ -345,8 +368,9 @@ function LandingPage() {
                 ? 'radial-gradient(circle at 50% 50%, rgba(30, 64, 175, 0.05), rgba(10, 10, 10, 0))'
                 : 'radial-gradient(circle at 50% 50%, rgba(59, 130, 246, 0.1), rgba(255, 255, 255, 0))',
               backgroundSize: '120% 120%',
-              backgroundPosition: `${50 + x * 10}% ${50 + y * 10}%`,
-              transition: 'background-position 2s cubic-bezier(0.19, 1, 0.22, 1)',
+              // Reduce movement multiplier and slow down transitions
+              backgroundPosition: `${50 + x * 5}% ${50 + y * 5}%`,
+              transition: 'background-position 2.5s cubic-bezier(0.19, 1, 0.22, 1)',
             }}
           />
         </motion.div>
@@ -374,7 +398,7 @@ function LandingPage() {
           </div>
           
           {/* Optimized floating particles for mobile and desktop */}
-          {[...Array(10)].map((_, i) => (
+          {[...Array(8)].map((_, i) => (
             <motion.div 
               key={i}
               className={`absolute rounded-full ${
@@ -385,13 +409,14 @@ function LandingPage() {
                 top: `${Math.random() * 100}%`,
               }}
               animate={{
-                y: [0, -100, 0],
-                opacity: [0, 1, 0],
+                y: [0, -80, 0],
+                opacity: [0, 0.7, 0],
               }}
               transition={{
-                duration: 8 + Math.random() * 8,
+                // Slower and smoother animation
+                duration: 10 + Math.random() * 12,
                 repeat: Infinity,
-                delay: Math.random() * 5,
+                delay: Math.random() * 8,
                 ease: "easeInOut"
               }}
             />
@@ -1211,8 +1236,9 @@ function LandingPage() {
                 ? 'radial-gradient(circle at 50% 50%, rgba(79, 70, 229, 0.05), rgba(10, 10, 10, 0))'
                 : 'radial-gradient(circle at 50% 50%, rgba(79, 70, 229, 0.1), rgba(255, 255, 255, 0))',
               backgroundSize: '120% 120%',
-              backgroundPosition: `${50 + x * 10}% ${50 + y * 10}%`,
-              transition: 'background-position 2s cubic-bezier(0.19, 1, 0.22, 1)',
+              // Reduce movement multiplier
+              backgroundPosition: `${50 + x * 5}% ${50 + y * 5}%`,
+              transition: 'background-position 2.5s cubic-bezier(0.19, 1, 0.22, 1)',
             }}
           />
           
@@ -1258,13 +1284,14 @@ function LandingPage() {
                 top: `${Math.random() * 100}%`,
               }}
               animate={{
-                y: [0, -100, 0],
-                opacity: [0, 1, 0],
+                y: [0, -80, 0],
+                opacity: [0, 0.7, 0],
               }}
               transition={{
-                duration: 10 + Math.random() * 10,
+                // Slower and smoother animation
+                duration: 15 + Math.random() * 15,
                 repeat: Infinity,
-                delay: Math.random() * 5,
+                delay: Math.random() * 8,
                 ease: "easeInOut"
               }}
             />
