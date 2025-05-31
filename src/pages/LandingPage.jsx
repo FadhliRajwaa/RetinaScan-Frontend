@@ -30,6 +30,8 @@ function LandingPage() {
     cta: false
   });
   const [scrollY, setScrollY] = useState(0);
+  const [x, setX] = useState(0);
+  const [y, setY] = useState(0);
   
   // Environment variables
   const DASHBOARD_URL = import.meta.env.VITE_DASHBOARD_URL || 'http://localhost:3000';
