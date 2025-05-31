@@ -1,7 +1,7 @@
 import { Link } from 'react-router-dom';
 import { motion, useScroll, useTransform, AnimatePresence, useMotionValue, useSpring } from 'framer-motion';
 import { useTheme } from '../context/ThemeContext';
-import { useRef, useEffect, useState } from 'react';
+import { useRef, useEffect, useState, useCallback } from 'react';
 import { 
   ArrowRightIcon, 
   ShieldCheckIcon, 
@@ -69,23 +69,52 @@ function LandingPage() {
   const heroScale = useTransform(scrollYProgress, [0, 0.5], [1, 1.1]);
   const heroOpacity = useTransform(scrollYProgress, [0, 0.5], [1, 0.5]);
   
-  // Enhanced mouse parallax effect with better performance
-  useEffect(() => {
-    const handleMouseMove = (e) => {
+  // Enhanced mouse parallax effect with better performance and throttling
+  const mouseX = useMotionValue(0);
+  const mouseY = useMotionValue(0);
+  
+  const smoothMouseX = useSpring(mouseX, { stiffness: 25, damping: 40 });
+  const smoothMouseY = useSpring(mouseY, { stiffness: 25, damping: 40 });
+  
+  // Throttle function to limit how often an event handler is called
+  const throttle = (func, limit) => {
+    let inThrottle;
+    return function() {
+      const args = arguments;
+      const context = this;
+      if (!inThrottle) {
+        func.apply(context, args);
+        inThrottle = true;
+        setTimeout(() => inThrottle = false, limit);
+      }
+    };
+  };
+  
+  // Single optimized mouse move handler with throttling
+  const handleMouseMove = useCallback(
+    throttle((e) => {
       // Use requestAnimationFrame for better performance
       requestAnimationFrame(() => {
-        setMousePosition({
-          x: e.clientX / window.innerWidth - 0.5,
-          y: e.clientY / window.innerHeight - 0.5,
-        });
+        // Calculate normalized position (-0.5 to 0.5)
+        const x = e.clientX / window.innerWidth - 0.5;
+        const y = e.clientY / window.innerHeight - 0.5;
+        
+        // Update state for both purposes
+        setMousePosition({ x, y });
+        mouseX.set(e.clientX - window.innerWidth / 2);
+        mouseY.set(e.clientY - window.innerHeight / 2);
       });
-    };
-    
+    }, 16), // ~60fps (1000ms / 60 = ~16ms)
+    [mouseX, mouseY]
+  );
+  
+  // Single event listener setup
+  useEffect(() => {
     window.addEventListener('mousemove', handleMouseMove);
     return () => {
       window.removeEventListener('mousemove', handleMouseMove);
     };
-  }, []);
+  }, [handleMouseMove]);
   
   // Observer for section visibility with improved threshold
   useEffect(() => {
@@ -197,29 +226,6 @@ function LandingPage() {
       }
     }
   };
-
-  // Enhanced mouse follow animation with spring effect
-  const mouseX = useMotionValue(0);
-  const mouseY = useMotionValue(0);
-  
-  const smoothMouseX = useSpring(mouseX, { stiffness: 100, damping: 20 });
-  const smoothMouseY = useSpring(mouseY, { stiffness: 100, damping: 20 });
-  
-  useEffect(() => {
-    const handleMouseMove = (e) => {
-      // Use requestAnimationFrame for better performance
-      requestAnimationFrame(() => {
-        mouseX.set(e.clientX - window.innerWidth / 2);
-        mouseY.set(e.clientY - window.innerHeight / 2);
-      });
-    };
-    
-    window.addEventListener("mousemove", handleMouseMove);
-    
-    return () => {
-      window.removeEventListener("mousemove", handleMouseMove);
-    };
-  }, [mouseX, mouseY]);
 
   // Features data
   const features = [
@@ -344,34 +350,37 @@ function LandingPage() {
                 isDarkMode ? 'bg-blue-400/30' : 'bg-blue-500/20'
               } ${i % 3 === 0 ? 'w-3 h-3' : 'w-2 h-2'}`}
               style={{
-                x: mousePosition.x * -5 * (i % 3 + 1),
-                y: mousePosition.y * -5 * (i % 3 + 1),
                 left: `${Math.random() * 100}%`,
                 top: `${Math.random() * 100}%`,
                 filter: i % 4 === 0 ? 'blur(1px)' : 'none',
               }}
               animate={{
-                x: [
-                  0, 
-                  (Math.random() - 0.5) * 80, 
-                  (Math.random() - 0.5) * 40,
-                  (Math.random() - 0.5) * 80, 
-                  0
-                ],
-                y: [0, -40, -80, -40, 0],
-                opacity: [0, 0.6, 1, 0.6, 0],
+                x: mousePosition.x * -3 * (i % 3 + 1),
+                y: mousePosition.y * -3 * (i % 3 + 1),
                 scale: [0.8, 1.1, 1.3, 1.1, 0.8],
+                opacity: [0, 0.6, 1, 0.6, 0],
               }}
               transition={{
-                duration: 10 + Math.random() * 15,
-                repeat: Infinity,
-                delay: Math.random() * 5,
-                ease: "easeInOut",
-                times: [0, 0.25, 0.5, 0.75, 1],
-                x: { type: "spring", stiffness: 20, damping: 25 },
-                y: { type: "spring", stiffness: 20, damping: 25 },
+                x: { type: "spring", stiffness: 10, damping: 40, mass: 1.5 },
+                y: { type: "spring", stiffness: 10, damping: 40, mass: 1.5 },
+                scale: { 
+                  duration: 10 + Math.random() * 15,
+                  repeat: Infinity,
+                  ease: "easeInOut",
+                  times: [0, 0.25, 0.5, 0.75, 1],
+                },
+                opacity: { 
+                  duration: 10 + Math.random() * 15,
+                  repeat: Infinity,
+                  ease: "easeInOut",
+                  times: [0, 0.25, 0.5, 0.75, 1],
+                }
               }}
-              whileHover={{ scale: 1.8, opacity: 0.8, transition: { duration: 0.8 } }}
+              whileHover={{ 
+                scale: 1.8, 
+                opacity: 0.8, 
+                transition: { duration: 0.8, ease: "easeOut" } 
+              }}
             />
           ))}
 
@@ -391,14 +400,14 @@ function LandingPage() {
                     : '0 0 8px 2px rgba(99, 102, 241, 0.2)',
                 }}
                 animate={{
-                  x: mousePosition.x * -15 * (1 + Math.sin(i * 0.5)),
-                  y: mousePosition.y * -15 * (1 + Math.cos(i * 0.5)),
+                  x: mousePosition.x * -8 * (1 + Math.sin(i * 0.5)),
+                  y: mousePosition.y * -8 * (1 + Math.cos(i * 0.5)),
                   opacity: [0.4, 0.7, 0.4],
                   scale: [1, 1.3, 1],
                 }}
                 transition={{
-                  x: { type: "spring", stiffness: 15, damping: 30 },
-                  y: { type: "spring", stiffness: 15, damping: 30 },
+                  x: { type: "spring", stiffness: 8, damping: 35, mass: 1.2 },
+                  y: { type: "spring", stiffness: 8, damping: 35, mass: 1.2 },
                   opacity: { duration: 3 + i % 3, repeat: Infinity, ease: "easeInOut" },
                   scale: { duration: 4 + i % 2, repeat: Infinity, ease: "easeInOut" },
                 }}
@@ -1201,14 +1210,14 @@ function LandingPage() {
                   top: `${Math.floor(i / 6) * 20}%`,
                 }}
                 animate={{
-                  x: mousePosition.x * -12 * (1 + Math.sin(i)),
-                  y: mousePosition.y * -12 * (1 + Math.cos(i)),
+                  x: mousePosition.x * -6 * (1 + Math.sin(i)),
+                  y: mousePosition.y * -6 * (1 + Math.cos(i)),
                   opacity: [0.3, 0.5, 0.3],
                   scale: [1, 1.2, 1],
                 }}
                 transition={{
-                  x: { type: "spring", stiffness: 10, damping: 30 },
-                  y: { type: "spring", stiffness: 10, damping: 30 },
+                  x: { type: "spring", stiffness: 5, damping: 40, mass: 1.5 },
+                  y: { type: "spring", stiffness: 5, damping: 40, mass: 1.5 },
                   opacity: { duration: 2 + i % 4, repeat: Infinity, ease: "easeInOut" },
                   scale: { duration: 3 + i % 3, repeat: Infinity, ease: "easeInOut" },
                 }}
