@@ -19,6 +19,7 @@ import {
 } from '@heroicons/react/24/outline';
 import { withPageTransition } from '../context/ThemeContext';
 import VantaBackground from '../components/animations/VantaBackground';
+import OptimizedBackgroundSwitch from '../components/animations/OptimizedBackgroundSwitch';
 
 function LandingPage() {
   const { theme, animations, isDarkMode } = useTheme();
@@ -366,8 +367,8 @@ function LandingPage() {
         {/* Container for fallback Vanta initialization */}
         <div ref={heroSectionRef} className="absolute inset-0 z-0"></div>
         
-        {/* Vanta.js Background */}
-        <VantaBackground
+        {/* Optimized Background */}
+        <OptimizedBackgroundSwitch
           className="hero-vanta-background"
           mouseControls={true}
           touchControls={true}
@@ -1351,14 +1352,7 @@ function LandingPage() {
               <div className="flex items-center">
                 <CheckCircleIcon className={`h-5 w-5 mr-2 ${isDarkMode ? 'text-green-400' : 'text-green-600'}`} />
                 <span className={`text-sm ${isDarkMode ? 'text-gray-300' : 'text-gray-600'}`}>
-                  Terintegrasi dengan 50+ Rumah Sakit
-                </span>
-              </div>
-              
-              <div className="flex items-center">
-                <BeakerIcon className={`h-5 w-5 mr-2 ${isDarkMode ? 'text-green-400' : 'text-green-600'}`} />
-                <span className={`text-sm ${isDarkMode ? 'text-gray-300' : 'text-gray-600'}`}>
-                  Diuji Secara Klinis
+                  Data Aman & Terenkripsi
                 </span>
               </div>
             </motion.div>
