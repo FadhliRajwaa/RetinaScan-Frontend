@@ -30,62 +30,82 @@ function MouseProvider({ children }) {
   const mouseY = useMotionValue(0);
   
   // Spring dengan nilai yang lebih rendah untuk pergerakan lebih smooth
-  const smoothMouseX = useSpring(mouseX, { stiffness: 15, damping: 50, mass: 2 });
-  const smoothMouseY = useSpring(mouseY, { stiffness: 15, damping: 50, mass: 2 });
+  // Tingkatkan damping dan mass untuk gerakan yang lebih lambat dan halus
+  const smoothMouseX = useSpring(mouseX, { 
+    stiffness: 5,       // Significantly reduced from 15 
+    damping: 80,        // Significantly increased from 50
+    mass: 5,            // Significantly increased from 2
+    restDelta: 0.001    // Smaller rest delta for smoother transitions
+  });
   
-  // Throttle function yang lebih efektif
-  const throttle = (func, limit) => {
-    let lastFunc;
-    let lastRan;
-    return function() {
-      const context = this;
-      const args = arguments;
-      if (!lastRan) {
-        func.apply(context, args);
-        lastRan = Date.now();
-      } else {
-        clearTimeout(lastFunc);
-        lastFunc = setTimeout(function() {
-          if ((Date.now() - lastRan) >= limit) {
-            func.apply(context, args);
-            lastRan = Date.now();
-          }
-        }, limit - (Date.now() - lastRan));
-      }
+  const smoothMouseY = useSpring(mouseY, { 
+    stiffness: 5, 
+    damping: 80, 
+    mass: 5,
+    restDelta: 0.001
+  });
+  
+  // Implementasi debounce yang lebih efektif dari throttle
+  // Debounce reduces the number of updates more effectively for this case
+  const debounce = (func, wait) => {
+    let timeout;
+    return function executedFunction(...args) {
+      const later = () => {
+        clearTimeout(timeout);
+        func(...args);
+      };
+      clearTimeout(timeout);
+      timeout = setTimeout(later, wait);
     };
   };
   
-  // Optimized mouse move handler dengan throttling yang lebih baik
+  // Improved mouse move handler dengan RAF batching dan debounce yang lebih baik
   const handleMouseMove = useCallback(
-    throttle((e) => {
-      // Calculate normalized position (-0.5 to 0.5)
-      const x = e.clientX / window.innerWidth - 0.5;
-      const y = e.clientY / window.innerHeight - 0.5;
-      
-      // Update state secara smooth
+    debounce((e) => {
+      // Use requestAnimationFrame untuk batching updates
       requestAnimationFrame(() => {
-        setMousePosition({ x, y });
-        mouseX.set(e.clientX - window.innerWidth / 2);
-        mouseY.set(e.clientY - window.innerHeight / 2);
+        // Calculate normalized position (-0.5 to 0.5) with more constraint
+        // Applying a constraint factor to make movements less pronounced
+        const constraintFactor = 0.5; // Reduces movement by 50%
+        const x = (e.clientX / window.innerWidth - 0.5) * constraintFactor;
+        const y = (e.clientY / window.innerHeight - 0.5) * constraintFactor;
+        
+        // Hanya update jika perubahan cukup signifikan
+        const threshold = 0.001;
+        if (
+          Math.abs(x - mousePosition.x) > threshold || 
+          Math.abs(y - mousePosition.y) > threshold
+        ) {
+          setMousePosition({ x, y });
+          mouseX.set(e.clientX - window.innerWidth / 2);
+          mouseY.set(e.clientY - window.innerHeight / 2);
+        }
       });
-    }, 25), // 40fps throttle untuk performa lebih baik
-    [mouseX, mouseY]
+    }, 50), // 20fps throttle untuk performa lebih baik dan gerakan lebih smooth
+    [mousePosition, mouseX, mouseY]
   );
   
-  // Single event listener setup
+  // Single event listener setup dengan opsi passive
   useEffect(() => {
+    // Preload empty position
+    requestAnimationFrame(() => {
+      setMousePosition({ x: 0, y: 0 });
+      mouseX.set(0);
+      mouseY.set(0);
+    });
+    
     window.addEventListener('mousemove', handleMouseMove, { passive: true });
     return () => {
       window.removeEventListener('mousemove', handleMouseMove);
     };
   }, [handleMouseMove]);
   
-  // Buat API lebih mudah digunakan dengan menyediakan nilai langsung
+  // Provide more detailed API with derived values
   const mouseContextValue = {
     x: mousePosition.x,
     y: mousePosition.y,
-    mouseX,
-    mouseY,
+    rawX: mouseX,
+    rawY: mouseY,
     smoothX: smoothMouseX,
     smoothY: smoothMouseY
   };
@@ -360,6 +380,83 @@ function LandingPageContent({
     <div className={`${isDarkMode ? 'bg-gray-900 text-white' : 'bg-white text-gray-900'} transition-colors duration-300`}>
       {/* Hero Section - Enhanced Modern Design with Better Parallax */}
       <section className="relative min-h-[100svh] flex items-center justify-center overflow-hidden" ref={heroRef}>
+        {/* Enhanced animated gradient background */}
+        <motion.div 
+          className="absolute inset-0 z-0 overflow-hidden"
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ duration: 1.5 }}
+        >
+          {/* Main animated gradient */}
+          <motion.div 
+            className="absolute -inset-[100px] filter blur-3xl opacity-30"
+            animate={{
+              background: isDarkMode 
+                ? [
+                    'radial-gradient(circle at 20% 20%, rgba(14, 165, 233, 0.15) 0%, rgba(79, 70, 229, 0.1) 50%, rgba(10, 10, 10, 0) 80%)',
+                    'radial-gradient(circle at 40% 70%, rgba(14, 165, 233, 0.15) 0%, rgba(79, 70, 229, 0.1) 50%, rgba(10, 10, 10, 0) 80%)',
+                    'radial-gradient(circle at 60% 30%, rgba(14, 165, 233, 0.15) 0%, rgba(79, 70, 229, 0.1) 50%, rgba(10, 10, 10, 0) 80%)',
+                    'radial-gradient(circle at 20% 20%, rgba(14, 165, 233, 0.15) 0%, rgba(79, 70, 229, 0.1) 50%, rgba(10, 10, 10, 0) 80%)',
+                  ]
+                : [
+                    'radial-gradient(circle at 20% 20%, rgba(56, 189, 248, 0.4) 0%, rgba(59, 130, 246, 0.3) 50%, rgba(255, 255, 255, 0) 80%)',
+                    'radial-gradient(circle at 40% 70%, rgba(56, 189, 248, 0.4) 0%, rgba(59, 130, 246, 0.3) 50%, rgba(255, 255, 255, 0) 80%)',
+                    'radial-gradient(circle at 60% 30%, rgba(56, 189, 248, 0.4) 0%, rgba(59, 130, 246, 0.3) 50%, rgba(255, 255, 255, 0) 80%)',
+                    'radial-gradient(circle at 20% 20%, rgba(56, 189, 248, 0.4) 0%, rgba(59, 130, 246, 0.3) 50%, rgba(255, 255, 255, 0) 80%)',
+                  ],
+            }}
+            transition={{
+              background: {
+                duration: 15,
+                repeat: Infinity,
+                ease: "easeInOut",
+                times: [0, 0.33, 0.66, 1]
+              }
+            }}
+          />
+          
+          {/* Secondary animated gradient with different pattern */}
+          <motion.div 
+            className="absolute -inset-[100px] filter blur-3xl opacity-20"
+            animate={{
+              background: isDarkMode 
+                ? [
+                    'radial-gradient(circle at 80% 80%, rgba(139, 92, 246, 0.15) 0%, rgba(14, 165, 233, 0.1) 50%, rgba(10, 10, 10, 0) 80%)',
+                    'radial-gradient(circle at 20% 20%, rgba(139, 92, 246, 0.15) 0%, rgba(14, 165, 233, 0.1) 50%, rgba(10, 10, 10, 0) 80%)',
+                    'radial-gradient(circle at 50% 50%, rgba(139, 92, 246, 0.15) 0%, rgba(14, 165, 233, 0.1) 50%, rgba(10, 10, 10, 0) 80%)',
+                    'radial-gradient(circle at 80% 80%, rgba(139, 92, 246, 0.15) 0%, rgba(14, 165, 233, 0.1) 50%, rgba(10, 10, 10, 0) 80%)',
+                  ]
+                : [
+                    'radial-gradient(circle at 80% 80%, rgba(139, 92, 246, 0.3) 0%, rgba(56, 189, 248, 0.2) 50%, rgba(255, 255, 255, 0) 80%)',
+                    'radial-gradient(circle at 20% 20%, rgba(139, 92, 246, 0.3) 0%, rgba(56, 189, 248, 0.2) 50%, rgba(255, 255, 255, 0) 80%)',
+                    'radial-gradient(circle at 50% 50%, rgba(139, 92, 246, 0.3) 0%, rgba(56, 189, 248, 0.2) 50%, rgba(255, 255, 255, 0) 80%)',
+                    'radial-gradient(circle at 80% 80%, rgba(139, 92, 246, 0.3) 0%, rgba(56, 189, 248, 0.2) 50%, rgba(255, 255, 255, 0) 80%)',
+                  ],
+            }}
+            transition={{
+              background: {
+                duration: 20,
+                repeat: Infinity,
+                ease: "easeInOut",
+                times: [0, 0.33, 0.66, 1]
+              }
+            }}
+          />
+          
+          {/* Subtle mouse-responsive overlay */}
+          <motion.div 
+            className="absolute inset-0"
+            style={{
+              background: isDarkMode 
+                ? 'radial-gradient(circle at 50% 50%, rgba(30, 64, 175, 0.05), rgba(10, 10, 10, 0))'
+                : 'radial-gradient(circle at 50% 50%, rgba(59, 130, 246, 0.1), rgba(255, 255, 255, 0))',
+              backgroundSize: '120% 120%',
+              backgroundPosition: `${50 + x * 10}% ${50 + y * 10}%`,
+              transition: 'background-position 2s cubic-bezier(0.19, 1, 0.22, 1)',
+            }}
+          />
+        </motion.div>
+
         {/* Background layers with parallax effect */}
         <div className="absolute inset-0 z-0">
           {/* Main background image with enhanced parallax */}
@@ -422,31 +519,46 @@ function LandingPageContent({
                 filter: i % 4 === 0 ? 'blur(1px)' : 'none',
               }}
               animate={{
-                x: x * -3 * (i % 3 + 1),
-                y: y * -3 * (i % 3 + 1),
-                scale: [0.8, 1.1, 1.3, 1.1, 0.8],
-                opacity: [0, 0.6, 1, 0.6, 0],
+                x: x * -0.8 * (i % 3 + 1),
+                y: y * -0.8 * (i % 3 + 1),
+                scale: [1, 1.1, 1],
+                opacity: [0.5, 0.8, 0.5],
               }}
               transition={{
-                x: { type: "spring", stiffness: 10, damping: 40, mass: 1.5 },
-                y: { type: "spring", stiffness: 10, damping: 40, mass: 1.5 },
+                x: { 
+                  type: "spring", 
+                  stiffness: 3,        // Jauh lebih rendah (dari 10)
+                  damping: 90,         // Jauh lebih tinggi (dari 40)
+                  mass: 8,             // Jauh lebih tinggi (dari 1.5)
+                  restDelta: 0.001     // Untuk animasi yang lebih halus
+                },
+                y: { 
+                  type: "spring", 
+                  stiffness: 3, 
+                  damping: 90, 
+                  mass: 8,
+                  restDelta: 0.001
+                },
                 scale: { 
-                  duration: 10 + Math.random() * 15,
+                  duration: 8 + i % 5,  // Durasi yang lebih lama
                   repeat: Infinity,
                   ease: "easeInOut",
-                  times: [0, 0.25, 0.5, 0.75, 1],
+                  times: [0, 0.5, 1],   // Lebih sederhana (dari 5 points ke 3)
                 },
                 opacity: { 
-                  duration: 10 + Math.random() * 15,
+                  duration: 8 + i % 5,
                   repeat: Infinity,
                   ease: "easeInOut",
-                  times: [0, 0.25, 0.5, 0.75, 1],
+                  times: [0, 0.5, 1],
                 }
               }}
               whileHover={{ 
-                scale: 1.8, 
-                opacity: 0.8, 
-                transition: { duration: 0.8, ease: "easeOut" } 
+                scale: 1.3,            // Reduced from 1.8
+                opacity: 0.7,          // Reduced from 0.8
+                transition: { 
+                  duration: 1.5,       // Increased from 0.8
+                  ease: "easeOut" 
+                } 
               }}
             />
           ))}
@@ -467,16 +579,36 @@ function LandingPageContent({
                     : '0 0 8px 2px rgba(99, 102, 241, 0.2)',
                 }}
                 animate={{
-                  x: x * -8 * (1 + Math.sin(i * 0.5)),
-                  y: y * -8 * (1 + Math.cos(i * 0.5)),
-                  opacity: [0.4, 0.7, 0.4],
-                  scale: [1, 1.3, 1],
+                  x: x * -1.5 * (1 + Math.sin(i * 0.5)),
+                  y: y * -1.5 * (1 + Math.cos(i * 0.5)),
+                  opacity: [0.4, 0.6, 0.4],  // Lebih sederhana
+                  scale: [1, 1.2, 1],        // Lebih sederhana
                 }}
                 transition={{
-                  x: { type: "spring", stiffness: 8, damping: 35, mass: 1.2 },
-                  y: { type: "spring", stiffness: 8, damping: 35, mass: 1.2 },
-                  opacity: { duration: 3 + i % 3, repeat: Infinity, ease: "easeInOut" },
-                  scale: { duration: 4 + i % 2, repeat: Infinity, ease: "easeInOut" },
+                  x: { 
+                    type: "spring", 
+                    stiffness: 3,         // Reduced from 8
+                    damping: 95,          // Increased from 35
+                    mass: 10,             // Increased from 1.2
+                    restDelta: 0.001
+                  },
+                  y: { 
+                    type: "spring", 
+                    stiffness: 3, 
+                    damping: 95, 
+                    mass: 10,
+                    restDelta: 0.001
+                  },
+                  opacity: { 
+                    duration: 6 + i % 3, 
+                    repeat: Infinity, 
+                    ease: "easeInOut" 
+                  },
+                  scale: { 
+                    duration: 7 + i % 2, 
+                    repeat: Infinity, 
+                    ease: "easeInOut" 
+                  },
                 }}
               />
             ))}
@@ -1069,7 +1201,7 @@ function LandingPageContent({
                       isDarkMode ? 'bg-purple-500/10' : 'bg-purple-100'
                     } transform rotate-3`} />
                     <img 
-                      src="https://images.unsplash.com/photo-1551601651-2a8555f1a136?auto=format&fit=crop&q=80&w=1974&ixlib=rb-4.0.3"
+                      src="https://images.unsplash.com/photo-1551601651-2173dba999ef?auto=format&fit=crop&q=80&w=1974&ixlib=rb-4.0.3"
                       alt="AI analyzing retina scan" 
                       className="relative z-10 rounded-xl shadow-xl w-full h-auto object-cover max-h-[300px] sm:max-h-[350px] md:max-h-[400px]"
                     />
@@ -1234,6 +1366,55 @@ function LandingPageContent({
             : 'bg-gradient-to-br from-blue-50 via-indigo-50 to-blue-50 text-gray-900'
         }`}
       >
+        {/* Enhanced animated gradient background */}
+        <motion.div 
+          className="absolute inset-0 z-0 overflow-hidden"
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ duration: 1.5 }}
+        >
+          {/* Main animated gradient */}
+          <motion.div 
+            className="absolute -inset-[100px] filter blur-3xl opacity-30"
+            animate={{
+              background: isDarkMode 
+                ? [
+                    'radial-gradient(circle at 70% 30%, rgba(79, 70, 229, 0.15) 0%, rgba(14, 165, 233, 0.1) 50%, rgba(10, 10, 10, 0) 80%)',
+                    'radial-gradient(circle at 30% 60%, rgba(79, 70, 229, 0.15) 0%, rgba(14, 165, 233, 0.1) 50%, rgba(10, 10, 10, 0) 80%)',
+                    'radial-gradient(circle at 50% 40%, rgba(79, 70, 229, 0.15) 0%, rgba(14, 165, 233, 0.1) 50%, rgba(10, 10, 10, 0) 80%)',
+                    'radial-gradient(circle at 70% 30%, rgba(79, 70, 229, 0.15) 0%, rgba(14, 165, 233, 0.1) 50%, rgba(10, 10, 10, 0) 80%)',
+                  ]
+                : [
+                    'radial-gradient(circle at 70% 30%, rgba(79, 70, 229, 0.3) 0%, rgba(56, 189, 248, 0.2) 50%, rgba(255, 255, 255, 0) 80%)',
+                    'radial-gradient(circle at 30% 60%, rgba(79, 70, 229, 0.3) 0%, rgba(56, 189, 248, 0.2) 50%, rgba(255, 255, 255, 0) 80%)',
+                    'radial-gradient(circle at 50% 40%, rgba(79, 70, 229, 0.3) 0%, rgba(56, 189, 248, 0.2) 50%, rgba(255, 255, 255, 0) 80%)',
+                    'radial-gradient(circle at 70% 30%, rgba(79, 70, 229, 0.3) 0%, rgba(56, 189, 248, 0.2) 50%, rgba(255, 255, 255, 0) 80%)',
+                  ],
+            }}
+            transition={{
+              background: {
+                duration: 18,
+                repeat: Infinity,
+                ease: "easeInOut",
+                times: [0, 0.33, 0.66, 1]
+              }
+            }}
+          />
+          
+          {/* Subtle mouse-responsive overlay */}
+          <motion.div 
+            className="absolute inset-0"
+            style={{
+              background: isDarkMode 
+                ? 'radial-gradient(circle at 50% 50%, rgba(79, 70, 229, 0.05), rgba(10, 10, 10, 0))'
+                : 'radial-gradient(circle at 50% 50%, rgba(79, 70, 229, 0.1), rgba(255, 255, 255, 0))',
+              backgroundSize: '120% 120%',
+              backgroundPosition: `${50 + x * 10}% ${50 + y * 10}%`,
+              transition: 'background-position 2s cubic-bezier(0.19, 1, 0.22, 1)',
+            }}
+          />
+        </motion.div>
+        
         {/* Background elements */}
         <div className="absolute inset-0 overflow-hidden pointer-events-none">
           <motion.div 
@@ -1274,16 +1455,36 @@ function LandingPageContent({
                   top: `${Math.floor(i / 6) * 20}%`,
                 }}
                 animate={{
-                  x: x * -6 * (1 + Math.sin(i)),
-                  y: y * -6 * (1 + Math.cos(i)),
+                  x: x * -1 * (1 + Math.sin(i)),
+                  y: y * -1 * (1 + Math.cos(i)),
                   opacity: [0.3, 0.5, 0.3],
-                  scale: [1, 1.2, 1],
+                  scale: [1, 1.1, 1],
                 }}
                 transition={{
-                  x: { type: "spring", stiffness: 5, damping: 40, mass: 1.5 },
-                  y: { type: "spring", stiffness: 5, damping: 40, mass: 1.5 },
-                  opacity: { duration: 2 + i % 4, repeat: Infinity, ease: "easeInOut" },
-                  scale: { duration: 3 + i % 3, repeat: Infinity, ease: "easeInOut" },
+                  x: { 
+                    type: "spring", 
+                    stiffness: 2,         // Reduced from 5
+                    damping: 95,          // Increased from 40
+                    mass: 12,             // Increased from 1.5
+                    restDelta: 0.001
+                  },
+                  y: { 
+                    type: "spring", 
+                    stiffness: 2, 
+                    damping: 95, 
+                    mass: 12,
+                    restDelta: 0.001
+                  },
+                  opacity: { 
+                    duration: 8 + i % 4, 
+                    repeat: Infinity, 
+                    ease: "easeInOut" 
+                  },
+                  scale: { 
+                    duration: 10 + i % 3, 
+                    repeat: Infinity, 
+                    ease: "easeInOut" 
+                  },
                 }}
               />
             ))}
