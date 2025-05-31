@@ -26,8 +26,6 @@ const VantaBackground = ({
 }) => {
   const vantaRef = useRef(null);
   const [vantaEffect, setVantaEffect] = useState(null);
-  const [isInitialized, setIsInitialized] = useState(false);
-  const [isScriptLoaded, setIsScriptLoaded] = useState(false);
   const [isMobile, setIsMobile] = useState(false);
 
   // Detect mobile devices
@@ -51,110 +49,58 @@ const VantaBackground = ({
     return () => window.removeEventListener('resize', handleResize);
   }, []);
 
-  // Check if scripts are already loaded
-  useEffect(() => {
-    if (typeof window !== 'undefined') {
-      if (window.THREE && window.VANTA && window.VANTA.BIRDS) {
-        setIsScriptLoaded(true);
-      }
-    }
-  }, []);
-
   useEffect(() => {
     // Check if we're in a browser environment (not SSR)
     if (typeof window === 'undefined') return;
     
-    // Debounce the effect initialization to improve performance
-    let timeoutId;
+    // Cleanup previous effect
+    if (vantaEffect) vantaEffect.destroy();
     
-    const initEffect = () => {
-      // Make sure VANTA and THREE are available in the global scope
-      const VANTA = window.VANTA || {};
-      const THREE = window.THREE;
-      
-      if (!VANTA.BIRDS || !THREE) {
-        // Only try to load scripts if they aren't already loaded
-        if (!isInitialized) {
-          const loadScripts = async () => {
-            try {
-              // Check if scripts need to be loaded
-              if (!window.THREE) {
-                await loadScript('/js/three.r134.min.js');
-              }
-              
-              if (!window.VANTA || !window.VANTA.BIRDS) {
-                await loadScript('/js/vanta.birds.min.js');
-              }
-              
-              setIsInitialized(true);
-              setIsScriptLoaded(true);
-            } catch (error) {
-              console.error('Error loading Vanta.js scripts:', error);
-            }
-          };
-          
-          loadScripts();
-        }
-        return;
-      }
+    // Only initialize if the ref exists and scripts are loaded
+    if (!vantaRef.current || !window.VANTA || !window.VANTA.BIRDS) {
+      console.error('Vanta.js or Three.js not loaded properly');
+      return;
+    }
 
-      // Cleanup previous effect
-      if (vantaEffect) vantaEffect.destroy();
-      
-      // Only initialize if the ref exists and scripts are loaded
-      if (!vantaRef.current || !window.VANTA.BIRDS) return;
+    // Adjust parameters for mobile devices
+    const actualBirdSize = isMobile ? birdSize * 0.8 : birdSize;
+    const actualQuantity = isMobile ? Math.max(1, quantity * 0.7) : quantity;
+    const actualSpeedLimit = isMobile ? speedLimit * 0.8 : speedLimit;
+    
+    // Initialize the effect with optimized settings
+    const effect = window.VANTA.BIRDS({
+      el: vantaRef.current,
+      mouseControls,
+      touchControls: isMobile ? true : touchControls,
+      gyroControls: isMobile ? false : gyroControls,
+      minHeight,
+      minWidth,
+      scale,
+      scaleMobile,
+      backgroundColor,
+      color1,
+      color2,
+      colorMode,
+      birdSize: actualBirdSize,
+      wingSpan,
+      speedLimit: actualSpeedLimit,
+      separation,
+      alignment,
+      cohesion,
+      quantity: actualQuantity,
+      backgroundAlpha,
+      fps: isMobile ? 30 : 60, // Lower FPS on mobile
+    });
 
-      // Adjust parameters for mobile devices
-      const actualBirdSize = isMobile ? birdSize * 0.8 : birdSize;
-      const actualQuantity = isMobile ? Math.max(1, quantity * 0.7) : quantity;
-      const actualSpeedLimit = isMobile ? speedLimit * 0.8 : speedLimit;
-      
-      // Initialize the effect with optimized settings
-      const effect = window.VANTA.BIRDS({
-        el: vantaRef.current,
-        THREE,
-        mouseControls,
-        touchControls: isMobile ? true : touchControls, // Always enable touch controls on mobile
-        gyroControls: isMobile ? false : gyroControls, // Disable gyro on mobile to save battery
-        minHeight,
-        minWidth,
-        scale,
-        scaleMobile,
-        backgroundColor,
-        color1,
-        color2,
-        colorMode,
-        birdSize: actualBirdSize,
-        wingSpan,
-        speedLimit: actualSpeedLimit,
-        separation,
-        alignment,
-        cohesion,
-        quantity: actualQuantity,
-        backgroundAlpha,
-        // Add performance optimizations
-        fps: isMobile ? 30 : 60, // Lower FPS on mobile
-      });
-
-      setVantaEffect(effect);
-    };
-
-    // Use a timeout to debounce the initialization
-    timeoutId = setTimeout(() => {
-      if (isScriptLoaded || window.THREE && window.VANTA && window.VANTA.BIRDS) {
-        initEffect();
-      }
-    }, 100);
+    setVantaEffect(effect);
+    console.log('Vanta effect initialized:', effect);
 
     // Cleanup on unmount
     return () => {
-      clearTimeout(timeoutId);
-      if (vantaEffect) vantaEffect.destroy();
+      if (effect) effect.destroy();
     };
   }, [
-    isInitialized,
-    isScriptLoaded,
-    isMobile, // Re-render when mobile state changes
+    isMobile,
     mouseControls,
     touchControls,
     gyroControls,
@@ -225,18 +171,6 @@ const VantaBackground = ({
       document.removeEventListener('visibilitychange', handleVisibilityChange);
     };
   }, [vantaEffect, isMobile]);
-
-  // Helper function to load scripts dynamically
-  const loadScript = (src) => {
-    return new Promise((resolve, reject) => {
-      const script = document.createElement('script');
-      script.src = src;
-      script.async = true;
-      script.onload = resolve;
-      script.onerror = reject;
-      document.body.appendChild(script);
-    });
-  };
 
   return (
     <div 

@@ -299,7 +299,7 @@ function LandingPage() {
           minWidth={200}
           scale={1.00}
           scaleMobile={0.75}
-          backgroundColor={isDarkMode ? 0x0a0a0a : 0xffffff}
+          backgroundColor={isDarkMode ? 0x000000 : 0xffffff}
           color1={isDarkMode ? 0x0077ff : 0x0077ff}
           color2={isDarkMode ? 0x4b0082 : 0x4169e1}
           colorMode="variance"
@@ -309,7 +309,7 @@ function LandingPage() {
           separation={80.0}
           alignment={30.0}
           cohesion={30.0}
-          quantity={2.0}
+          quantity={3.0}
           backgroundAlpha={0.0}
         />
 
