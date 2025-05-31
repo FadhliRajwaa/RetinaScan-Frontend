@@ -344,8 +344,8 @@ function LandingPage() {
                 isDarkMode ? 'bg-blue-400/30' : 'bg-blue-500/20'
               } ${i % 3 === 0 ? 'w-3 h-3' : 'w-2 h-2'}`}
               style={{
-                x: mousePosition.x * -10 * (i % 3 + 1),
-                y: mousePosition.y * -10 * (i % 3 + 1),
+                x: mousePosition.x * -5 * (i % 3 + 1),
+                y: mousePosition.y * -5 * (i % 3 + 1),
                 left: `${Math.random() * 100}%`,
                 top: `${Math.random() * 100}%`,
                 filter: i % 4 === 0 ? 'blur(1px)' : 'none',
