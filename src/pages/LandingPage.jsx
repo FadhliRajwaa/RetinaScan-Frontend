@@ -1,7 +1,7 @@
 import { Link } from 'react-router-dom';
 import { motion, useScroll, useTransform, AnimatePresence, useMotionValue, useSpring } from 'framer-motion';
 import { useTheme } from '../context/ThemeContext';
-import { useRef, useEffect, useState, useCallback, createContext, useContext } from 'react';
+import { useRef, useEffect, useState } from 'react';
 import { 
   ArrowRightIcon, 
   ShieldCheckIcon, 
@@ -20,112 +20,6 @@ import {
 import { withPageTransition } from '../context/ThemeContext';
 import { ParallaxBanner, Parallax, useParallax, ParallaxProvider } from 'react-scroll-parallax';
 
-// Mouse Context untuk mengelola interaksi mouse secara terpusat
-const MouseContext = createContext({ x: 0, y: 0, smoothX: 0, smoothY: 0 });
-
-// Mouse Provider untuk menangani semua interaksi mouse
-function MouseProvider({ children }) {
-  const [mousePosition, setMousePosition] = useState({ x: 0, y: 0 });
-  const mouseX = useMotionValue(0);
-  const mouseY = useMotionValue(0);
-  
-  // Spring dengan nilai yang lebih rendah untuk pergerakan lebih smooth
-  // Tingkatkan damping dan mass untuk gerakan yang lebih lambat dan halus
-  const smoothMouseX = useSpring(mouseX, { 
-    stiffness: 5,       // Significantly reduced from 15 
-    damping: 80,        // Significantly increased from 50
-    mass: 5,            // Significantly increased from 2
-    restDelta: 0.001    // Smaller rest delta for smoother transitions
-  });
-  
-  const smoothMouseY = useSpring(mouseY, { 
-    stiffness: 5, 
-    damping: 80, 
-    mass: 5,
-    restDelta: 0.001
-  });
-  
-  // Implementasi debounce yang lebih efektif dari throttle
-  // Debounce reduces the number of updates more effectively for this case
-  const debounce = (func, wait) => {
-    let timeout;
-    return function executedFunction(...args) {
-      const later = () => {
-        clearTimeout(timeout);
-        func(...args);
-      };
-      clearTimeout(timeout);
-      timeout = setTimeout(later, wait);
-    };
-  };
-  
-  // Improved mouse move handler dengan RAF batching dan debounce yang lebih baik
-  const handleMouseMove = useCallback(
-    debounce((e) => {
-      // Use requestAnimationFrame untuk batching updates
-      requestAnimationFrame(() => {
-        // Calculate normalized position (-0.5 to 0.5) with more constraint
-        // Applying a constraint factor to make movements less pronounced
-        const constraintFactor = 0.5; // Reduces movement by 50%
-        const x = (e.clientX / window.innerWidth - 0.5) * constraintFactor;
-        const y = (e.clientY / window.innerHeight - 0.5) * constraintFactor;
-        
-        // Hanya update jika perubahan cukup signifikan
-        const threshold = 0.001;
-        if (
-          Math.abs(x - mousePosition.x) > threshold || 
-          Math.abs(y - mousePosition.y) > threshold
-        ) {
-          setMousePosition({ x, y });
-          mouseX.set(e.clientX - window.innerWidth / 2);
-          mouseY.set(e.clientY - window.innerHeight / 2);
-        }
-      });
-    }, 50), // 20fps throttle untuk performa lebih baik dan gerakan lebih smooth
-    [mousePosition, mouseX, mouseY]
-  );
-  
-  // Single event listener setup dengan opsi passive
-  useEffect(() => {
-    // Preload empty position
-    requestAnimationFrame(() => {
-      setMousePosition({ x: 0, y: 0 });
-      mouseX.set(0);
-      mouseY.set(0);
-    });
-    
-    window.addEventListener('mousemove', handleMouseMove, { passive: true });
-    return () => {
-      window.removeEventListener('mousemove', handleMouseMove);
-    };
-  }, [handleMouseMove]);
-  
-  // Provide more detailed API with derived values
-  const mouseContextValue = {
-    x: mousePosition.x,
-    y: mousePosition.y,
-    rawX: mouseX,
-    rawY: mouseY,
-    smoothX: smoothMouseX,
-    smoothY: smoothMouseY
-  };
-  
-  return (
-    <MouseContext.Provider value={mouseContextValue}>
-      {children}
-    </MouseContext.Provider>
-  );
-}
-
-// Hook untuk menggunakan MouseContext
-function useMouse() {
-  const context = useContext(MouseContext);
-  if (!context) {
-    throw new Error('useMouse must be used within a MouseProvider');
-  }
-  return context;
-}
-
 function LandingPage() {
   const { theme, animations, isDarkMode } = useTheme();
   const [isAuthenticated, setIsAuthenticated] = useState(false);
@@ -135,35 +29,8 @@ function LandingPage() {
     testimonials: false,
     cta: false
   });
-  
-  // Gunakan MouseProvider untuk semua komponen
-  return (
-    <MouseProvider>
-      <LandingPageContent 
-        isAuthenticated={isAuthenticated}
-        setIsAuthenticated={setIsAuthenticated}
-        isVisible={isVisible}
-        setIsVisible={setIsVisible}
-        theme={theme}
-        animations={animations}
-        isDarkMode={isDarkMode}
-      />
-    </MouseProvider>
-  );
-}
-
-// Komponen LandingPage yang sebenarnya
-function LandingPageContent({ 
-  isAuthenticated, 
-  setIsAuthenticated, 
-  isVisible, 
-  setIsVisible,
-  theme,
-  animations,
-  isDarkMode
-}) {
-  // Gunakan context mouse
-  const { x, y, smoothX, smoothY } = useMouse();
+  const [mousePosition, setMousePosition] = useState({ x: 0, y: 0 });
+  const [scrollY, setScrollY] = useState(0);
   
   // Environment variables
   const DASHBOARD_URL = import.meta.env.VITE_DASHBOARD_URL || 'http://localhost:3000';
@@ -176,16 +43,15 @@ function LandingPageContent({
     } else {
       setIsAuthenticated(false);
     }
-  }, [setIsAuthenticated]);
+  }, []);
   
   // Track scroll position for enhanced animations
-  const [scrollY, setScrollY] = useState(0);
   useEffect(() => {
     const handleScroll = () => {
       setScrollY(window.scrollY);
     };
     
-    window.addEventListener('scroll', handleScroll, { passive: true });
+    window.addEventListener('scroll', handleScroll);
     return () => {
       window.removeEventListener('scroll', handleScroll);
     };
@@ -202,6 +68,56 @@ function LandingPageContent({
   const heroY = useTransform(scrollYProgress, [0, 0.5], [0, -150]);
   const heroScale = useTransform(scrollYProgress, [0, 0.5], [1, 1.1]);
   const heroOpacity = useTransform(scrollYProgress, [0, 0.5], [1, 0.5]);
+  
+  // Enhanced mouse parallax effect with better performance
+  useEffect(() => {
+    const handleMouseMove = (e) => {
+      // Use requestAnimationFrame for better performance
+      requestAnimationFrame(() => {
+        setMousePosition({
+          x: e.clientX / window.innerWidth - 0.5,
+          y: e.clientY / window.innerHeight - 0.5,
+        });
+      });
+    };
+    
+    window.addEventListener('mousemove', handleMouseMove);
+    return () => {
+      window.removeEventListener('mousemove', handleMouseMove);
+    };
+  }, []);
+  
+  // Observer for section visibility with improved threshold
+  useEffect(() => {
+    const observer = new IntersectionObserver(
+      (entries) => {
+        entries.forEach(entry => {
+          if (entry.target.id === 'features' && entry.isIntersecting) {
+            setIsVisible(prev => ({ ...prev, features: true }));
+          } else if (entry.target.id === 'about' && entry.isIntersecting) {
+            setIsVisible(prev => ({ ...prev, about: true }));
+          } else if (entry.target.id === 'testimonials' && entry.isIntersecting) {
+            setIsVisible(prev => ({ ...prev, testimonials: true }));
+          } else if (entry.target.id === 'cta' && entry.isIntersecting) {
+            setIsVisible(prev => ({ ...prev, cta: true }));
+          }
+        });
+      },
+      { threshold: [0.1, 0.3, 0.5], rootMargin: "0px 0px -10% 0px" }
+    );
+    
+    if (featuresRef.current) observer.observe(featuresRef.current);
+    if (aboutRef.current) observer.observe(aboutRef.current);
+    if (testimonialsRef.current) observer.observe(testimonialsRef.current);
+    if (ctaRef.current) observer.observe(ctaRef.current);
+    
+    return () => {
+      if (featuresRef.current) observer.unobserve(featuresRef.current);
+      if (aboutRef.current) observer.unobserve(aboutRef.current);
+      if (testimonialsRef.current) observer.unobserve(testimonialsRef.current);
+      if (ctaRef.current) observer.unobserve(ctaRef.current);
+    };
+  }, []);
   
   // Enhanced animation variants with better timing and effects
   const fadeInUp = {
@@ -281,39 +197,30 @@ function LandingPageContent({
       }
     }
   };
+
+  // Enhanced mouse follow animation with spring effect
+  const mouseX = useMotionValue(0);
+  const mouseY = useMotionValue(0);
   
-  // Observer for section visibility with improved threshold
+  const smoothMouseX = useSpring(mouseX, { stiffness: 100, damping: 20 });
+  const smoothMouseY = useSpring(mouseY, { stiffness: 100, damping: 20 });
+  
   useEffect(() => {
-    const observer = new IntersectionObserver(
-      (entries) => {
-        entries.forEach(entry => {
-          if (entry.target.id === 'features' && entry.isIntersecting) {
-            setIsVisible(prev => ({ ...prev, features: true }));
-          } else if (entry.target.id === 'about' && entry.isIntersecting) {
-            setIsVisible(prev => ({ ...prev, about: true }));
-          } else if (entry.target.id === 'testimonials' && entry.isIntersecting) {
-            setIsVisible(prev => ({ ...prev, testimonials: true }));
-          } else if (entry.target.id === 'cta' && entry.isIntersecting) {
-            setIsVisible(prev => ({ ...prev, cta: true }));
-          }
-        });
-      },
-      { threshold: [0.1, 0.3, 0.5], rootMargin: "0px 0px -10% 0px" }
-    );
+    const handleMouseMove = (e) => {
+      // Use requestAnimationFrame for better performance
+      requestAnimationFrame(() => {
+        mouseX.set(e.clientX - window.innerWidth / 2);
+        mouseY.set(e.clientY - window.innerHeight / 2);
+      });
+    };
     
-    if (featuresRef.current) observer.observe(featuresRef.current);
-    if (aboutRef.current) observer.observe(aboutRef.current);
-    if (testimonialsRef.current) observer.observe(testimonialsRef.current);
-    if (ctaRef.current) observer.observe(ctaRef.current);
+    window.addEventListener("mousemove", handleMouseMove);
     
     return () => {
-      if (featuresRef.current) observer.unobserve(featuresRef.current);
-      if (aboutRef.current) observer.unobserve(aboutRef.current);
-      if (testimonialsRef.current) observer.unobserve(testimonialsRef.current);
-      if (ctaRef.current) observer.unobserve(ctaRef.current);
+      window.removeEventListener("mousemove", handleMouseMove);
     };
-  }, [setIsVisible]);
-  
+  }, [mouseX, mouseY]);
+
   // Features data
   const features = [
     {
@@ -380,83 +287,6 @@ function LandingPageContent({
     <div className={`${isDarkMode ? 'bg-gray-900 text-white' : 'bg-white text-gray-900'} transition-colors duration-300`}>
       {/* Hero Section - Enhanced Modern Design with Better Parallax */}
       <section className="relative min-h-[100svh] flex items-center justify-center overflow-hidden" ref={heroRef}>
-        {/* Enhanced animated gradient background */}
-        <motion.div 
-          className="absolute inset-0 z-0 overflow-hidden"
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ duration: 1.5 }}
-        >
-          {/* Main animated gradient */}
-          <motion.div 
-            className="absolute -inset-[100px] filter blur-3xl opacity-30"
-            animate={{
-              background: isDarkMode 
-                ? [
-                    'radial-gradient(circle at 20% 20%, rgba(14, 165, 233, 0.15) 0%, rgba(79, 70, 229, 0.1) 50%, rgba(10, 10, 10, 0) 80%)',
-                    'radial-gradient(circle at 40% 70%, rgba(14, 165, 233, 0.15) 0%, rgba(79, 70, 229, 0.1) 50%, rgba(10, 10, 10, 0) 80%)',
-                    'radial-gradient(circle at 60% 30%, rgba(14, 165, 233, 0.15) 0%, rgba(79, 70, 229, 0.1) 50%, rgba(10, 10, 10, 0) 80%)',
-                    'radial-gradient(circle at 20% 20%, rgba(14, 165, 233, 0.15) 0%, rgba(79, 70, 229, 0.1) 50%, rgba(10, 10, 10, 0) 80%)',
-                  ]
-                : [
-                    'radial-gradient(circle at 20% 20%, rgba(56, 189, 248, 0.4) 0%, rgba(59, 130, 246, 0.3) 50%, rgba(255, 255, 255, 0) 80%)',
-                    'radial-gradient(circle at 40% 70%, rgba(56, 189, 248, 0.4) 0%, rgba(59, 130, 246, 0.3) 50%, rgba(255, 255, 255, 0) 80%)',
-                    'radial-gradient(circle at 60% 30%, rgba(56, 189, 248, 0.4) 0%, rgba(59, 130, 246, 0.3) 50%, rgba(255, 255, 255, 0) 80%)',
-                    'radial-gradient(circle at 20% 20%, rgba(56, 189, 248, 0.4) 0%, rgba(59, 130, 246, 0.3) 50%, rgba(255, 255, 255, 0) 80%)',
-                  ],
-            }}
-            transition={{
-              background: {
-                duration: 15,
-                repeat: Infinity,
-                ease: "easeInOut",
-                times: [0, 0.33, 0.66, 1]
-              }
-            }}
-          />
-          
-          {/* Secondary animated gradient with different pattern */}
-          <motion.div 
-            className="absolute -inset-[100px] filter blur-3xl opacity-20"
-            animate={{
-              background: isDarkMode 
-                ? [
-                    'radial-gradient(circle at 80% 80%, rgba(139, 92, 246, 0.15) 0%, rgba(14, 165, 233, 0.1) 50%, rgba(10, 10, 10, 0) 80%)',
-                    'radial-gradient(circle at 20% 20%, rgba(139, 92, 246, 0.15) 0%, rgba(14, 165, 233, 0.1) 50%, rgba(10, 10, 10, 0) 80%)',
-                    'radial-gradient(circle at 50% 50%, rgba(139, 92, 246, 0.15) 0%, rgba(14, 165, 233, 0.1) 50%, rgba(10, 10, 10, 0) 80%)',
-                    'radial-gradient(circle at 80% 80%, rgba(139, 92, 246, 0.15) 0%, rgba(14, 165, 233, 0.1) 50%, rgba(10, 10, 10, 0) 80%)',
-                  ]
-                : [
-                    'radial-gradient(circle at 80% 80%, rgba(139, 92, 246, 0.3) 0%, rgba(56, 189, 248, 0.2) 50%, rgba(255, 255, 255, 0) 80%)',
-                    'radial-gradient(circle at 20% 20%, rgba(139, 92, 246, 0.3) 0%, rgba(56, 189, 248, 0.2) 50%, rgba(255, 255, 255, 0) 80%)',
-                    'radial-gradient(circle at 50% 50%, rgba(139, 92, 246, 0.3) 0%, rgba(56, 189, 248, 0.2) 50%, rgba(255, 255, 255, 0) 80%)',
-                    'radial-gradient(circle at 80% 80%, rgba(139, 92, 246, 0.3) 0%, rgba(56, 189, 248, 0.2) 50%, rgba(255, 255, 255, 0) 80%)',
-                  ],
-            }}
-            transition={{
-              background: {
-                duration: 20,
-                repeat: Infinity,
-                ease: "easeInOut",
-                times: [0, 0.33, 0.66, 1]
-              }
-            }}
-          />
-          
-          {/* Subtle mouse-responsive overlay */}
-          <motion.div 
-            className="absolute inset-0"
-            style={{
-              background: isDarkMode 
-                ? 'radial-gradient(circle at 50% 50%, rgba(30, 64, 175, 0.05), rgba(10, 10, 10, 0))'
-                : 'radial-gradient(circle at 50% 50%, rgba(59, 130, 246, 0.1), rgba(255, 255, 255, 0))',
-              backgroundSize: '120% 120%',
-              backgroundPosition: `${50 + x * 10}% ${50 + y * 10}%`,
-              transition: 'background-position 2s cubic-bezier(0.19, 1, 0.22, 1)',
-            }}
-          />
-        </motion.div>
-
         {/* Background layers with parallax effect */}
         <div className="absolute inset-0 z-0">
           {/* Main background image with enhanced parallax */}
@@ -514,52 +344,34 @@ function LandingPageContent({
                 isDarkMode ? 'bg-blue-400/30' : 'bg-blue-500/20'
               } ${i % 3 === 0 ? 'w-3 h-3' : 'w-2 h-2'}`}
               style={{
+                x: mousePosition.x * -5 * (i % 3 + 1),
+                y: mousePosition.y * -5 * (i % 3 + 1),
                 left: `${Math.random() * 100}%`,
                 top: `${Math.random() * 100}%`,
                 filter: i % 4 === 0 ? 'blur(1px)' : 'none',
               }}
               animate={{
-                x: x * -0.8 * (i % 3 + 1),
-                y: y * -0.8 * (i % 3 + 1),
-                scale: [1, 1.1, 1],
-                opacity: [0.5, 0.8, 0.5],
+                x: [
+                  0, 
+                  (Math.random() - 0.5) * 80, 
+                  (Math.random() - 0.5) * 40,
+                  (Math.random() - 0.5) * 80, 
+                  0
+                ],
+                y: [0, -40, -80, -40, 0],
+                opacity: [0, 0.6, 1, 0.6, 0],
+                scale: [0.8, 1.1, 1.3, 1.1, 0.8],
               }}
               transition={{
-                x: { 
-                  type: "spring", 
-                  stiffness: 3,        // Jauh lebih rendah (dari 10)
-                  damping: 90,         // Jauh lebih tinggi (dari 40)
-                  mass: 8,             // Jauh lebih tinggi (dari 1.5)
-                  restDelta: 0.001     // Untuk animasi yang lebih halus
-                },
-                y: { 
-                  type: "spring", 
-                  stiffness: 3, 
-                  damping: 90, 
-                  mass: 8,
-                  restDelta: 0.001
-                },
-                scale: { 
-                  duration: 8 + i % 5,  // Durasi yang lebih lama
-                  repeat: Infinity,
-                  ease: "easeInOut",
-                  times: [0, 0.5, 1],   // Lebih sederhana (dari 5 points ke 3)
-                },
-                opacity: { 
-                  duration: 8 + i % 5,
-                  repeat: Infinity,
-                  ease: "easeInOut",
-                  times: [0, 0.5, 1],
-                }
+                duration: 10 + Math.random() * 15,
+                repeat: Infinity,
+                delay: Math.random() * 5,
+                ease: "easeInOut",
+                times: [0, 0.25, 0.5, 0.75, 1],
+                x: { type: "spring", stiffness: 20, damping: 25 },
+                y: { type: "spring", stiffness: 20, damping: 25 },
               }}
-              whileHover={{ 
-                scale: 1.3,            // Reduced from 1.8
-                opacity: 0.7,          // Reduced from 0.8
-                transition: { 
-                  duration: 1.5,       // Increased from 0.8
-                  ease: "easeOut" 
-                } 
-              }}
+              whileHover={{ scale: 1.8, opacity: 0.8, transition: { duration: 0.8 } }}
             />
           ))}
 
@@ -579,36 +391,16 @@ function LandingPageContent({
                     : '0 0 8px 2px rgba(99, 102, 241, 0.2)',
                 }}
                 animate={{
-                  x: x * -1.5 * (1 + Math.sin(i * 0.5)),
-                  y: y * -1.5 * (1 + Math.cos(i * 0.5)),
-                  opacity: [0.4, 0.6, 0.4],  // Lebih sederhana
-                  scale: [1, 1.2, 1],        // Lebih sederhana
+                  x: mousePosition.x * -15 * (1 + Math.sin(i * 0.5)),
+                  y: mousePosition.y * -15 * (1 + Math.cos(i * 0.5)),
+                  opacity: [0.4, 0.7, 0.4],
+                  scale: [1, 1.3, 1],
                 }}
                 transition={{
-                  x: { 
-                    type: "spring", 
-                    stiffness: 3,         // Reduced from 8
-                    damping: 95,          // Increased from 35
-                    mass: 10,             // Increased from 1.2
-                    restDelta: 0.001
-                  },
-                  y: { 
-                    type: "spring", 
-                    stiffness: 3, 
-                    damping: 95, 
-                    mass: 10,
-                    restDelta: 0.001
-                  },
-                  opacity: { 
-                    duration: 6 + i % 3, 
-                    repeat: Infinity, 
-                    ease: "easeInOut" 
-                  },
-                  scale: { 
-                    duration: 7 + i % 2, 
-                    repeat: Infinity, 
-                    ease: "easeInOut" 
-                  },
+                  x: { type: "spring", stiffness: 15, damping: 30 },
+                  y: { type: "spring", stiffness: 15, damping: 30 },
+                  opacity: { duration: 3 + i % 3, repeat: Infinity, ease: "easeInOut" },
+                  scale: { duration: 4 + i % 2, repeat: Infinity, ease: "easeInOut" },
                 }}
               />
             ))}
@@ -814,7 +606,10 @@ function LandingPageContent({
                 }`}
                 whileHover={{ y: -5, transition: { duration: 0.2 } }}
                 custom={index}
-                variants={fadeInUp}
+                variants={{
+                  hidden: { opacity: 0, y: 20 },
+                  visible: { opacity: 1, y: 0 }
+                }}
               >
                 <div className={`inline-flex items-center justify-center p-2 sm:p-3 rounded-lg mb-2 sm:mb-4 ${
                   stat.color === 'blue' ? isDarkMode ? 'bg-blue-900/50 text-blue-400' : 'bg-blue-100 text-blue-600' :
@@ -851,8 +646,8 @@ function LandingPageContent({
                 transformStyle: "preserve-3d",
               }}
               animate={{
-                rotateX: smoothY.get() * 0.01,
-                rotateY: smoothX.get() * -0.01,
+                rotateX: smoothMouseY.get() * 0.01,
+                rotateY: smoothMouseX.get() * -0.01,
               }}
             >
               {/* Decorative elements with better mobile support */}
@@ -1201,7 +996,7 @@ function LandingPageContent({
                       isDarkMode ? 'bg-purple-500/10' : 'bg-purple-100'
                     } transform rotate-3`} />
                     <img 
-                      src="https://images.unsplash.com/photo-1551601651-2173dba999ef?auto=format&fit=crop&q=80&w=1974&ixlib=rb-4.0.3"
+                      src="https://images.unsplash.com/photo-1551601651-2a8555f1a136?auto=format&fit=crop&q=80&w=1974&ixlib=rb-4.0.3"
                       alt="AI analyzing retina scan" 
                       className="relative z-10 rounded-xl shadow-xl w-full h-auto object-cover max-h-[300px] sm:max-h-[350px] md:max-h-[400px]"
                     />
@@ -1366,55 +1161,6 @@ function LandingPageContent({
             : 'bg-gradient-to-br from-blue-50 via-indigo-50 to-blue-50 text-gray-900'
         }`}
       >
-        {/* Enhanced animated gradient background */}
-        <motion.div 
-          className="absolute inset-0 z-0 overflow-hidden"
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ duration: 1.5 }}
-        >
-          {/* Main animated gradient */}
-          <motion.div 
-            className="absolute -inset-[100px] filter blur-3xl opacity-30"
-            animate={{
-              background: isDarkMode 
-                ? [
-                    'radial-gradient(circle at 70% 30%, rgba(79, 70, 229, 0.15) 0%, rgba(14, 165, 233, 0.1) 50%, rgba(10, 10, 10, 0) 80%)',
-                    'radial-gradient(circle at 30% 60%, rgba(79, 70, 229, 0.15) 0%, rgba(14, 165, 233, 0.1) 50%, rgba(10, 10, 10, 0) 80%)',
-                    'radial-gradient(circle at 50% 40%, rgba(79, 70, 229, 0.15) 0%, rgba(14, 165, 233, 0.1) 50%, rgba(10, 10, 10, 0) 80%)',
-                    'radial-gradient(circle at 70% 30%, rgba(79, 70, 229, 0.15) 0%, rgba(14, 165, 233, 0.1) 50%, rgba(10, 10, 10, 0) 80%)',
-                  ]
-                : [
-                    'radial-gradient(circle at 70% 30%, rgba(79, 70, 229, 0.3) 0%, rgba(56, 189, 248, 0.2) 50%, rgba(255, 255, 255, 0) 80%)',
-                    'radial-gradient(circle at 30% 60%, rgba(79, 70, 229, 0.3) 0%, rgba(56, 189, 248, 0.2) 50%, rgba(255, 255, 255, 0) 80%)',
-                    'radial-gradient(circle at 50% 40%, rgba(79, 70, 229, 0.3) 0%, rgba(56, 189, 248, 0.2) 50%, rgba(255, 255, 255, 0) 80%)',
-                    'radial-gradient(circle at 70% 30%, rgba(79, 70, 229, 0.3) 0%, rgba(56, 189, 248, 0.2) 50%, rgba(255, 255, 255, 0) 80%)',
-                  ],
-            }}
-            transition={{
-              background: {
-                duration: 18,
-                repeat: Infinity,
-                ease: "easeInOut",
-                times: [0, 0.33, 0.66, 1]
-              }
-            }}
-          />
-          
-          {/* Subtle mouse-responsive overlay */}
-          <motion.div 
-            className="absolute inset-0"
-            style={{
-              background: isDarkMode 
-                ? 'radial-gradient(circle at 50% 50%, rgba(79, 70, 229, 0.05), rgba(10, 10, 10, 0))'
-                : 'radial-gradient(circle at 50% 50%, rgba(79, 70, 229, 0.1), rgba(255, 255, 255, 0))',
-              backgroundSize: '120% 120%',
-              backgroundPosition: `${50 + x * 10}% ${50 + y * 10}%`,
-              transition: 'background-position 2s cubic-bezier(0.19, 1, 0.22, 1)',
-            }}
-          />
-        </motion.div>
-        
         {/* Background elements */}
         <div className="absolute inset-0 overflow-hidden pointer-events-none">
           <motion.div 
@@ -1455,36 +1201,16 @@ function LandingPageContent({
                   top: `${Math.floor(i / 6) * 20}%`,
                 }}
                 animate={{
-                  x: x * -1 * (1 + Math.sin(i)),
-                  y: y * -1 * (1 + Math.cos(i)),
+                  x: mousePosition.x * -12 * (1 + Math.sin(i)),
+                  y: mousePosition.y * -12 * (1 + Math.cos(i)),
                   opacity: [0.3, 0.5, 0.3],
-                  scale: [1, 1.1, 1],
+                  scale: [1, 1.2, 1],
                 }}
                 transition={{
-                  x: { 
-                    type: "spring", 
-                    stiffness: 2,         // Reduced from 5
-                    damping: 95,          // Increased from 40
-                    mass: 12,             // Increased from 1.5
-                    restDelta: 0.001
-                  },
-                  y: { 
-                    type: "spring", 
-                    stiffness: 2, 
-                    damping: 95, 
-                    mass: 12,
-                    restDelta: 0.001
-                  },
-                  opacity: { 
-                    duration: 8 + i % 4, 
-                    repeat: Infinity, 
-                    ease: "easeInOut" 
-                  },
-                  scale: { 
-                    duration: 10 + i % 3, 
-                    repeat: Infinity, 
-                    ease: "easeInOut" 
-                  },
+                  x: { type: "spring", stiffness: 10, damping: 30 },
+                  y: { type: "spring", stiffness: 10, damping: 30 },
+                  opacity: { duration: 2 + i % 4, repeat: Infinity, ease: "easeInOut" },
+                  scale: { duration: 3 + i % 3, repeat: Infinity, ease: "easeInOut" },
                 }}
               />
             ))}

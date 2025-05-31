@@ -16,29 +16,6 @@
     <!-- Three.js dan Vanta.js untuk background animasi -->
     <script src="/three.r134.min.js"></script>
     <script src="/vanta.waves.min.js"></script>
-    <!-- Konfigurasi Vanta.js untuk performa yang lebih baik -->
-    <script>
-      // Konfigurasi untuk mengurangi sensitivitas mouse di Vanta.js
-      document.addEventListener('DOMContentLoaded', function() {
-        // Cek apakah VANTA tersedia
-        if (window.VANTA) {
-          // Override opsi default VANTA.WAVES untuk mengurangi sensitivitas mouse
-          const originalRegister = window.VANTA.register;
-          window.VANTA.register = function(name, constructor) {
-            return originalRegister(name, function(opts) {
-              // Tambahkan opsi untuk mengurangi sensitivitas mouse
-              const defaultOpts = {
-                mouseEase: true,
-                mouseCoeffX: 0.1, // Kurangi nilai default (biasanya 0.5 atau 1.0)
-                mouseCoeffY: 0.1, // Kurangi nilai default (biasanya 0.5 atau 1.0)
-                mouseDampening: 0.4 // Tambahkan damping untuk gerakan lebih smooth
-              };
-              return new constructor(Object.assign({}, defaultOpts, opts));
-            });
-          };
-        }
-      });
-    </script>
   </head>
   <body>
     <div id="root"></div>

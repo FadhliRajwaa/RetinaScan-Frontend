@@ -20,21 +20,8 @@ function AppContent() {
   // Determine if the current route should show Navbar and Footer
   const showNavbarFooter = !['/login', '/register', '/forgot-password', '/reset-password'].includes(location.pathname);
   
-  // Konfigurasi untuk ParallaxProvider dengan sensitivitas mouse yang lebih rendah
-  const parallaxConfig = {
-    scrollAxis: 'vertical',
-    limitX: 0.1, // Mengurangi lebih jauh dari 0.2 ke 0.1 (90% pengurangan dari default)
-    limitY: 0.1, // Mengurangi lebih jauh dari 0.2 ke 0.1 (90% pengurangan dari default)
-    // Disable mouse input completely if using custom MouseProvider
-    shouldDisableMouseInput: true, // Nonaktifkan mouse input bawaan dari parallax
-    shouldDisableKeyboardInput: true, // Nonaktifkan keyboard control
-    // Additional options for smoother performance
-    thresholdX: 0.1, // Add threshold to reduce jitter (only 10% movement needed)
-    thresholdY: 0.1, // Add threshold to reduce jitter (only 10% movement needed)
-  };
-  
   return (
-    <ParallaxProvider {...parallaxConfig}>
+    <ParallaxProvider>
       <div className="flex flex-col min-h-screen">
         {showNavbarFooter && <Navbar />}
         <main className="flex-grow">
