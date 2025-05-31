@@ -344,8 +344,8 @@ function LandingPage() {
                 isDarkMode ? 'bg-blue-400/30' : 'bg-blue-500/20'
               } ${i % 3 === 0 ? 'w-3 h-3' : 'w-2 h-2'}`}
               style={{
-                x: mousePosition.x * -25 * (i % 3 + 1),
-                y: mousePosition.y * -25 * (i % 3 + 1),
+                x: mousePosition.x * -10 * (i % 3 + 1),
+                y: mousePosition.y * -10 * (i % 3 + 1),
                 left: `${Math.random() * 100}%`,
                 top: `${Math.random() * 100}%`,
                 filter: i % 4 === 0 ? 'blur(1px)' : 'none',
@@ -368,8 +368,10 @@ function LandingPage() {
                 delay: Math.random() * 5,
                 ease: "easeInOut",
                 times: [0, 0.25, 0.5, 0.75, 1],
+                x: { type: "spring", stiffness: 20, damping: 25 },
+                y: { type: "spring", stiffness: 20, damping: 25 },
               }}
-              whileHover={{ scale: 1.8, opacity: 0.8 }}
+              whileHover={{ scale: 1.8, opacity: 0.8, transition: { duration: 0.8 } }}
             />
           ))}
 
@@ -389,14 +391,14 @@ function LandingPage() {
                     : '0 0 8px 2px rgba(99, 102, 241, 0.2)',
                 }}
                 animate={{
-                  x: mousePosition.x * -35 * (1 + Math.sin(i * 0.5)),
-                  y: mousePosition.y * -35 * (1 + Math.cos(i * 0.5)),
+                  x: mousePosition.x * -15 * (1 + Math.sin(i * 0.5)),
+                  y: mousePosition.y * -15 * (1 + Math.cos(i * 0.5)),
                   opacity: [0.4, 0.7, 0.4],
                   scale: [1, 1.3, 1],
                 }}
                 transition={{
-                  x: { type: "spring", stiffness: 40, damping: 15 },
-                  y: { type: "spring", stiffness: 40, damping: 15 },
+                  x: { type: "spring", stiffness: 15, damping: 30 },
+                  y: { type: "spring", stiffness: 15, damping: 30 },
                   opacity: { duration: 3 + i % 3, repeat: Infinity, ease: "easeInOut" },
                   scale: { duration: 4 + i % 2, repeat: Infinity, ease: "easeInOut" },
                 }}
@@ -1199,14 +1201,14 @@ function LandingPage() {
                   top: `${Math.floor(i / 6) * 20}%`,
                 }}
                 animate={{
-                  x: mousePosition.x * -30 * (1 + Math.sin(i)),
-                  y: mousePosition.y * -30 * (1 + Math.cos(i)),
+                  x: mousePosition.x * -12 * (1 + Math.sin(i)),
+                  y: mousePosition.y * -12 * (1 + Math.cos(i)),
                   opacity: [0.3, 0.5, 0.3],
                   scale: [1, 1.2, 1],
                 }}
                 transition={{
-                  x: { type: "spring", stiffness: 50, damping: 20 },
-                  y: { type: "spring", stiffness: 50, damping: 20 },
+                  x: { type: "spring", stiffness: 10, damping: 30 },
+                  y: { type: "spring", stiffness: 10, damping: 30 },
                   opacity: { duration: 2 + i % 4, repeat: Infinity, ease: "easeInOut" },
                   scale: { duration: 3 + i % 3, repeat: Infinity, ease: "easeInOut" },
                 }}
