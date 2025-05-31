@@ -1,7 +1,7 @@
 import { Link } from 'react-router-dom';
 import { motion, useScroll, useTransform, AnimatePresence, useMotionValue, useSpring } from 'framer-motion';
 import { useTheme } from '../context/ThemeContext';
-import { useRef, useEffect, useState, useCallback } from 'react';
+import { useRef, useEffect, useState, useCallback, createContext, useContext } from 'react';
 import { 
   ArrowRightIcon, 
   ShieldCheckIcon, 
@@ -20,6 +20,92 @@ import {
 import { withPageTransition } from '../context/ThemeContext';
 import { ParallaxBanner, Parallax, useParallax, ParallaxProvider } from 'react-scroll-parallax';
 
+// Mouse Context untuk mengelola interaksi mouse secara terpusat
+const MouseContext = createContext({ x: 0, y: 0, smoothX: 0, smoothY: 0 });
+
+// Mouse Provider untuk menangani semua interaksi mouse
+function MouseProvider({ children }) {
+  const [mousePosition, setMousePosition] = useState({ x: 0, y: 0 });
+  const mouseX = useMotionValue(0);
+  const mouseY = useMotionValue(0);
+  
+  // Spring dengan nilai yang lebih rendah untuk pergerakan lebih smooth
+  const smoothMouseX = useSpring(mouseX, { stiffness: 15, damping: 50, mass: 2 });
+  const smoothMouseY = useSpring(mouseY, { stiffness: 15, damping: 50, mass: 2 });
+  
+  // Throttle function yang lebih efektif
+  const throttle = (func, limit) => {
+    let lastFunc;
+    let lastRan;
+    return function() {
+      const context = this;
+      const args = arguments;
+      if (!lastRan) {
+        func.apply(context, args);
+        lastRan = Date.now();
+      } else {
+        clearTimeout(lastFunc);
+        lastFunc = setTimeout(function() {
+          if ((Date.now() - lastRan) >= limit) {
+            func.apply(context, args);
+            lastRan = Date.now();
+          }
+        }, limit - (Date.now() - lastRan));
+      }
+    };
+  };
+  
+  // Optimized mouse move handler dengan throttling yang lebih baik
+  const handleMouseMove = useCallback(
+    throttle((e) => {
+      // Calculate normalized position (-0.5 to 0.5)
+      const x = e.clientX / window.innerWidth - 0.5;
+      const y = e.clientY / window.innerHeight - 0.5;
+      
+      // Update state secara smooth
+      requestAnimationFrame(() => {
+        setMousePosition({ x, y });
+        mouseX.set(e.clientX - window.innerWidth / 2);
+        mouseY.set(e.clientY - window.innerHeight / 2);
+      });
+    }, 25), // 40fps throttle untuk performa lebih baik
+    [mouseX, mouseY]
+  );
+  
+  // Single event listener setup
+  useEffect(() => {
+    window.addEventListener('mousemove', handleMouseMove, { passive: true });
+    return () => {
+      window.removeEventListener('mousemove', handleMouseMove);
+    };
+  }, [handleMouseMove]);
+  
+  // Buat API lebih mudah digunakan dengan menyediakan nilai langsung
+  const mouseContextValue = {
+    x: mousePosition.x,
+    y: mousePosition.y,
+    mouseX,
+    mouseY,
+    smoothX: smoothMouseX,
+    smoothY: smoothMouseY
+  };
+  
+  return (
+    <MouseContext.Provider value={mouseContextValue}>
+      {children}
+    </MouseContext.Provider>
+  );
+}
+
+// Hook untuk menggunakan MouseContext
+function useMouse() {
+  const context = useContext(MouseContext);
+  if (!context) {
+    throw new Error('useMouse must be used within a MouseProvider');
+  }
+  return context;
+}
+
 function LandingPage() {
   const { theme, animations, isDarkMode } = useTheme();
   const [isAuthenticated, setIsAuthenticated] = useState(false);
@@ -29,8 +115,35 @@ function LandingPage() {
     testimonials: false,
     cta: false
   });
-  const [mousePosition, setMousePosition] = useState({ x: 0, y: 0 });
-  const [scrollY, setScrollY] = useState(0);
+  
+  // Gunakan MouseProvider untuk semua komponen
+  return (
+    <MouseProvider>
+      <LandingPageContent 
+        isAuthenticated={isAuthenticated}
+        setIsAuthenticated={setIsAuthenticated}
+        isVisible={isVisible}
+        setIsVisible={setIsVisible}
+        theme={theme}
+        animations={animations}
+        isDarkMode={isDarkMode}
+      />
+    </MouseProvider>
+  );
+}
+
+// Komponen LandingPage yang sebenarnya
+function LandingPageContent({ 
+  isAuthenticated, 
+  setIsAuthenticated, 
+  isVisible, 
+  setIsVisible,
+  theme,
+  animations,
+  isDarkMode
+}) {
+  // Gunakan context mouse
+  const { x, y, smoothX, smoothY } = useMouse();
   
   // Environment variables
   const DASHBOARD_URL = import.meta.env.VITE_DASHBOARD_URL || 'http://localhost:3000';
@@ -43,15 +156,16 @@ function LandingPage() {
     } else {
       setIsAuthenticated(false);
     }
-  }, []);
+  }, [setIsAuthenticated]);
   
   // Track scroll position for enhanced animations
+  const [scrollY, setScrollY] = useState(0);
   useEffect(() => {
     const handleScroll = () => {
       setScrollY(window.scrollY);
     };
     
-    window.addEventListener('scroll', handleScroll);
+    window.addEventListener('scroll', handleScroll, { passive: true });
     return () => {
       window.removeEventListener('scroll', handleScroll);
     };
@@ -68,85 +182,6 @@ function LandingPage() {
   const heroY = useTransform(scrollYProgress, [0, 0.5], [0, -150]);
   const heroScale = useTransform(scrollYProgress, [0, 0.5], [1, 1.1]);
   const heroOpacity = useTransform(scrollYProgress, [0, 0.5], [1, 0.5]);
-  
-  // Enhanced mouse parallax effect with better performance and throttling
-  const mouseX = useMotionValue(0);
-  const mouseY = useMotionValue(0);
-  
-  const smoothMouseX = useSpring(mouseX, { stiffness: 25, damping: 40 });
-  const smoothMouseY = useSpring(mouseY, { stiffness: 25, damping: 40 });
-  
-  // Throttle function to limit how often an event handler is called
-  const throttle = (func, limit) => {
-    let inThrottle;
-    return function() {
-      const args = arguments;
-      const context = this;
-      if (!inThrottle) {
-        func.apply(context, args);
-        inThrottle = true;
-        setTimeout(() => inThrottle = false, limit);
-      }
-    };
-  };
-  
-  // Single optimized mouse move handler with throttling
-  const handleMouseMove = useCallback(
-    throttle((e) => {
-      // Use requestAnimationFrame for better performance
-      requestAnimationFrame(() => {
-        // Calculate normalized position (-0.5 to 0.5)
-        const x = e.clientX / window.innerWidth - 0.5;
-        const y = e.clientY / window.innerHeight - 0.5;
-        
-        // Update state for both purposes
-        setMousePosition({ x, y });
-        mouseX.set(e.clientX - window.innerWidth / 2);
-        mouseY.set(e.clientY - window.innerHeight / 2);
-      });
-    }, 16), // ~60fps (1000ms / 60 = ~16ms)
-    [mouseX, mouseY]
-  );
-  
-  // Single event listener setup
-  useEffect(() => {
-    window.addEventListener('mousemove', handleMouseMove);
-    return () => {
-      window.removeEventListener('mousemove', handleMouseMove);
-    };
-  }, [handleMouseMove]);
-  
-  // Observer for section visibility with improved threshold
-  useEffect(() => {
-    const observer = new IntersectionObserver(
-      (entries) => {
-        entries.forEach(entry => {
-          if (entry.target.id === 'features' && entry.isIntersecting) {
-            setIsVisible(prev => ({ ...prev, features: true }));
-          } else if (entry.target.id === 'about' && entry.isIntersecting) {
-            setIsVisible(prev => ({ ...prev, about: true }));
-          } else if (entry.target.id === 'testimonials' && entry.isIntersecting) {
-            setIsVisible(prev => ({ ...prev, testimonials: true }));
-          } else if (entry.target.id === 'cta' && entry.isIntersecting) {
-            setIsVisible(prev => ({ ...prev, cta: true }));
-          }
-        });
-      },
-      { threshold: [0.1, 0.3, 0.5], rootMargin: "0px 0px -10% 0px" }
-    );
-    
-    if (featuresRef.current) observer.observe(featuresRef.current);
-    if (aboutRef.current) observer.observe(aboutRef.current);
-    if (testimonialsRef.current) observer.observe(testimonialsRef.current);
-    if (ctaRef.current) observer.observe(ctaRef.current);
-    
-    return () => {
-      if (featuresRef.current) observer.unobserve(featuresRef.current);
-      if (aboutRef.current) observer.unobserve(aboutRef.current);
-      if (testimonialsRef.current) observer.unobserve(testimonialsRef.current);
-      if (ctaRef.current) observer.unobserve(ctaRef.current);
-    };
-  }, []);
   
   // Enhanced animation variants with better timing and effects
   const fadeInUp = {
@@ -226,7 +261,39 @@ function LandingPage() {
       }
     }
   };
-
+  
+  // Observer for section visibility with improved threshold
+  useEffect(() => {
+    const observer = new IntersectionObserver(
+      (entries) => {
+        entries.forEach(entry => {
+          if (entry.target.id === 'features' && entry.isIntersecting) {
+            setIsVisible(prev => ({ ...prev, features: true }));
+          } else if (entry.target.id === 'about' && entry.isIntersecting) {
+            setIsVisible(prev => ({ ...prev, about: true }));
+          } else if (entry.target.id === 'testimonials' && entry.isIntersecting) {
+            setIsVisible(prev => ({ ...prev, testimonials: true }));
+          } else if (entry.target.id === 'cta' && entry.isIntersecting) {
+            setIsVisible(prev => ({ ...prev, cta: true }));
+          }
+        });
+      },
+      { threshold: [0.1, 0.3, 0.5], rootMargin: "0px 0px -10% 0px" }
+    );
+    
+    if (featuresRef.current) observer.observe(featuresRef.current);
+    if (aboutRef.current) observer.observe(aboutRef.current);
+    if (testimonialsRef.current) observer.observe(testimonialsRef.current);
+    if (ctaRef.current) observer.observe(ctaRef.current);
+    
+    return () => {
+      if (featuresRef.current) observer.unobserve(featuresRef.current);
+      if (aboutRef.current) observer.unobserve(aboutRef.current);
+      if (testimonialsRef.current) observer.unobserve(testimonialsRef.current);
+      if (ctaRef.current) observer.unobserve(ctaRef.current);
+    };
+  }, [setIsVisible]);
+  
   // Features data
   const features = [
     {
@@ -355,8 +422,8 @@ function LandingPage() {
                 filter: i % 4 === 0 ? 'blur(1px)' : 'none',
               }}
               animate={{
-                x: mousePosition.x * -3 * (i % 3 + 1),
-                y: mousePosition.y * -3 * (i % 3 + 1),
+                x: x * -3 * (i % 3 + 1),
+                y: y * -3 * (i % 3 + 1),
                 scale: [0.8, 1.1, 1.3, 1.1, 0.8],
                 opacity: [0, 0.6, 1, 0.6, 0],
               }}
@@ -400,8 +467,8 @@ function LandingPage() {
                     : '0 0 8px 2px rgba(99, 102, 241, 0.2)',
                 }}
                 animate={{
-                  x: mousePosition.x * -8 * (1 + Math.sin(i * 0.5)),
-                  y: mousePosition.y * -8 * (1 + Math.cos(i * 0.5)),
+                  x: x * -8 * (1 + Math.sin(i * 0.5)),
+                  y: y * -8 * (1 + Math.cos(i * 0.5)),
                   opacity: [0.4, 0.7, 0.4],
                   scale: [1, 1.3, 1],
                 }}
@@ -615,10 +682,7 @@ function LandingPage() {
                 }`}
                 whileHover={{ y: -5, transition: { duration: 0.2 } }}
                 custom={index}
-                variants={{
-                  hidden: { opacity: 0, y: 20 },
-                  visible: { opacity: 1, y: 0 }
-                }}
+                variants={fadeInUp}
               >
                 <div className={`inline-flex items-center justify-center p-2 sm:p-3 rounded-lg mb-2 sm:mb-4 ${
                   stat.color === 'blue' ? isDarkMode ? 'bg-blue-900/50 text-blue-400' : 'bg-blue-100 text-blue-600' :
@@ -655,8 +719,8 @@ function LandingPage() {
                 transformStyle: "preserve-3d",
               }}
               animate={{
-                rotateX: smoothMouseY.get() * 0.01,
-                rotateY: smoothMouseX.get() * -0.01,
+                rotateX: smoothY.get() * 0.01,
+                rotateY: smoothX.get() * -0.01,
               }}
             >
               {/* Decorative elements with better mobile support */}
@@ -1210,8 +1274,8 @@ function LandingPage() {
                   top: `${Math.floor(i / 6) * 20}%`,
                 }}
                 animate={{
-                  x: mousePosition.x * -6 * (1 + Math.sin(i)),
-                  y: mousePosition.y * -6 * (1 + Math.cos(i)),
+                  x: x * -6 * (1 + Math.sin(i)),
+                  y: y * -6 * (1 + Math.cos(i)),
                   opacity: [0.3, 0.5, 0.3],
                   scale: [1, 1.2, 1],
                 }}

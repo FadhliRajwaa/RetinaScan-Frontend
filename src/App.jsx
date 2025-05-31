@@ -20,8 +20,15 @@ function AppContent() {
   // Determine if the current route should show Navbar and Footer
   const showNavbarFooter = !['/login', '/register', '/forgot-password', '/reset-password'].includes(location.pathname);
   
+  // Konfigurasi untuk ParallaxProvider dengan sensitivitas mouse yang lebih rendah
+  const parallaxConfig = {
+    scrollAxis: 'vertical',
+    limitX: 0.2, // Batasi pergerakan horizontal menjadi 20% dari nilai default
+    limitY: 0.2, // Batasi pergerakan vertikal menjadi 20% dari nilai default
+  };
+  
   return (
-    <ParallaxProvider>
+    <ParallaxProvider {...parallaxConfig}>
       <div className="flex flex-col min-h-screen">
         {showNavbarFooter && <Navbar />}
         <main className="flex-grow">
