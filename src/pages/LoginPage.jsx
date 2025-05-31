@@ -351,7 +351,7 @@ function LoginPage() {
 
       <div className="min-h-screen flex items-center justify-center px-4 py-12 relative z-10">
         <div className="flex flex-col items-center justify-center my-auto h-auto">
-          <div className="w-full max-w-lg">
+          <div className="w-full max-w-xl">
       <motion.div
         initial={{ opacity: 0, y: -20 }}
         animate={{ opacity: 1, y: 0 }}
@@ -370,7 +370,7 @@ function LoginPage() {
             variants={formVariants}
             initial="hidden"
             animate="visible"
-            className={`p-8 rounded-2xl shadow-2xl max-h-fit ${
+            className={`px-10 py-8 rounded-2xl shadow-2xl max-h-fit ${
           isDarkMode 
                 ? 'bg-gray-800/90 backdrop-blur-lg border border-gray-700' 
                 : 'bg-white/90 backdrop-blur-lg border border-gray-100'
