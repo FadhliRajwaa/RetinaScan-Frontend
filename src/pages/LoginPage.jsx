@@ -349,13 +349,14 @@ function LoginPage() {
         />
       </div>
 
-      <div className="min-h-screen flex items-center justify-center px-4 py-16 relative z-10">
-        <div className="w-full max-w-lg">
+      <div className="min-h-screen flex items-center justify-center px-4 py-12 relative z-10">
+        <div className="flex flex-col items-center justify-center my-auto h-auto">
+          <div className="w-full max-w-lg">
       <motion.div
         initial={{ opacity: 0, y: -20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.5 }}
-        className="text-center mb-8"
+        className="text-center mb-6"
       >
             <Link to="/" className="inline-flex items-center justify-center">
               <EyeIcon className={`h-8 w-8 ${isDarkMode ? 'text-blue-400' : 'text-blue-600'}`} />
@@ -369,7 +370,7 @@ function LoginPage() {
             variants={formVariants}
             initial="hidden"
             animate="visible"
-            className={`p-10 rounded-2xl shadow-2xl ${
+            className={`p-8 rounded-2xl shadow-2xl max-h-fit ${
           isDarkMode 
                 ? 'bg-gray-800/90 backdrop-blur-lg border border-gray-700' 
                 : 'bg-white/90 backdrop-blur-lg border border-gray-100'
