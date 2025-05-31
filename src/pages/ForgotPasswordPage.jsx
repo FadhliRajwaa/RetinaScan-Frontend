@@ -161,14 +161,15 @@ function ForgotPasswordPage() {
         color1={isDarkMode ? 0x0077ff : 0x0077ff}
         color2={isDarkMode ? 0x4b0082 : 0x4169e1}
         colorMode="variance"
-        birdSize={1.0}
+        birdSize={1.5}
         wingSpan={30.0}
-        speedLimit={4.0}
+        speedLimit={6.0}
         separation={90.0}
         alignment={22.0}
         cohesion={22.0}
-        quantity={5.0}
+        quantity={3.0}
         backgroundAlpha={0.0}
+        forceMobileHighPerformance={true}
       />
       
       {/* Decorative shapes */}

@@ -22,7 +22,8 @@ const VantaBackground = ({
   alignment = 20.0,
   cohesion = 20.0,
   quantity = 3.0,
-  backgroundAlpha = 0.0
+  backgroundAlpha = 0.0,
+  forceMobileHighPerformance = true // New prop to force high performance on mobile
 }) => {
   const vantaRef = useRef(null);
   const [vantaEffect, setVantaEffect] = useState(null);
@@ -38,6 +39,8 @@ const VantaBackground = ({
   const fpsMonitorRef = useRef(null);
   const lastFpsUpdateRef = useRef(Date.now());
   const actualFpsRef = useRef(60);
+  const devicePixelRatioRef = useRef(typeof window !== 'undefined' ? window.devicePixelRatio || 1 : 1);
+  const forceHighPerformanceRef = useRef(forceMobileHighPerformance);
 
   // Advanced performance detection
   useEffect(() => {
@@ -49,11 +52,21 @@ const VantaBackground = ({
       );
       setIsMobile(mobile);
       
+      // Store device pixel ratio
+      devicePixelRatioRef.current = window.devicePixelRatio || 1;
+      
       // Advanced performance detection
       if (typeof window !== 'undefined') {
         // Check device memory if available
         const memory = navigator.deviceMemory || 4; // Default to 4GB if not available
         const cores = navigator.hardwareConcurrency || 4; // Default to 4 cores if not available
+        
+        // Force high performance mode for mobile if requested
+        if (mobile && forceHighPerformanceRef.current) {
+          console.log('Forcing high performance mode for mobile device');
+          setDevicePerformance('high');
+          return;
+        }
         
         // Try to detect low-end devices using various signals
         const isLowEndDevice = () => {
@@ -82,6 +95,12 @@ const VantaBackground = ({
                  (isSlowConnection && (isLowMemory || isLowCore)) ||
                  hasLowEndExperience;
         };
+
+        // Skip performance detection if forcing high performance
+        if (forceHighPerformanceRef.current) {
+          setDevicePerformance('high');
+          return;
+        }
 
         // Determine performance category
         if (isLowEndDevice()) {
@@ -117,7 +136,7 @@ const VantaBackground = ({
           actualFpsRef.current = currentFps;
           
           // Dynamic performance adjustment based on actual FPS
-          if (currentFps < 30 && devicePerformance !== 'very-low') {
+          if (!forceHighPerformanceRef.current && currentFps < 30 && devicePerformance !== 'very-low') {
             console.log(`FPS too low (${currentFps}), downgrading performance settings`);
             setDevicePerformance(prev => {
               if (prev === 'high') return 'medium';
@@ -164,7 +183,7 @@ const VantaBackground = ({
         fpsMonitorRef.current = null;
       }
     };
-  }, [devicePerformance]);
+  }, [devicePerformance, forceMobileHighPerformance]);
 
   // Check if scripts are loaded
   useEffect(() => {
@@ -241,8 +260,9 @@ const VantaBackground = ({
           if (!entry.isIntersecting) {
             vantaEffect.setOptions({ fps: 0 }); // Pause when not in viewport
           } else if (isTabActive) {
-            // Resume only if tab is active
-            const fps = devicePerformance === 'very-low' ? 20 : 
+            // Resume only if tab is active - always use 60fps on mobile with forceMobileHighPerformance
+            const fps = forceHighPerformanceRef.current ? 60 :
+                       devicePerformance === 'very-low' ? 20 : 
                        devicePerformance === 'low' ? 30 : 
                        devicePerformance === 'medium' ? 45 : 60;
             vantaEffect.setOptions({ fps });
@@ -257,7 +277,7 @@ const VantaBackground = ({
     return () => {
       observer.disconnect();
     };
-  }, [vantaEffect, isTabActive, devicePerformance]);
+  }, [vantaEffect, isTabActive, devicePerformance, forceMobileHighPerformance]);
 
   // Initialize Vanta effect
   useEffect(() => {
@@ -301,8 +321,20 @@ const VantaBackground = ({
           actualCohesion: cohesion
         };
         
-        // Apply performance-based settings
-        if (devicePerformance === 'very-low') {
+        // Apply performance-based settings - use optimized settings for mobile but maintain 60fps
+        if (forceHighPerformanceRef.current && isMobile) {
+          // Mobile high performance mode - reduce complexity but maintain 60fps
+          performanceSettings = {
+            actualBirdSize: birdSize * 1.2, // Slightly larger birds
+            actualQuantity: Math.max(1, quantity * 0.8), // Slightly reduce bird count
+            actualSpeedLimit: speedLimit * 0.9, // Slightly reduce speed
+            actualFps: 60, // Always maintain 60fps
+            actualWingSpan: wingSpan * 0.95, // Slightly reduce wingspan
+            actualSeparation: separation * 1.1, // Slightly increase separation
+            actualAlignment: alignment * 0.9, // Slightly reduce alignment
+            actualCohesion: cohesion * 0.9 // Slightly reduce cohesion
+          };
+        } else if (devicePerformance === 'very-low') {
           // Extremely reduced settings for very low-end devices
           performanceSettings = {
             actualBirdSize: birdSize * 1.5,
@@ -392,21 +424,80 @@ const VantaBackground = ({
         // Add renderer optimizations if available
         if (effect && effect.renderer) {
           // Optimize THREE.js renderer
-          effect.renderer.setPixelRatio(Math.min(1.5, window.devicePixelRatio || 1));
-          
-          if (devicePerformance === 'very-low' || devicePerformance === 'low') {
-            effect.renderer.setSize(
-              Math.min(1024, window.innerWidth), 
-              Math.min(768, window.innerHeight)
-            );
+          if (forceHighPerformanceRef.current && isMobile) {
+            // For mobile high performance mode, use a lower pixel ratio but maintain quality
+            effect.renderer.setPixelRatio(Math.min(1.5, devicePixelRatioRef.current));
+            
+            // Use smaller canvas size on mobile for better performance
+            const canvasWidth = Math.min(1440, window.innerWidth);
+            const canvasHeight = Math.min(900, window.innerHeight);
+            effect.renderer.setSize(canvasWidth, canvasHeight);
+            
+            // Optimize renderer settings for mobile
+            if (effect.renderer.shadowMap) {
+              effect.renderer.shadowMap.enabled = false;
+            }
+            
+            // Use high performance context on mobile
+            if (effect.renderer.getContext && typeof effect.renderer.getContext === 'function') {
+              try {
+                const gl = effect.renderer.getContext();
+                if (gl && gl.getExtension) {
+                  // Try to enable performance optimizations
+                  gl.getExtension('WEBGL_lose_context');
+                  gl.getExtension('OES_element_index_uint');
+                }
+              } catch (e) {
+                console.warn('Failed to optimize WebGL context:', e);
+              }
+            }
+          } else {
+            // Normal optimization based on device performance
+            effect.renderer.setPixelRatio(Math.min(1.5, window.devicePixelRatio || 1));
+            
+            if (devicePerformance === 'very-low' || devicePerformance === 'low') {
+              effect.renderer.setSize(
+                Math.min(1024, window.innerWidth), 
+                Math.min(768, window.innerHeight)
+              );
+            }
+            
+            // Disable shadow maps for better performance
+            effect.renderer.shadowMap.enabled = devicePerformance === 'high';
           }
-          
-          // Disable shadow maps for better performance
-          effect.renderer.shadowMap.enabled = devicePerformance === 'high';
           
           // Set power preference to high-performance for desktop, low-power for mobile
           if (effect.renderer.getContext && effect.renderer.getContext.powerPreference) {
-            effect.renderer.getContext.powerPreference = isMobile ? 'low-power' : 'high-performance';
+            effect.renderer.getContext.powerPreference = 
+              (isMobile && !forceHighPerformanceRef.current) ? 'low-power' : 'high-performance';
+          }
+          
+          // Additional WebGL optimizations
+          try {
+            if (effect.renderer.info && effect.renderer.info.memory) {
+              // Monitor memory usage
+              console.log('THREE.js memory:', effect.renderer.info.memory);
+            }
+            
+            // Use antialiasing only on high-end devices
+            if (effect.renderer.getContext && typeof effect.renderer.getContext === 'function') {
+              const gl = effect.renderer.getContext();
+              if (gl && gl.getParameter) {
+                const maxTextureSize = gl.getParameter(gl.MAX_TEXTURE_SIZE);
+                console.log('WebGL max texture size:', maxTextureSize);
+                
+                // If texture size is limited, reduce quality further
+                if (maxTextureSize < 4096 && !forceHighPerformanceRef.current) {
+                  if (effect.setOptions) {
+                    effect.setOptions({
+                      quantity: Math.max(1, performanceSettings.actualQuantity * 0.8)
+                    });
+                  }
+                }
+              }
+            }
+          } catch (e) {
+            console.warn('WebGL optimization error:', e);
           }
         }
 
@@ -455,7 +546,8 @@ const VantaBackground = ({
     quantity,
     backgroundAlpha,
     isInViewport,
-    isTabActive
+    isTabActive,
+    forceMobileHighPerformance
   ]);
 
   // Optimized mouse movement handler with debounce
@@ -484,7 +576,12 @@ const VantaBackground = ({
         
         // Adjust renderer size based on device performance
         if (vantaEffect.renderer) {
-          if (devicePerformance === 'very-low' || devicePerformance === 'low') {
+          if (forceHighPerformanceRef.current && isMobile) {
+            // For mobile high performance mode, use a fixed size for better performance
+            const canvasWidth = Math.min(1440, window.innerWidth);
+            const canvasHeight = Math.min(900, window.innerHeight);
+            vantaEffect.renderer.setSize(canvasWidth, canvasHeight);
+          } else if (devicePerformance === 'very-low' || devicePerformance === 'low') {
             vantaEffect.renderer.setSize(
               Math.min(1024, window.innerWidth),
               Math.min(768, window.innerHeight)
@@ -517,7 +614,7 @@ const VantaBackground = ({
       window.removeEventListener('resize', throttledResize);
       clearTimeout(timeoutId);
     };
-  }, [vantaEffect, devicePerformance]);
+  }, [vantaEffect, devicePerformance, isMobile, forceMobileHighPerformance]);
 
   // Add visibility change handler to pause animation when tab is not visible
   useEffect(() => {
@@ -531,7 +628,8 @@ const VantaBackground = ({
           vantaEffect.setOptions({ fps: 0 });
         } else if (isInViewport) {
           // Resume normal animation when tab is visible again and component is in viewport
-          const fps = devicePerformance === 'very-low' ? 20 : 
+          const fps = forceHighPerformanceRef.current ? 60 :
+                     devicePerformance === 'very-low' ? 20 : 
                      devicePerformance === 'low' ? 30 : 
                      devicePerformance === 'medium' ? 45 : 60;
           vantaEffect.setOptions({ fps });
@@ -544,7 +642,7 @@ const VantaBackground = ({
     return () => {
       document.removeEventListener('visibilitychange', handleVisibilityChange);
     };
-  }, [vantaEffect, devicePerformance, isInViewport]);
+  }, [vantaEffect, devicePerformance, isInViewport, forceMobileHighPerformance]);
 
   // Add mouse event listeners with performance considerations
   useEffect(() => {
@@ -613,7 +711,8 @@ VantaBackground.propTypes = {
   alignment: PropTypes.number,
   cohesion: PropTypes.number,
   quantity: PropTypes.number,
-  backgroundAlpha: PropTypes.number
+  backgroundAlpha: PropTypes.number,
+  forceMobileHighPerformance: PropTypes.bool
 };
 
 export default VantaBackground; 
