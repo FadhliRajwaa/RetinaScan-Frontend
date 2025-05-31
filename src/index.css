@@ -1,28 +1,5 @@
 @import "tailwindcss";
 
-/* Form width fix - more aggressive */
-.login-form-container,
-.register-form-container {
-  min-width: 600px !important;
-  width: 100% !important;
-  max-width: 800px !important;
-}
-
-form,
-.form-box {
-  min-width: 600px !important;
-  width: 100% !important;
-  max-width: 800px !important;
-  box-sizing: border-box !important;
-}
-
-/* Override any max-width limitations */
-#root {
-  max-width: 100% !important;
-  width: 100% !important;
-  padding: 0 !important;
-}
-
 /* Ensure Vanta background doesn't affect layout */
 .vanta-background {
   position: absolute !important;

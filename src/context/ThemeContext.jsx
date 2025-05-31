@@ -123,13 +123,6 @@ export const withPageTransition = (Component) => {
           animate={animations.page.animate}
           exit={animations.page.exit}
           className={`w-full ${themeTransitioning ? 'opacity-0' : 'opacity-100'}`}
-          style={{ 
-            willChange: 'opacity, transform',
-            transform: 'translateZ(0)',
-            transition: 'opacity 0.3s ease',
-            width: '100%',
-            maxWidth: '100%'
-          }}
         >
           <Component {...props} />
         </motion.div>
