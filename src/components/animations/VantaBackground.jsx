@@ -29,26 +29,60 @@ const VantaBackground = ({
   const [isMobile, setIsMobile] = useState(false);
   const [isScriptLoaded, setIsScriptLoaded] = useState(false);
   const [retryCount, setRetryCount] = useState(0);
+  const [devicePerformance, setDevicePerformance] = useState('high'); // 'low', 'medium', 'high'
 
-  // Detect mobile devices
+  // Detect device performance
   useEffect(() => {
-    const checkMobile = () => {
+    const checkPerformance = () => {
+      // Check if device is mobile first
       const userAgent = typeof window.navigator === 'undefined' ? '' : navigator.userAgent;
       const mobile = Boolean(
         userAgent.match(/Android|BlackBerry|iPhone|iPad|iPod|Opera Mini|IEMobile|WPDesktop/i)
       );
       setIsMobile(mobile);
+      
+      // Simple performance detection based on device memory and processor cores
+      if (typeof window !== 'undefined') {
+        // Check device memory if available
+        const memory = navigator.deviceMemory || 4; // Default to 4GB if not available
+        const cores = navigator.hardwareConcurrency || 4; // Default to 4 cores if not available
+        
+        // Check if it's a low-end device
+        if (mobile && (memory <= 2 || cores <= 4)) {
+          setDevicePerformance('low');
+        } 
+        // Check if it's a mid-range device
+        else if ((mobile && (memory <= 4 || cores <= 6)) || 
+                (!mobile && (memory <= 4 || cores <= 4))) {
+          setDevicePerformance('medium');
+        } 
+        // Otherwise it's a high-end device
+        else {
+          setDevicePerformance('high');
+        }
+      }
     };
     
-    checkMobile();
+    checkPerformance();
     
     // Check again if window size changes
     const handleResize = () => {
-      checkMobile();
+      // Use throttling to prevent excessive calls
+      if (!window.resizeThrottleTimeout) {
+        window.resizeThrottleTimeout = setTimeout(() => {
+          window.resizeThrottleTimeout = null;
+          checkPerformance();
+        }, 250);
+      }
     };
     
     window.addEventListener('resize', handleResize);
-    return () => window.removeEventListener('resize', handleResize);
+    return () => {
+      window.removeEventListener('resize', handleResize);
+      if (window.resizeThrottleTimeout) {
+        clearTimeout(window.resizeThrottleTimeout);
+      }
+    };
   }, []);
 
   // Check if scripts are loaded
@@ -80,6 +114,27 @@ const VantaBackground = ({
         if (!isScriptLoaded && retryCount < 3) {
           console.log(`Retry check #${retryCount + 1}`);
           setRetryCount(prev => prev + 1);
+          
+          // If scripts still not detected after retries, try loading them directly
+          if (retryCount === 2) {
+            console.log('Loading THREE.js directly');
+            const threeScript = document.createElement('script');
+            threeScript.src = './three.r134.min.js';
+            document.head.appendChild(threeScript);
+            
+            threeScript.onload = () => {
+              console.log('Loading Vanta.js directly');
+              const vantaScript = document.createElement('script');
+              vantaScript.src = './vanta.birds.min.js';
+              document.head.appendChild(vantaScript);
+              
+              vantaScript.onload = () => {
+                console.log('Initializing Vanta directly');
+                setIsScriptLoaded(true);
+              };
+            };
+          }
+          
           checkScriptsLoaded();
         }
       }, 1000);
@@ -118,34 +173,67 @@ const VantaBackground = ({
 
     try {
       console.log('Initializing Vanta effect');
-      // Adjust parameters for mobile devices
-      const actualBirdSize = isMobile ? birdSize * 0.8 : birdSize;
-      const actualQuantity = isMobile ? Math.max(1, quantity * 0.7) : quantity;
-      const actualSpeedLimit = isMobile ? speedLimit * 0.8 : speedLimit;
+      
+      // Adjust parameters based on device performance
+      let performanceSettings = {
+        actualBirdSize: birdSize,
+        actualQuantity: quantity,
+        actualSpeedLimit: speedLimit,
+        actualFps: 60,
+        actualWingSpan: wingSpan
+      };
+      
+      // Apply performance-based settings
+      if (devicePerformance === 'low') {
+        performanceSettings = {
+          actualBirdSize: birdSize * 1.2, // Bigger birds = fewer birds needed
+          actualQuantity: Math.max(1, quantity * 0.4), // Significantly reduce bird count
+          actualSpeedLimit: speedLimit * 0.7, // Slower movement
+          actualFps: 30, // Lower FPS
+          actualWingSpan: wingSpan * 0.9 // Slightly smaller wingspan
+        };
+      } else if (devicePerformance === 'medium') {
+        performanceSettings = {
+          actualBirdSize: birdSize * 1.1,
+          actualQuantity: Math.max(1, quantity * 0.6),
+          actualSpeedLimit: speedLimit * 0.8,
+          actualFps: 40,
+          actualWingSpan: wingSpan * 0.95
+        };
+      } else {
+        // High performance devices get full settings
+        performanceSettings = {
+          actualBirdSize: birdSize,
+          actualQuantity: quantity,
+          actualSpeedLimit: speedLimit,
+          actualFps: 60,
+          actualWingSpan: wingSpan
+        };
+      }
       
       // Initialize the effect with optimized settings
       const effect = window.VANTA.BIRDS({
         el: vantaRef.current,
-        mouseControls,
-        touchControls: isMobile ? true : touchControls,
-        gyroControls: isMobile ? false : gyroControls,
+        mouseControls: devicePerformance !== 'low' && mouseControls,
+        touchControls: devicePerformance !== 'low' && touchControls,
+        gyroControls: devicePerformance === 'high' && gyroControls,
         minHeight,
         minWidth,
-        scale,
+        scale: isMobile ? scaleMobile : scale,
         scaleMobile,
         backgroundColor,
         color1,
         color2,
         colorMode,
-        birdSize: actualBirdSize,
-        wingSpan,
-        speedLimit: actualSpeedLimit,
-        separation,
-        alignment,
-        cohesion,
-        quantity: actualQuantity,
+        birdSize: performanceSettings.actualBirdSize,
+        wingSpan: performanceSettings.actualWingSpan,
+        speedLimit: performanceSettings.actualSpeedLimit,
+        separation: separation * (devicePerformance === 'low' ? 1.2 : 1),
+        alignment: alignment * (devicePerformance === 'low' ? 0.8 : 1),
+        cohesion: cohesion * (devicePerformance === 'low' ? 0.8 : 1),
+        quantity: performanceSettings.actualQuantity,
         backgroundAlpha,
-        fps: isMobile ? 30 : 60, // Lower FPS on mobile
+        fps: performanceSettings.actualFps,
       });
 
       console.log('Vanta effect initialized successfully');
@@ -164,6 +252,7 @@ const VantaBackground = ({
   }, [
     isScriptLoaded,
     isMobile,
+    devicePerformance,
     mouseControls,
     touchControls,
     gyroControls,
@@ -195,17 +284,26 @@ const VantaBackground = ({
       }
     };
 
-    // Debounce the resize handler
+    // Throttle the resize handler for better performance
     let timeoutId;
-    const debouncedResize = () => {
-      clearTimeout(timeoutId);
-      timeoutId = setTimeout(handleResize, 100);
+    let lastExecution = 0;
+    const throttleDelay = 200; // ms
+    
+    const throttledResize = () => {
+      const now = Date.now();
+      if (now - lastExecution > throttleDelay) {
+        handleResize();
+        lastExecution = now;
+      } else {
+        clearTimeout(timeoutId);
+        timeoutId = setTimeout(handleResize, throttleDelay);
+      }
     };
 
-    window.addEventListener('resize', debouncedResize);
+    window.addEventListener('resize', throttledResize);
     
     return () => {
-      window.removeEventListener('resize', debouncedResize);
+      window.removeEventListener('resize', throttledResize);
       clearTimeout(timeoutId);
     };
   }, [vantaEffect]);
@@ -216,14 +314,15 @@ const VantaBackground = ({
     
     const handleVisibilityChange = () => {
       if (document.hidden && vantaEffect) {
-        // Pause or slow down animation when tab is not visible
+        // Pause animation when tab is not visible
         if (vantaEffect.setOptions) {
-          vantaEffect.setOptions({ fps: 10 }); // Lower FPS dramatically when not visible
+          vantaEffect.setOptions({ fps: 0 }); // Completely pause when not visible
         }
       } else if (vantaEffect) {
         // Resume normal animation when tab is visible again
         if (vantaEffect.setOptions) {
-          vantaEffect.setOptions({ fps: isMobile ? 30 : 60 });
+          const fps = devicePerformance === 'low' ? 30 : (devicePerformance === 'medium' ? 40 : 60);
+          vantaEffect.setOptions({ fps });
         }
       }
     };
@@ -233,7 +332,7 @@ const VantaBackground = ({
     return () => {
       document.removeEventListener('visibilitychange', handleVisibilityChange);
     };
-  }, [vantaEffect, isMobile]);
+  }, [vantaEffect, devicePerformance]);
 
   return (
     <div 
