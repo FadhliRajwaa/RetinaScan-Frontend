@@ -181,7 +181,7 @@ function RegisterPage() {
           separation={100.0}
           alignment={20.0}
           cohesion={20.0}
-          quantity={1.5}
+          quantity={2.0}
           backgroundAlpha={0.0}
           forceMobileHighPerformance={true}
         />
@@ -275,8 +275,9 @@ function RegisterPage() {
         separation={100.0}
         alignment={20.0}
         cohesion={20.0}
-        quantity={3.0}
+        quantity={2.0}
         backgroundAlpha={0.0}
+        forceMobileHighPerformance={true}
       />
       
       {/* Decorative shapes */}

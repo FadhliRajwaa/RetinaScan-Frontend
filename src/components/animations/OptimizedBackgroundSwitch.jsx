@@ -138,7 +138,7 @@ const OptimizedBackgroundSwitch = (props) => {
   
   // Konfigurasi standar untuk semua perangkat
   const standardBirdSize = 1.0;  // Ukuran burung 1.0 untuk semua perangkat
-  const standardQuantity = 3.0;  // Jumlah burung 3.0 untuk semua perangkat
+  const standardQuantity = 2.0;  // Jumlah burung 2.0 untuk semua perangkat
   const standardSpeed = 5.0;     // Kecepatan 5.0 untuk semua perangkat
   
   // Gunakan VantaBackground dengan konfigurasi standar
