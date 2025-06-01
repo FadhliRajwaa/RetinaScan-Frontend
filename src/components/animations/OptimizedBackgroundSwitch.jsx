@@ -1,7 +1,6 @@
 import { useState, useEffect } from 'react';
 import PropTypes from 'prop-types';
 import VantaBackground from './VantaBackground';
-import MobileOptimizedVantaBackground from './MobileOptimizedVantaBackground';
 
 // Komponen StaticBackground yang sangat ringan untuk perangkat dengan performa sangat rendah
 const StaticBackground = ({ backgroundColor, backgroundAlpha, color1, color2, children }) => {
@@ -74,104 +73,39 @@ StaticBackground.propTypes = {
   children: PropTypes.node
 };
 
-// Komponen ini akan otomatis memilih level optimasi yang sesuai
-// untuk VantaBackground berdasarkan kemampuan perangkat
+// Komponen ini akan menggunakan konfigurasi yang sama untuk semua perangkat
 const OptimizedBackgroundSwitch = (props) => {
-  const [devicePerformance, setDevicePerformance] = useState('detecting'); // 'detecting', 'very-low', 'low', 'medium', 'high'
   const [hasTested, setHasTested] = useState(false);
+  const [useStaticBackground, setUseStaticBackground] = useState(false);
 
   useEffect(() => {
-    const detectDevicePerformance = () => {
-      // Cek apakah device adalah mobile
+    const detectVeryLowPerformanceDevice = () => {
+      // Deteksi perangkat yang sangat lemah yang tidak bisa menjalankan WebGL sama sekali
       const userAgent = navigator.userAgent || '';
-      const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(userAgent);
       
-      // Jika bukan mobile, gunakan setting high
-      if (!isMobile) {
-        setDevicePerformance('high');
-        setHasTested(true);
-        return;
-      }
-      
-      // Deteksi performa lebih detail untuk mobile
-      // Cek RAM dan CPU jika tersedia
-      const memory = navigator.deviceMemory || 4; // Default 4GB jika tidak tersedia
-      const cores = navigator.hardwareConcurrency || 4; // Default 4 cores jika tidak tersedia
-      
-      // Deteksi browser dengan kemampuan WebGL terbatas
-      const canvas = document.createElement('canvas');
-      let gl;
-      let renderer = '';
-      let debugInfo = null;
-      
+      // Cek browser dengan kemampuan WebGL sangat terbatas
+      let hasWebGL = false;
       try {
-        gl = canvas.getContext('webgl') || canvas.getContext('experimental-webgl');
-        if (gl) {
-          debugInfo = gl.getExtension('WEBGL_debug_renderer_info');
-          if (debugInfo) {
-            renderer = gl.getParameter(debugInfo.UNMASKED_RENDERER_WEBGL);
-          }
-        }
+        const canvas = document.createElement('canvas');
+        hasWebGL = !!(window.WebGLRenderingContext && 
+          (canvas.getContext('webgl') || canvas.getContext('experimental-webgl')));
       } catch (e) {
-        console.log('WebGL detection error:', e);
+        hasWebGL = false;
       }
       
-      // Deteksi GPU mobile yang sangat lemah (hanya GPU lama/rendah)
-      const hasVeryWeakGPU = renderer && (
-        /Adreno (3|2)\d\d/i.test(renderer) || 
-        /Apple A[1-6]/i.test(renderer) ||
-        /Mali-(4|3|2)/i.test(renderer) ||
-        /PowerVR/i.test(renderer) ||
-        /Google SwiftShader/i.test(renderer)
-      );
-      
-      // Cek jaringan dan preferensi pengguna
-      const saveData = navigator.connection && navigator.connection.saveData;
-      const slowConnection = navigator.connection && 
-        (navigator.connection.effectiveType === 'slow-2g' || 
-         navigator.connection.effectiveType === '2g');
-      const prefersReducedMotion = window.matchMedia && 
-        window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-      
-      // Cek ukuran layar
-      const hasVerySmallScreen = window.innerWidth < 480;
-      
-      // Deteksi perangkat dengan performa sangat rendah - gunakan StaticBackground
-      if (
-        (memory <= 1 && cores <= 2) || // Perangkat sangat lemah (RAM <= 1GB dan cores <= 2)
-        hasVeryWeakGPU || // GPU sangat lemah
-        (saveData && slowConnection) || // Mode hemat data dan koneksi lambat
-        (prefersReducedMotion && hasVerySmallScreen) // Preferensi reduce motion dan layar kecil
-      ) {
-        console.log('Device terdeteksi sangat lemah - menggunakan StaticBackground');
-        setDevicePerformance('very-low');
-      }
-      // Deteksi perangkat dengan performa rendah - gunakan optimasi agresif
-      else if (
-        (memory <= 2 && cores <= 4) || // Perangkat lemah
-        saveData || // Mode hemat data
-        slowConnection || // Koneksi lambat
-        prefersReducedMotion // User memilih reduce motion
-      ) {
-        console.log('Device terdeteksi lemah - menggunakan optimasi agresif');
-        setDevicePerformance('low');
-      }
-      // Perangkat mobile dengan performa cukup baik
-      else if (memory <= 4 || cores <= 6) {
-        console.log('Device terdeteksi sedang - menggunakan optimasi standar');
-        setDevicePerformance('medium');
-      }
-      // Perangkat mobile high-end
-      else {
-        console.log('Device terdeteksi kuat - menggunakan optimasi minimal');
-        setDevicePerformance('high');
+      // Jika WebGL tidak tersedia atau device sangat lemah, gunakan StaticBackground
+      if (!hasWebGL) {
+        console.log('WebGL tidak tersedia - menggunakan StaticBackground');
+        setUseStaticBackground(true);
+      } else {
+        setUseStaticBackground(false);
       }
       
       setHasTested(true);
     };
     
     // Tambahkan sedikit delay untuk memberi waktu halaman dimuat
-    const timerId = setTimeout(detectDevicePerformance, 100);
+    const timerId = setTimeout(detectVeryLowPerformanceDevice, 100);
     return () => clearTimeout(timerId);
   }, []);
   
@@ -195,58 +129,25 @@ const OptimizedBackgroundSwitch = (props) => {
     );
   }
   
-  // Untuk perangkat dengan performa sangat rendah, gunakan StaticBackground
-  if (devicePerformance === 'very-low') {
+  // Untuk perangkat yang tidak mendukung WebGL sama sekali
+  if (useStaticBackground) {
     return (
       <StaticBackground {...props} />
     );
   }
   
-  // Untuk perangkat mobile dengan performa rendah, gunakan MobileOptimizedVantaBackground
-  if (devicePerformance === 'low' && (props.className && props.className.includes('hero-vanta-background'))) {
-    // Gunakan implementasi Canvas 2D yang lebih ringan untuk LandingPage pada mobile
-    return (
-      <MobileOptimizedVantaBackground 
-        {...props}
-        quantity={Math.min(5, props.quantity || 3)}
-        birdSize={props.birdSize || 1.0}
-      />
-    );
-  }
+  // Konfigurasi standar untuk semua perangkat
+  const standardBirdSize = 1.0;  // Ukuran burung 1.0 untuk semua perangkat
+  const standardQuantity = 3.0;  // Jumlah burung 3.0 untuk semua perangkat
+  const standardSpeed = 5.0;     // Kecepatan 5.0 untuk semua perangkat
   
-  // Untuk perangkat lainnya, gunakan VantaBackground dengan optimasi sesuai
+  // Gunakan VantaBackground dengan konfigurasi standar
   return (
     <VantaBackground 
       {...props} 
-      // Mempertahankan jumlah burung sesuai konfigurasi asli tapi mengoptimalkan ukuran
-      quantity={
-        // Untuk LandingPage (berdasarkan className)
-        props.className && props.className.includes('hero-vanta-background')
-        ? (devicePerformance === 'low' 
-            ? Math.max(1.5, props.quantity || 3) // Mempertahankan jumlah burung
-            : props.quantity || 3) // Gunakan jumlah burung yang dikonfigurasi
-        // Untuk halaman lain
-        : props.quantity || 3
-      }
-      // Menyesuaikan ukuran birds berdasarkan performa perangkat
-      birdSize={
-        props.className && props.className.includes('hero-vanta-background')
-        ? (devicePerformance === 'low' 
-            ? Math.max(1.0, (props.birdSize || 1.5) * 1.5) // Burung lebih besar di device lemah
-            : devicePerformance === 'medium'
-              ? Math.max(0.8, (props.birdSize || 1.5) * 1.2) // Burung ukuran sedang
-              : props.birdSize || 1.5) // Gunakan ukuran asli
-        : props.birdSize || 1.5
-      }
-      // Mengurangi kecepatan untuk performa lebih baik
-      speedLimit={
-        devicePerformance === 'low' 
-          ? (props.speedLimit || 5.0) * 0.5 // Sangat lambat di device lemah
-          : devicePerformance === 'medium'
-            ? (props.speedLimit || 5.0) * 0.7 // Lambat di device sedang
-            : props.speedLimit || 5.0
-      }
-      forceMobileHighPerformance={devicePerformance !== 'high'} // Aktifkan optimasi untuk semua kecuali high
+      birdSize={standardBirdSize}
+      quantity={standardQuantity}
+      speedLimit={standardSpeed}
     />
   );
 };
@@ -256,9 +157,6 @@ OptimizedBackgroundSwitch.propTypes = {
   className: PropTypes.string,
   backgroundColor: PropTypes.oneOfType([PropTypes.number, PropTypes.string]),
   backgroundAlpha: PropTypes.number,
-  quantity: PropTypes.number,
-  birdSize: PropTypes.number,
-  speedLimit: PropTypes.number,
   // Semua props lainnya akan dilewatkan ke komponen background
 };
 

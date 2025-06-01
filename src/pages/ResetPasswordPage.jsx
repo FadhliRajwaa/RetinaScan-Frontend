@@ -199,29 +199,27 @@ function ResetPasswordPage() {
         ? 'bg-gradient-to-br from-gray-900 to-gray-800' 
         : 'bg-gradient-to-br from-blue-50 to-indigo-100'
     } relative overflow-hidden`}>
-      {/* Optimized Background */}
+      {/* Background */}
       <OptimizedBackgroundSwitch
-        className="reset-password-vanta-background"
         mouseControls={true}
         touchControls={true}
         gyroControls={false}
         minHeight={window.innerHeight || 800}
         minWidth={window.innerWidth || 1200}
         scale={1.00}
-        scaleMobile={0.95}
+        scaleMobile={1.00}
         backgroundColor={isDarkMode ? 0x000000 : 0xffffff}
         color1={isDarkMode ? 0x0077ff : 0x0077ff}
         color2={isDarkMode ? 0x4b0082 : 0x4169e1}
         colorMode="variance"
-        birdSize={2.0}
-        wingSpan={25.0}
+        birdSize={1.0}
+        wingSpan={30.0}
         speedLimit={5.0}
         separation={100.0}
         alignment={20.0}
         cohesion={20.0}
-        quantity={1.5}
+        quantity={3.0}
         backgroundAlpha={0.0}
-        forceMobileHighPerformance={true}
       />
       
       {/* Decorative shapes */}

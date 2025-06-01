@@ -56,68 +56,11 @@ const VantaBackground = ({
       // Store device pixel ratio
       devicePixelRatioRef.current = window.devicePixelRatio || 1;
       
-      // Advanced performance detection
-      if (typeof window !== 'undefined') {
-        // Check device memory if available
-        const memory = navigator.deviceMemory || 4; // Default to 4GB if not available
-        const cores = navigator.hardwareConcurrency || 4; // Default to 4 cores if not available
-        
-        // Force high performance mode for mobile if requested
-        if (mobile && forceHighPerformanceRef.current) {
-          console.log('Forcing high performance mode for mobile device');
-          setDevicePerformance('high');
-          return;
-        }
-        
-        // Try to detect low-end devices using various signals
-        const isLowEndDevice = () => {
-          // Check if it's a very old mobile device
-          const isOldMobile = mobile && userAgent.match(/Android 4|Android 5|iPhone OS [789]_/i);
-          
-          // Check if it's a low-memory device
-          const isLowMemory = memory <= 2;
-          
-          // Check if it's a low-core device
-          const isLowCore = cores <= 2;
-          
-          // Check if the device has a slow connection
-          const isSlowConnection = navigator.connection && 
-            (navigator.connection.saveData || 
-             navigator.connection.effectiveType === 'slow-2g' || 
-             navigator.connection.effectiveType === '2g');
-          
-          // Check if the browser is reporting a low-end experience
-          const hasLowEndExperience = window.matchMedia && 
-            window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-          
-          // Return true if multiple signals indicate a low-end device
-          return (isOldMobile && (isLowMemory || isLowCore)) || 
-                 (isLowMemory && isLowCore) || 
-                 (isSlowConnection && (isLowMemory || isLowCore)) ||
-                 hasLowEndExperience;
-        };
-
-        // Skip performance detection if forcing high performance
-        if (forceHighPerformanceRef.current) {
-          setDevicePerformance('high');
-          return;
-        }
-
-        // Determine performance category
-        if (isLowEndDevice()) {
-          setDevicePerformance('very-low');
-        } else if (mobile && (memory <= 2 || cores <= 4)) {
-          setDevicePerformance('low');
-        } else if ((mobile && (memory <= 4 || cores <= 6)) || 
-                  (!mobile && (memory <= 4 || cores <= 4))) {
-          setDevicePerformance('medium');
-        } else {
-          setDevicePerformance('high');
-        }
-        
-        // Start FPS monitoring for dynamic adjustments
-        startFpsMonitoring();
-      }
+      // Force high performance mode
+      setDevicePerformance('high');
+      
+      // Start FPS monitoring for dynamic adjustments
+      startFpsMonitoring();
     };
     
     // FPS monitoring for dynamic performance adjustment
@@ -136,15 +79,9 @@ const VantaBackground = ({
           const currentFps = Math.round((frames * 1000) / (now - lastFpsUpdateRef.current));
           actualFpsRef.current = currentFps;
           
-          // Dynamic performance adjustment based on actual FPS
-          if (!forceHighPerformanceRef.current && currentFps < 30 && devicePerformance !== 'very-low') {
-            console.log(`FPS too low (${currentFps}), downgrading performance settings`);
-            setDevicePerformance(prev => {
-              if (prev === 'high') return 'medium';
-              if (prev === 'medium') return 'low';
-              if (prev === 'low') return 'very-low';
-              return prev;
-            });
+          // Only log FPS but don't adjust settings
+          if (currentFps < 30) {
+            console.log(`FPS is ${currentFps}`);
           }
           
           lastFpsUpdateRef.current = now;
@@ -284,7 +221,7 @@ const VantaBackground = ({
           containerRef.current = { classList: { contains: (cls) => className.includes(cls) } };
         }
         
-        // Adjust parameters based on device performance
+        // Gunakan parameter yang sama untuk semua device
         let performanceSettings = {
           actualBirdSize: birdSize,
           actualQuantity: quantity,
@@ -296,86 +233,6 @@ const VantaBackground = ({
           actualCohesion: cohesion
         };
         
-        // Apply performance-based settings - use optimized settings for mobile but maintain 60fps
-        if (forceHighPerformanceRef.current && isMobile) {
-          // Check if this is LandingPage by class name
-          const isLandingPage = containerRef.current && 
-            containerRef.current.classList.contains('hero-vanta-background');
-          
-          // Use more aggressive optimization for LandingPage
-          if (isLandingPage) {
-            console.log('Applying extreme optimization for LandingPage on mobile');
-            performanceSettings = {
-              actualBirdSize: birdSize, // Gunakan ukuran burung sesuai konfigurasi asli
-              actualQuantity: quantity, // Pertahankan jumlah burung sesuai konfigurasi
-              actualSpeedLimit: speedLimit * 0.6, // Slower movement
-              actualFps: 30, // Reduced fps for better performance
-              actualWingSpan: wingSpan * 0.8,
-              actualSeparation: separation * 1.8, // Much more separation
-              actualAlignment: alignment * 0.5, // Reduce computation complexity
-              actualCohesion: cohesion * 0.5 // Reduce computation complexity
-            };
-          } else {
-            // Normal mobile optimization for other pages
-            performanceSettings = {
-              actualBirdSize: birdSize, // Gunakan ukuran burung sesuai konfigurasi asli
-              actualQuantity: quantity, // Pertahankan jumlah burung sesuai konfigurasi 
-              actualSpeedLimit: speedLimit * 0.7, // Slower speed for better performance
-              actualFps: 30, // Reduced FPS for mobile
-              actualWingSpan: wingSpan * 0.9, // Almost same wingspan
-              actualSeparation: separation * 1.5, // More separation between birds
-              actualAlignment: alignment * 0.7, // Reduce alignment complexity
-              actualCohesion: cohesion * 0.7 // Reduce cohesion complexity
-            };
-          }
-        } else if (devicePerformance === 'very-low') {
-          // Reduced settings for very low-end devices, but ensure birds are visible
-          performanceSettings = {
-            actualBirdSize: birdSize * 1.3,
-            actualQuantity: Math.max(1, quantity * 0.4), // Minimal birds for very low devices
-            actualSpeedLimit: speedLimit * 0.7, // Even slower for very low devices
-            actualFps: 30, // Reduced FPS for better performance
-            actualWingSpan: wingSpan * 0.9,
-            actualSeparation: separation * 1.3,
-            actualAlignment: alignment * 0.8,
-            actualCohesion: cohesion * 0.8
-          };
-        } else if (devicePerformance === 'low') {
-          performanceSettings = {
-            actualBirdSize: birdSize * 1.1, // More similar to desktop
-            actualQuantity: Math.max(1, quantity * 0.7), // Less reduction
-            actualSpeedLimit: speedLimit * 0.85, // Closer to normal speed
-            actualFps: 45, // Higher FPS
-            actualWingSpan: wingSpan * 0.95, // Almost same wingspan
-            actualSeparation: separation * 1.1,
-            actualAlignment: alignment * 0.9,
-            actualCohesion: cohesion * 0.9
-          };
-        } else if (devicePerformance === 'medium') {
-          performanceSettings = {
-            actualBirdSize: birdSize * 1.05, // Very close to desktop
-            actualQuantity: Math.max(1, quantity * 0.8), // Slight reduction
-            actualSpeedLimit: speedLimit * 0.9,
-            actualFps: 60, // Full FPS
-            actualWingSpan: wingSpan * 0.98, // Almost identical
-            actualSeparation: separation * 1.05,
-            actualAlignment: alignment * 0.95,
-            actualCohesion: cohesion * 0.95
-          };
-        } else {
-          // High performance devices get full settings
-          performanceSettings = {
-            actualBirdSize: birdSize,
-            actualQuantity: quantity,
-            actualSpeedLimit: speedLimit,
-            actualFps: 60,
-            actualWingSpan: wingSpan,
-            actualSeparation: separation,
-            actualAlignment: alignment,
-            actualCohesion: cohesion
-          };
-        }
-        
         // Use requestAnimationFrame to optimize rendering
         let lastTime = 0;
         const targetFps = performanceSettings.actualFps;
@@ -384,9 +241,9 @@ const VantaBackground = ({
         // Initialize the effect with optimized settings
         const effect = window.VANTA.BIRDS({
           el: vantaRef.current,
-          mouseControls: devicePerformance !== 'very-low' && mouseControls,
-          touchControls: devicePerformance !== 'very-low' && touchControls,
-          gyroControls: devicePerformance === 'high' && gyroControls,
+          mouseControls: mouseControls,
+          touchControls: touchControls,
+          gyroControls: gyroControls,
           minHeight,
           minWidth,
           scale: isMobile ? scaleMobile : scale,
@@ -417,167 +274,7 @@ const VantaBackground = ({
 
         // Add renderer optimizations if available
         if (effect && effect.renderer) {
-          // Optimize THREE.js renderer
-          if (forceHighPerformanceRef.current && isMobile) {
-            // For mobile high performance mode, use a similar pixel ratio to desktop
-            effect.renderer.setPixelRatio(Math.min(1.5, devicePixelRatioRef.current));
-            
-            // Use similar canvas size to desktop for better consistency
-            const canvasWidth = Math.min(1440, window.innerWidth);
-            const canvasHeight = Math.min(900, window.innerHeight);
-            effect.renderer.setSize(canvasWidth, canvasHeight);
-            
-            // Additional mobile performance optimizations
-            if (effect.renderer.shadowMap) {
-              effect.renderer.shadowMap.enabled = false;
-            }
-            
-            // Keep mouse controls for better experience parity with desktop
-            if (effect.setOptions) {
-              effect.setOptions({
-                mouseControls: true,
-                touchControls: true
-              });
-            }
-            
-            // Use high performance context on mobile
-            if (effect.renderer.getContext && typeof effect.renderer.getContext === 'function') {
-              try {
-                const gl = effect.renderer.getContext();
-                if (gl && gl.getExtension) {
-                  // Try to enable performance optimizations
-                  gl.getExtension('WEBGL_lose_context');
-                  gl.getExtension('OES_element_index_uint');
-                }
-              } catch (e) {
-                console.warn('Failed to optimize WebGL context:', e);
-              }
-            }
-          } else {
-            // Normal optimization based on device performance
-            effect.renderer.setPixelRatio(Math.min(1.5, window.devicePixelRatio || 1));
-            
-            if (devicePerformance === 'very-low' || devicePerformance === 'low') {
-              effect.renderer.setSize(
-                Math.min(1024, window.innerWidth), 
-                Math.min(768, window.innerHeight)
-              );
-            }
-            
-            // Disable shadow maps for better performance
-            effect.renderer.shadowMap.enabled = devicePerformance === 'high';
-          }
-          
-          // Set power preference to high-performance for desktop, low-power for mobile
-          if (effect.renderer.getContext && effect.renderer.getContext.powerPreference) {
-            effect.renderer.getContext.powerPreference = 
-              (isMobile && !forceHighPerformanceRef.current) ? 'low-power' : 'high-performance';
-          }
-          
-          // Additional WebGL optimizations
-          try {
-            if (effect.renderer.info && effect.renderer.info.memory) {
-              // Monitor memory usage
-              console.log('THREE.js memory:', effect.renderer.info.memory);
-            }
-            
-            // Use antialiasing only on high-end devices
-            if (effect.renderer.getContext && typeof effect.renderer.getContext === 'function') {
-              const gl = effect.renderer.getContext();
-              if (gl && gl.getParameter) {
-                const maxTextureSize = gl.getParameter(gl.MAX_TEXTURE_SIZE);
-                console.log('WebGL max texture size:', maxTextureSize);
-                
-                // If texture size is limited, reduce quality further
-                if (maxTextureSize < 4096 && !forceHighPerformanceRef.current) {
-                  if (effect.setOptions) {
-                    effect.setOptions({
-                      quantity: Math.max(1, performanceSettings.actualQuantity * 0.8)
-                    });
-                  }
-                }
-              }
-            }
-          } catch (e) {
-            console.warn('WebGL optimization error:', e);
-          }
-        }
-
-        // Tambahkan konfigurasi khusus untuk menangani mobile yang lebih lemah
-        if (isMobile && effect && effect.setOptions) {
-          try {
-            // Tambahkan konfigurasi untuk mobile yang membantu performa tanpa mengorbankan tampilan
-            effect.setOptions({
-              colorMode: "lerp", // Mode warna yang lebih ringan untuk dirender
-              backgroundAlpha: 0, // Pastikan background transparan untuk performa lebih baik
-              highlightColor: null, // Matikan highlight color untuk menghemat performa
-              minHeight: Math.min(1024, minHeight), // Batasi ukuran render
-              minWidth: Math.min(1024, minWidth)    // Batasi ukuran render
-            });
-          } catch (e) {
-            console.warn('Failed to apply mobile optimizations:', e);
-          }
-        }
-
-        // Add extra optimization specifically for LandingPage
-        if (isMobile && effect && effect.setOptions && 
-            containerRef.current && containerRef.current.classList.contains('hero-vanta-background')) {
-          try {
-            // Add LandingPage-specific extreme optimizations
-            effect.setOptions({
-              colorMode: "lerp", // Simpler color mode
-              backgroundColor: backgroundColor, // Ensure background color is applied
-              backgroundAlpha: 0, // Keep background transparent 
-              showDots: false, // Don't show dots at bird positions for better performance
-              scaleMobile: Math.min(0.75, scaleMobile), // Ensure mobile scale is not too high
-              renderLines: false, // Disable lines between birds
-            });
-            
-            // Further decrease quality on very low-end devices
-            if (devicePerformance === 'very-low' || devicePerformance === 'low') {
-              if (effect.renderer && effect.renderer.setPixelRatio) {
-                effect.renderer.setPixelRatio(0.75); // Lower pixel ratio for better performance
-              }
-            }
-          } catch (e) {
-            console.warn('Failed to apply LandingPage-specific optimizations:', e);
-          }
-        }
-
-        // Add additional optimization for mobile
-        if (isMobile && effect && effect.renderer) {
-          try {
-            // Extreme renderer optimizations for mobile
-            effect.renderer.setPixelRatio(Math.min(1.0, window.devicePixelRatio || 1));
-            
-            // Significantly reduce the size of the canvas for better performance
-            const canvasWidth = Math.min(800, window.innerWidth);
-            const canvasHeight = Math.min(600, window.innerHeight);
-            effect.renderer.setSize(canvasWidth, canvasHeight);
-            
-            // Disable shadows completely
-            effect.renderer.shadowMap.enabled = false;
-            
-            // Optimal settings for birds with jumlah burung tetap
-            if (effect.setOptions) {
-              // Optimize by changing other parameters instead of quantity
-              effect.setOptions({
-                quantity: quantity, // Gunakan jumlah burung yang dikonfigurasi
-                birdSize: birdSize, // Gunakan ukuran burung yang dikonfigurasi
-                speedLimit: speedLimit * 0.7, // Slow down the birds
-                separation: separation * 1.5, // Increase separation
-                backgroundAlpha: 0,
-                colorMode: "lerp" // Mode warna yang lebih ringan
-              });
-            }
-            
-            // Set global THREE quality settings
-            if (window.THREE) {
-              window.THREE.Cache.enabled = true;
-            }
-          } catch (e) {
-            console.warn('Failed to apply extreme mobile optimizations:', e);
-          }
+          effect.renderer.setPixelRatio(Math.min(2.0, window.devicePixelRatio || 1));
         }
 
         console.log('Vanta effect initialized successfully');
