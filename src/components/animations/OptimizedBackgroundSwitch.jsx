@@ -1,30 +1,101 @@
 import { useState, useEffect } from 'react';
 import PropTypes from 'prop-types';
 import VantaBackground from './VantaBackground';
-import MobileOptimizedVantaBackground from './MobileOptimizedVantaBackground';
+
+// Komponen StaticBackground yang sangat ringan untuk perangkat dengan performa sangat rendah
+const StaticBackground = ({ backgroundColor, backgroundAlpha, color1, color2, children }) => {
+  // Menggunakan CSS gradien statis daripada animasi 3D
+  return (
+    <div 
+      style={{ 
+        position: 'absolute',
+        top: 0,
+        left: 0,
+        width: '100%',
+        height: '100%',
+        background: typeof backgroundColor === 'number' 
+          ? `#${backgroundColor.toString(16).padStart(6, '0')}`
+          : backgroundColor || '#000000',
+        opacity: backgroundAlpha !== undefined ? backgroundAlpha : 1,
+        zIndex: 0,
+        overflow: 'hidden'
+      }}
+    >
+      {/* Menambahkan elemen dekoratif statis yang mirip dengan birds */}
+      <div 
+        style={{
+          position: 'absolute',
+          top: 0,
+          left: 0,
+          width: '100%',
+          height: '100%',
+          background: `radial-gradient(circle at 70% 30%, ${
+            typeof color1 === 'number' ? `#${color1.toString(16).padStart(6, '0')}33` : 'rgba(0, 119, 255, 0.2)'
+          }, transparent 50%), 
+          radial-gradient(circle at 30% 70%, ${
+            typeof color2 === 'number' ? `#${color2.toString(16).padStart(6, '0')}33` : 'rgba(65, 105, 225, 0.2)'
+          }, transparent 50%)`,
+          zIndex: 0
+        }}
+      />
+      
+      {/* Beberapa "burung" statis yang dibuat dengan CSS */}
+      {[...Array(6)].map((_, i) => (
+        <div
+          key={i}
+          style={{
+            position: 'absolute',
+            top: `${10 + Math.random() * 80}%`,
+            left: `${10 + Math.random() * 80}%`,
+            width: '8px',
+            height: '3px',
+            borderRadius: '50%',
+            background: typeof color1 === 'number' 
+              ? `#${color1.toString(16).padStart(6, '0')}`
+              : '#0077ff',
+            opacity: 0.7,
+            transform: `rotate(${Math.random() * 360}deg)`,
+            zIndex: 1
+          }}
+        />
+      ))}
+      
+      {children}
+    </div>
+  );
+};
+
+StaticBackground.propTypes = {
+  backgroundColor: PropTypes.oneOfType([PropTypes.number, PropTypes.string]),
+  backgroundAlpha: PropTypes.number,
+  color1: PropTypes.oneOfType([PropTypes.number, PropTypes.string]),
+  color2: PropTypes.oneOfType([PropTypes.number, PropTypes.string]),
+  children: PropTypes.node
+};
 
 // Komponen ini akan otomatis memilih level optimasi yang sesuai
 // untuk VantaBackground berdasarkan kemampuan perangkat
 const OptimizedBackgroundSwitch = (props) => {
-  const [forceMobileOptimization, setForceMobileOptimization] = useState(false);
+  const [devicePerformance, setDevicePerformance] = useState('detecting'); // 'detecting', 'very-low', 'low', 'medium', 'high'
   const [hasTested, setHasTested] = useState(false);
 
   useEffect(() => {
-    const detectLowPerformanceDevice = () => {
+    const detectDevicePerformance = () => {
       // Cek apakah device adalah mobile
       const userAgent = navigator.userAgent || '';
       const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(userAgent);
       
-      // Jika bukan mobile, tidak perlu optimasi khusus
+      // Jika bukan mobile, gunakan setting high
       if (!isMobile) {
-        setForceMobileOptimization(false);
+        setDevicePerformance('high');
         setHasTested(true);
         return;
       }
       
+      // Deteksi performa lebih detail untuk mobile
       // Cek RAM dan CPU jika tersedia
-      const lowMemory = navigator.deviceMemory && navigator.deviceMemory < 2; // Hanya RAM sangat rendah
-      const lowCpu = navigator.hardwareConcurrency && navigator.hardwareConcurrency < 3; // Hanya CPU sangat lemah
+      const memory = navigator.deviceMemory || 4; // Default 4GB jika tidak tersedia
+      const cores = navigator.hardwareConcurrency || 4; // Default 4 cores jika tidak tersedia
       
       // Deteksi browser dengan kemampuan WebGL terbatas
       const canvas = document.createElement('canvas');
@@ -53,37 +124,53 @@ const OptimizedBackgroundSwitch = (props) => {
         /Google SwiftShader/i.test(renderer)
       );
       
-      // Cek apakah browser dalam mode data saver
+      // Cek jaringan dan preferensi pengguna
       const saveData = navigator.connection && navigator.connection.saveData;
-      
-      // Cek apakah user memilih reduce motion di sistem
+      const slowConnection = navigator.connection && 
+        (navigator.connection.effectiveType === 'slow-2g' || 
+         navigator.connection.effectiveType === '2g');
       const prefersReducedMotion = window.matchMedia && 
         window.matchMedia('(prefers-reduced-motion: reduce)').matches;
       
-      // Cek ukuran layar (hanya layar sangat kecil)
+      // Cek ukuran layar
       const hasVerySmallScreen = window.innerWidth < 480;
       
-      // Jika beberapa faktor risiko terdeteksi, aktifkan optimasi untuk mobile
+      // Deteksi perangkat dengan performa sangat rendah - gunakan StaticBackground
       if (
-        (lowMemory && lowCpu) || // Perangkat sangat lemah
+        (memory <= 1 && cores <= 2) || // Perangkat sangat lemah (RAM <= 1GB dan cores <= 2)
         hasVeryWeakGPU || // GPU sangat lemah
+        (saveData && slowConnection) || // Mode hemat data dan koneksi lambat
+        (prefersReducedMotion && hasVerySmallScreen) // Preferensi reduce motion dan layar kecil
+      ) {
+        console.log('Device terdeteksi sangat lemah - menggunakan StaticBackground');
+        setDevicePerformance('very-low');
+      }
+      // Deteksi perangkat dengan performa rendah - gunakan optimasi agresif
+      else if (
+        (memory <= 2 && cores <= 4) || // Perangkat lemah
         saveData || // Mode hemat data
-        hasVerySmallScreen || // Layar sangat kecil
+        slowConnection || // Koneksi lambat
         prefersReducedMotion // User memilih reduce motion
       ) {
-        console.log('Using stronger optimizations for low-end mobile device');
-        setForceMobileOptimization(true);
-      } else {
-        // Perangkat mobile dengan performa baik tetap perlu optimasi standar
-        console.log('Using standard optimizations for mobile device');
-        setForceMobileOptimization(true); // Selalu true untuk mobile untuk memastikan performa baik
+        console.log('Device terdeteksi lemah - menggunakan optimasi agresif');
+        setDevicePerformance('low');
+      }
+      // Perangkat mobile dengan performa cukup baik
+      else if (memory <= 4 || cores <= 6) {
+        console.log('Device terdeteksi sedang - menggunakan optimasi standar');
+        setDevicePerformance('medium');
+      }
+      // Perangkat mobile high-end
+      else {
+        console.log('Device terdeteksi kuat - menggunakan optimasi minimal');
+        setDevicePerformance('high');
       }
       
       setHasTested(true);
     };
     
     // Tambahkan sedikit delay untuk memberi waktu halaman dimuat
-    const timerId = setTimeout(detectLowPerformanceDevice, 100);
+    const timerId = setTimeout(detectDevicePerformance, 100);
     return () => clearTimeout(timerId);
   }, []);
   
@@ -107,19 +194,66 @@ const OptimizedBackgroundSwitch = (props) => {
     );
   }
   
-  // Selalu gunakan VantaBackground, dengan forceMobileHighPerformance berdasarkan deteksi
+  // Untuk perangkat dengan performa sangat rendah, gunakan StaticBackground
+  if (devicePerformance === 'very-low') {
+    return (
+      <StaticBackground {...props} />
+    );
+  }
+  
+  // Untuk perangkat lainnya, gunakan VantaBackground dengan optimasi sesuai
   return (
     <VantaBackground 
       {...props} 
-      forceMobileHighPerformance={forceMobileOptimization}
+      // Mengurangi jumlah birds untuk LandingPage di mobile
+      quantity={
+        // Jika ini adalah LandingPage (berdasarkan className)
+        props.className && props.className.includes('hero-vanta-background')
+        ? (devicePerformance === 'low' 
+            ? Math.max(0.5, (props.quantity || 3) * 0.15) // Sangat sedikit burung
+            : devicePerformance === 'medium'
+              ? Math.max(0.5, (props.quantity || 3) * 0.3) // Sedikit burung
+              : Math.max(0.5, (props.quantity || 3) * 0.5)) // Lebih banyak burung untuk high
+        // Untuk halaman lain
+        : (devicePerformance === 'low'
+            ? Math.max(0.5, (props.quantity || 3) * 0.3)
+            : devicePerformance === 'medium'
+              ? Math.max(0.5, (props.quantity || 3) * 0.6)
+              : props.quantity || 3)
+      }
+      // Memperbesar ukuran birds untuk meningkatkan visibilitas dengan jumlah yang lebih sedikit
+      birdSize={
+        props.className && props.className.includes('hero-vanta-background')
+        ? (devicePerformance === 'low' 
+            ? (props.birdSize || 1.5) * 2.0
+            : devicePerformance === 'medium'
+              ? (props.birdSize || 1.5) * 1.5
+              : props.birdSize || 1.5)
+        : (devicePerformance === 'low'
+            ? (props.birdSize || 1.5) * 1.5
+            : props.birdSize || 1.5)
+      }
+      // Mengurangi kecepatan untuk performa lebih baik
+      speedLimit={
+        devicePerformance === 'low' 
+          ? (props.speedLimit || 5.0) * 0.6
+          : devicePerformance === 'medium'
+            ? (props.speedLimit || 5.0) * 0.8
+            : props.speedLimit || 5.0
+      }
+      forceMobileHighPerformance={devicePerformance !== 'high'} // Aktifkan optimasi untuk semua kecuali high
     />
   );
 };
 
 OptimizedBackgroundSwitch.propTypes = {
   children: PropTypes.node,
+  className: PropTypes.string,
   backgroundColor: PropTypes.oneOfType([PropTypes.number, PropTypes.string]),
   backgroundAlpha: PropTypes.number,
+  quantity: PropTypes.number,
+  birdSize: PropTypes.number,
+  speedLimit: PropTypes.number,
   // Semua props lainnya akan dilewatkan ke komponen background
 };
 

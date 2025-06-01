@@ -74,18 +74,18 @@ function LandingPage() {
                 minHeight: window.innerHeight || 800,
                 minWidth: window.innerWidth || 1200,
                 scale: 1.00,
-                scaleMobile: 0.80,
+                scaleMobile: 0.75,
                 backgroundColor: isDarkMode ? 0x000000 : 0xffffff,
                 color1: isDarkMode ? 0x0077ff : 0x0077ff,
                 color2: isDarkMode ? 0x4b0082 : 0x4169e1,
-                colorMode: "variance",
-                birdSize : 2.5,
-                wingSpan : 25.0,
-                speedLimit : 4.0,
-                separation : 120.0,
-                alignment : 15.0,
-                cohesion : 15.0,
-                quantity : 1.0,
+                colorMode: "lerp",
+                birdSize : 3.0,
+                wingSpan : 20.0,
+                speedLimit : 3.0,
+                separation : 150.0,
+                alignment : 10.0,
+                cohesion : 10.0,
+                quantity : 0.75,
                 backgroundAlpha: 0.0,
                 forceMobileHighPerformance: true
               });
@@ -376,18 +376,18 @@ function LandingPage() {
           minHeight={window.innerHeight || 800}
           minWidth={window.innerWidth || 1200}
           scale={1.00}
-          scaleMobile={0.80}
+          scaleMobile={0.75}
           backgroundColor={isDarkMode ? 0x000000 : 0xffffff}
           color1={isDarkMode ? 0x0077ff : 0x0077ff}
           color2={isDarkMode ? 0x4b0082 : 0x4169e1}
-          colorMode="variance"
-          birdSize={2.5}
-          wingSpan={25.0}
-          speedLimit={4.0}
-          separation={120.0}
-          alignment={15.0}
-          cohesion={15.0}
-          quantity={1.0}
+          colorMode="lerp"
+          birdSize={3.0}
+          wingSpan={20.0}
+          speedLimit={3.0}
+          separation={150.0}
+          alignment={10.0}
+          cohesion={10.0}
+          quantity={0.75}
           backgroundAlpha={0.0}
           forceMobileHighPerformance={true}
         />

@@ -13,35 +13,51 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-    <!-- Vanta.js Dependencies - Local Files -->
-    <script src="./three.r134.min.js"></script>
-    <script src="./vanta.birds.min.js"></script>
-    <!-- Vanta.js Dependencies - CDN Fallback -->
+    
+    <!-- Preload untuk meningkatkan performa -->
+    <link rel="preload" href="https://cdn.jsdelivr.net/npm/three@0.134.0/build/three.min.js" as="script">
+    <link rel="preload" href="https://cdn.jsdelivr.net/npm/vanta@latest/dist/vanta.birds.min.js" as="script">
+    
+    <!-- Vanta.js Dependencies - Always use CDN to avoid multiple instances -->
     <script>
-      // Check if THREE is loaded from local files, if not load from CDN
-      window.addEventListener('DOMContentLoaded', function() {
-        if (typeof THREE === 'undefined') {
-          console.log('Loading THREE.js from CDN');
-          var threeScript = document.createElement('script');
-          threeScript.src = 'https://cdn.jsdelivr.net/npm/three@0.134.0/build/three.min.js';
-          document.head.appendChild(threeScript);
-          
-          threeScript.onload = function() {
-            console.log('THREE.js loaded from CDN');
-            // Load Vanta after THREE is loaded
-            if (typeof VANTA === 'undefined') {
-              console.log('Loading Vanta.js from CDN');
-              var vantaScript = document.createElement('script');
-              vantaScript.src = 'https://cdn.jsdelivr.net/npm/vanta@latest/dist/vanta.birds.min.js';
-              document.head.appendChild(vantaScript);
-              vantaScript.onload = function() {
-                console.log('Vanta.js loaded from CDN');
-                // Dispatch custom event to notify components
-                document.dispatchEvent(new Event('vantaLoaded'));
-              };
-            }
-          };
+      // Inisialisasi variabel untuk menandai apakah script sudah dimuat
+      window.scriptsLoaded = {
+        three: false,
+        vanta: false
+      };
+      
+      window.notifyVantaLoaded = function() {
+        if (window.scriptsLoaded.three && window.scriptsLoaded.vanta) {
+          console.log('Both THREE and VANTA loaded successfully');
+          document.dispatchEvent(new Event('vantaLoaded'));
         }
+      };
+
+      // Load Three.js
+      window.addEventListener('DOMContentLoaded', function() {
+        console.log('Loading THREE.js');
+        var threeScript = document.createElement('script');
+        threeScript.src = 'https://cdn.jsdelivr.net/npm/three@0.134.0/build/three.min.js';
+        threeScript.async = true;
+        document.head.appendChild(threeScript);
+        
+        threeScript.onload = function() {
+          console.log('THREE.js loaded');
+          window.scriptsLoaded.three = true;
+          
+          // Load Vanta after THREE is loaded
+          console.log('Loading Vanta.js');
+          var vantaScript = document.createElement('script');
+          vantaScript.src = 'https://cdn.jsdelivr.net/npm/vanta@latest/dist/vanta.birds.min.js';
+          vantaScript.async = true;
+          document.head.appendChild(vantaScript);
+          
+          vantaScript.onload = function() {
+            console.log('Vanta.js loaded');
+            window.scriptsLoaded.vanta = true;
+            window.notifyVantaLoaded();
+          };
+        };
       });
     </script>
   </head>

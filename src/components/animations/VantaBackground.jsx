@@ -200,7 +200,7 @@ const VantaBackground = ({
     // Initial check
     const isLoaded = checkScriptsLoaded();
     if (!isLoaded) {
-      console.log('Scripts not detected, waiting for load event');
+      console.log('Scripts not detected, waiting for vantaLoaded event');
       
       // Listen for custom event from index.html
       const handleVantaLoaded = () => {
@@ -210,39 +210,8 @@ const VantaBackground = ({
       
       document.addEventListener('vantaLoaded', handleVantaLoaded);
       
-      // Check again after a delay (in case the scripts are still loading)
-      const timeoutId = setTimeout(() => {
-        if (!isScriptLoaded && retryCount < 3) {
-          console.log(`Retry check #${retryCount + 1}`);
-          setRetryCount(prev => prev + 1);
-          
-          // If scripts still not detected after retries, try loading them directly
-          if (retryCount === 2) {
-            console.log('Loading THREE.js directly');
-            const threeScript = document.createElement('script');
-            threeScript.src = './three.r134.min.js';
-            document.head.appendChild(threeScript);
-            
-            threeScript.onload = () => {
-              console.log('Loading Vanta.js directly');
-              const vantaScript = document.createElement('script');
-              vantaScript.src = './vanta.birds.min.js';
-              document.head.appendChild(vantaScript);
-              
-              vantaScript.onload = () => {
-                console.log('Initializing Vanta directly');
-                setIsScriptLoaded(true);
-              };
-            };
-          }
-          
-          checkScriptsLoaded();
-        }
-      }, 1000);
-      
       return () => {
         document.removeEventListener('vantaLoaded', handleVantaLoaded);
-        clearTimeout(timeoutId);
       };
     }
   }, [isScriptLoaded, retryCount]);
@@ -337,26 +306,26 @@ const VantaBackground = ({
           if (isLandingPage) {
             console.log('Applying extreme optimization for LandingPage on mobile');
             performanceSettings = {
-              actualBirdSize: birdSize * 1.5, // Much larger birds = much fewer birds
-              actualQuantity: Math.max(1, quantity * 0.3), // Very few birds
-              actualSpeedLimit: speedLimit * 0.7, // Slower movement
-              actualFps: 50, // Slightly reduced fps for better performance
-              actualWingSpan: wingSpan * 0.9,
-              actualSeparation: separation * 1.5, // Much more separation
-              actualAlignment: alignment * 0.7, // Reduce computation complexity
-              actualCohesion: cohesion * 0.7 // Reduce computation complexity
+              actualBirdSize: birdSize * 2.0, // Much larger birds = much fewer birds
+              actualQuantity: Math.max(1, quantity * 0.2), // Very few birds
+              actualSpeedLimit: speedLimit * 0.6, // Slower movement
+              actualFps: 30, // Reduced fps for better performance
+              actualWingSpan: wingSpan * 0.8,
+              actualSeparation: separation * 2.0, // Much more separation
+              actualAlignment: alignment * 0.5, // Reduce computation complexity
+              actualCohesion: cohesion * 0.5 // Reduce computation complexity
             };
           } else {
             // Normal mobile optimization for other pages
             performanceSettings = {
-              actualBirdSize: birdSize * 1.2, // Larger birds = fewer birds needed
-              actualQuantity: Math.max(1, quantity * 0.5), // Significantly reduce bird count for mobile
-              actualSpeedLimit: speedLimit * 0.8, // Slower speed for better performance
-              actualFps: 60, // Always maintain 60fps
-              actualWingSpan: wingSpan * 0.95, // Almost same wingspan
-              actualSeparation: separation * 1.2, // More separation between birds
-              actualAlignment: alignment * 0.9, // Slightly reduce alignment complexity
-              actualCohesion: cohesion * 0.9 // Slightly reduce cohesion complexity
+              actualBirdSize: birdSize * 1.5, // Larger birds = fewer birds needed
+              actualQuantity: Math.max(1, quantity * 0.3), // Significantly reduce bird count for mobile
+              actualSpeedLimit: speedLimit * 0.7, // Slower speed for better performance
+              actualFps: 30, // Reduced FPS for mobile
+              actualWingSpan: wingSpan * 0.9, // Almost same wingspan
+              actualSeparation: separation * 1.5, // More separation between birds
+              actualAlignment: alignment * 0.7, // Reduce alignment complexity
+              actualCohesion: cohesion * 0.7 // Reduce cohesion complexity
             };
           }
         } else if (devicePerformance === 'very-low') {
@@ -575,6 +544,42 @@ const VantaBackground = ({
           }
         }
 
+        // Add additional optimization for mobile
+        if (isMobile && effect && effect.renderer) {
+          try {
+            // Extreme renderer optimizations for mobile
+            effect.renderer.setPixelRatio(Math.min(1.0, window.devicePixelRatio || 1));
+            
+            // Significantly reduce the size of the canvas for better performance
+            const canvasWidth = Math.min(800, window.innerWidth);
+            const canvasHeight = Math.min(600, window.innerHeight);
+            effect.renderer.setSize(canvasWidth, canvasHeight);
+            
+            // Disable shadows completely
+            effect.renderer.shadowMap.enabled = false;
+            
+            // Simplified materials
+            if (effect.birds && effect.birds.geometry) {
+              if (effect.setOptions) {
+                effect.setOptions({
+                  quantity: Math.max(0.5, performanceSettings.actualQuantity * 0.7),
+                  birdSize: performanceSettings.actualBirdSize * 1.3,
+                  speedLimit: performanceSettings.actualSpeedLimit * 0.8,
+                  backgroundAlpha: 0,
+                  colorMode: "lerp" // Mode warna yang lebih ringan
+                });
+              }
+            }
+            
+            // Set global THREE quality settings
+            if (window.THREE) {
+              window.THREE.Cache.enabled = true;
+            }
+          } catch (e) {
+            console.warn('Failed to apply extreme mobile optimizations:', e);
+          }
+        }
+
         console.log('Vanta effect initialized successfully');
         setVantaEffect(effect);
       } catch (error) {
@@ -733,6 +738,25 @@ const VantaBackground = ({
       }
     };
   }, [mouseControls, handleMouseMove, devicePerformance]);
+
+  // Tambahkan pengoptimalan memori
+  useEffect(() => {
+    // Bersihkan cache THREE.js setiap kali component di-unmount
+    return () => {
+      if (window.THREE && window.THREE.Cache) {
+        window.THREE.Cache.clear();
+      }
+      
+      // Bersihkan tekstur yang tidak digunakan
+      if (window.THREE && window.THREE.TextureLoader) {
+        const renderer = vantaEffect && vantaEffect.renderer;
+        if (renderer && renderer.info && renderer.info.memory) {
+          const textures = renderer.info.memory.textures || 0;
+          console.log(`Cleaning up ${textures} textures`);
+        }
+      }
+    };
+  }, [vantaEffect]);
 
   return (
     <div 
