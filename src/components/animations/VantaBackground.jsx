@@ -325,26 +325,26 @@ const VantaBackground = ({
         if (forceHighPerformanceRef.current && isMobile) {
           // Mobile high performance mode - more similar to desktop but optimized for mobile
           performanceSettings = {
-            actualBirdSize: birdSize * 1.1, // Slightly larger birds
-            actualQuantity: Math.max(2, quantity * 0.9), // Pastikan minimal 2 burung, hampir sama dengan desktop
-            actualSpeedLimit: speedLimit * 0.9, // Almost same speed
+            actualBirdSize: birdSize * 1.2, // Larger birds = fewer birds needed
+            actualQuantity: Math.max(1, quantity * 0.5), // Significantly reduce bird count for mobile
+            actualSpeedLimit: speedLimit * 0.8, // Slower speed for better performance
             actualFps: 60, // Always maintain 60fps
             actualWingSpan: wingSpan * 0.95, // Almost same wingspan
-            actualSeparation: separation * 1.1, // Slightly more separation
-            actualAlignment: alignment * 0.95, // Almost same alignment
-            actualCohesion: cohesion * 0.95 // Almost same cohesion
+            actualSeparation: separation * 1.2, // More separation between birds
+            actualAlignment: alignment * 0.9, // Slightly reduce alignment complexity
+            actualCohesion: cohesion * 0.9 // Slightly reduce cohesion complexity
           };
         } else if (devicePerformance === 'very-low') {
           // Reduced settings for very low-end devices, but ensure birds are visible
           performanceSettings = {
-            actualBirdSize: birdSize * 1.2,
-            actualQuantity: Math.max(2, quantity * 0.7), // Pastikan minimal 2 burung
-            actualSpeedLimit: speedLimit * 0.8, // Closer to normal speed
-            actualFps: 30, // Improved FPS
+            actualBirdSize: birdSize * 1.3,
+            actualQuantity: Math.max(1, quantity * 0.4), // Minimal birds for very low devices
+            actualSpeedLimit: speedLimit * 0.7, // Even slower for very low devices
+            actualFps: 30, // Reduced FPS for better performance
             actualWingSpan: wingSpan * 0.9,
-            actualSeparation: separation * 1.2,
-            actualAlignment: alignment * 0.85,
-            actualCohesion: cohesion * 0.85
+            actualSeparation: separation * 1.3,
+            actualAlignment: alignment * 0.8,
+            actualCohesion: cohesion * 0.8
           };
         } else if (devicePerformance === 'low') {
           performanceSettings = {

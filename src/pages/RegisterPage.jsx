@@ -175,13 +175,13 @@ function RegisterPage() {
           color1={isDarkMode ? 0x0077ff : 0x0077ff}
           color2={isDarkMode ? 0x4b0082 : 0x4169e1}
           colorMode="variance"
-          birdSize={1.8}
+          birdSize={2.0}
           wingSpan={25.0}
           speedLimit={5.0}
           separation={100.0}
           alignment={20.0}
           cohesion={20.0}
-          quantity={3.0}
+          quantity={1.5}
           backgroundAlpha={0.0}
           forceMobileHighPerformance={true}
         />
@@ -270,13 +270,13 @@ function RegisterPage() {
         color1={isDarkMode ? 0x0077ff : 0x0077ff}
         color2={isDarkMode ? 0x4b0082 : 0x4169e1}
         colorMode="variance"
-        birdSize={1.8}
+        birdSize={2.0}
         wingSpan={25.0}
         speedLimit={5.0}
         separation={100.0}
         alignment={20.0}
         cohesion={20.0}
-        quantity={3.0}
+        quantity={1.5}
         backgroundAlpha={0.0}
         forceMobileHighPerformance={true}
       />
