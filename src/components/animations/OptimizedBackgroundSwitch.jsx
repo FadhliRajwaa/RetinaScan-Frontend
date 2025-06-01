@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import PropTypes from 'prop-types';
 import VantaBackground from './VantaBackground';
+import MobileOptimizedVantaBackground from './MobileOptimizedVantaBackground';
 
 // Komponen StaticBackground yang sangat ringan untuk perangkat dengan performa sangat rendah
 const StaticBackground = ({ backgroundColor, backgroundAlpha, color1, color2, children }) => {
@@ -198,6 +199,18 @@ const OptimizedBackgroundSwitch = (props) => {
   if (devicePerformance === 'very-low') {
     return (
       <StaticBackground {...props} />
+    );
+  }
+  
+  // Untuk perangkat mobile dengan performa rendah, gunakan MobileOptimizedVantaBackground
+  if (devicePerformance === 'low' && (props.className && props.className.includes('hero-vanta-background'))) {
+    // Gunakan implementasi Canvas 2D yang lebih ringan untuk LandingPage pada mobile
+    return (
+      <MobileOptimizedVantaBackground 
+        {...props}
+        quantity={Math.min(5, props.quantity || 3)}
+        birdSize={props.birdSize || 1.0}
+      />
     );
   }
   

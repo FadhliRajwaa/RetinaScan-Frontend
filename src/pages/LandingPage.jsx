@@ -74,17 +74,17 @@ function LandingPage() {
                 minHeight: window.innerHeight || 800,
                 minWidth: window.innerWidth || 1200,
                 scale: 1.00,
-                scaleMobile: 0.75,
+                scaleMobile: 0.5,
                 backgroundColor: isDarkMode ? 0x000000 : 0xffffff,
                 color1: isDarkMode ? 0x0077ff : 0x0077ff,
                 color2: isDarkMode ? 0x4b0082 : 0x4169e1,
                 colorMode: "lerp",
-                birdSize : 1.2,
-                wingSpan : 20.0,
-                speedLimit : 3.0,
-                separation : 150.0,
-                alignment : 10.0,
-                cohesion : 10.0,
+                birdSize : 1.0,
+                wingSpan : 15.0,
+                speedLimit : 2.0,
+                separation : 200.0,
+                alignment : 8.0,
+                cohesion : 8.0,
                 quantity : 3.0,
                 backgroundAlpha: 0.0,
                 forceMobileHighPerformance: true
@@ -376,17 +376,17 @@ function LandingPage() {
           minHeight={window.innerHeight || 800}
           minWidth={window.innerWidth || 1200}
           scale={1.00}
-          scaleMobile={0.75}
+          scaleMobile={0.5}
           backgroundColor={isDarkMode ? 0x000000 : 0xffffff}
           color1={isDarkMode ? 0x0077ff : 0x0077ff}
           color2={isDarkMode ? 0x4b0082 : 0x4169e1}
           colorMode="lerp"
-          birdSize={1.2}
-          wingSpan={20.0}
-          speedLimit={3.0}
-          separation={150.0}
-          alignment={10.0}
-          cohesion={10.0}
+          birdSize={1.0}
+          wingSpan={15.0}
+          speedLimit={2.0}
+          separation={200.0}
+          alignment={8.0}
+          cohesion={8.0}
           quantity={3.0}
           backgroundAlpha={0.0}
           forceMobileHighPerformance={true}
