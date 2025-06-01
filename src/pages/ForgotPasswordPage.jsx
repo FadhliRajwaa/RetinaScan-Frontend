@@ -156,7 +156,7 @@ function ForgotPasswordPage() {
         minHeight={window.innerHeight || 800}
         minWidth={window.innerWidth || 1200}
         scale={1.00}
-        scaleMobile={0.90}
+        scaleMobile={0.95}
         backgroundColor={isDarkMode ? 0x000000 : 0xffffff}
         color1={isDarkMode ? 0x0077ff : 0x0077ff}
         color2={isDarkMode ? 0x4b0082 : 0x4169e1}
@@ -167,7 +167,7 @@ function ForgotPasswordPage() {
         separation={100.0}
         alignment={20.0}
         cohesion={20.0}
-        quantity={2.0}
+        quantity={3.0}
         backgroundAlpha={0.0}
         forceMobileHighPerformance={true}
       />

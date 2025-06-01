@@ -3,10 +3,10 @@ import PropTypes from 'prop-types';
 import VantaBackground from './VantaBackground';
 import MobileOptimizedVantaBackground from './MobileOptimizedVantaBackground';
 
-// Komponen ini akan otomatis memilih versi background yang optimal
-// berdasarkan kemampuan perangkat
+// Komponen ini akan otomatis memilih level optimasi yang sesuai
+// untuk VantaBackground berdasarkan kemampuan perangkat
 const OptimizedBackgroundSwitch = (props) => {
-  const [useOptimized, setUseOptimized] = useState(false);
+  const [forceMobileOptimization, setForceMobileOptimization] = useState(false);
   const [hasTested, setHasTested] = useState(false);
 
   useEffect(() => {
@@ -15,9 +15,9 @@ const OptimizedBackgroundSwitch = (props) => {
       const userAgent = navigator.userAgent || '';
       const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(userAgent);
       
-      // Jika bukan mobile, gunakan versi normal
+      // Jika bukan mobile, tidak perlu optimasi khusus
       if (!isMobile) {
-        setUseOptimized(false);
+        setForceMobileOptimization(false);
         setHasTested(true);
         return;
       }
@@ -63,8 +63,7 @@ const OptimizedBackgroundSwitch = (props) => {
       // Cek ukuran layar (hanya layar sangat kecil)
       const hasVerySmallScreen = window.innerWidth < 480;
       
-      // Jika beberapa faktor risiko terdeteksi, gunakan versi optimized
-      // Kita lebih selektif sekarang, tidak semua perangkat mobile otomatis menggunakan optimized
+      // Jika beberapa faktor risiko terdeteksi, aktifkan optimasi untuk mobile
       if (
         (lowMemory && lowCpu) || // Perangkat sangat lemah
         hasVeryWeakGPU || // GPU sangat lemah
@@ -72,12 +71,12 @@ const OptimizedBackgroundSwitch = (props) => {
         hasVerySmallScreen || // Layar sangat kecil
         prefersReducedMotion // User memilih reduce motion
       ) {
-        console.log('Switching to optimized background for better performance');
-        setUseOptimized(true);
+        console.log('Using stronger optimizations for low-end mobile device');
+        setForceMobileOptimization(true);
       } else {
-        // Perangkat mobile dengan performa baik menggunakan versi normal
-        console.log('Using standard background for mobile with good performance');
-        setUseOptimized(false);
+        // Perangkat mobile dengan performa baik tetap perlu optimasi standar
+        console.log('Using standard optimizations for mobile device');
+        setForceMobileOptimization(true); // Selalu true untuk mobile untuk memastikan performa baik
       }
       
       setHasTested(true);
@@ -108,11 +107,12 @@ const OptimizedBackgroundSwitch = (props) => {
     );
   }
   
-  // Berdasarkan hasil deteksi, tampilkan komponen yang sesuai
-  return useOptimized ? (
-    <MobileOptimizedVantaBackground {...props} />
-  ) : (
-    <VantaBackground {...props} />
+  // Selalu gunakan VantaBackground, dengan forceMobileHighPerformance berdasarkan deteksi
+  return (
+    <VantaBackground 
+      {...props} 
+      forceMobileHighPerformance={forceMobileOptimization}
+    />
   );
 };
 

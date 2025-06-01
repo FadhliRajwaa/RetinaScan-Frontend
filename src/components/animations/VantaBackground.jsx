@@ -323,28 +323,28 @@ const VantaBackground = ({
         
         // Apply performance-based settings - use optimized settings for mobile but maintain 60fps
         if (forceHighPerformanceRef.current && isMobile) {
-          // Mobile high performance mode - more similar to desktop
+          // Mobile high performance mode - more similar to desktop but optimized for mobile
           performanceSettings = {
             actualBirdSize: birdSize * 1.1, // Slightly larger birds
-            actualQuantity: Math.max(1, quantity * 0.8), // Slightly reduce bird count
+            actualQuantity: Math.max(2, quantity * 0.9), // Pastikan minimal 2 burung, hampir sama dengan desktop
             actualSpeedLimit: speedLimit * 0.9, // Almost same speed
             actualFps: 60, // Always maintain 60fps
             actualWingSpan: wingSpan * 0.95, // Almost same wingspan
             actualSeparation: separation * 1.1, // Slightly more separation
-            actualAlignment: alignment * 0.9, // Almost same alignment
-            actualCohesion: cohesion * 0.9 // Almost same cohesion
+            actualAlignment: alignment * 0.95, // Almost same alignment
+            actualCohesion: cohesion * 0.95 // Almost same cohesion
           };
         } else if (devicePerformance === 'very-low') {
-          // Reduced settings for very low-end devices, but still closer to desktop
+          // Reduced settings for very low-end devices, but ensure birds are visible
           performanceSettings = {
             actualBirdSize: birdSize * 1.2,
-            actualQuantity: Math.max(1, quantity * 0.6), // Less reduction in bird count
+            actualQuantity: Math.max(2, quantity * 0.7), // Pastikan minimal 2 burung
             actualSpeedLimit: speedLimit * 0.8, // Closer to normal speed
             actualFps: 30, // Improved FPS
             actualWingSpan: wingSpan * 0.9,
             actualSeparation: separation * 1.2,
-            actualAlignment: alignment * 0.8,
-            actualCohesion: cohesion * 0.8
+            actualAlignment: alignment * 0.85,
+            actualCohesion: cohesion * 0.85
           };
         } else if (devicePerformance === 'low') {
           performanceSettings = {
@@ -506,6 +506,22 @@ const VantaBackground = ({
             }
           } catch (e) {
             console.warn('WebGL optimization error:', e);
+          }
+        }
+
+        // Tambahkan konfigurasi khusus untuk menangani mobile yang lebih lemah
+        if (isMobile && effect && effect.setOptions) {
+          try {
+            // Tambahkan konfigurasi untuk mobile yang membantu performa tanpa mengorbankan tampilan
+            effect.setOptions({
+              colorMode: "lerp", // Mode warna yang lebih ringan untuk dirender
+              backgroundAlpha: 0, // Pastikan background transparan untuk performa lebih baik
+              highlightColor: null, // Matikan highlight color untuk menghemat performa
+              minHeight: Math.min(1024, minHeight), // Batasi ukuran render
+              minWidth: Math.min(1024, minWidth)    // Batasi ukuran render
+            });
+          } catch (e) {
+            console.warn('Failed to apply mobile optimizations:', e);
           }
         }
 
