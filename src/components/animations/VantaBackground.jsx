@@ -26,6 +26,7 @@ const VantaBackground = ({
   forceMobileHighPerformance = true // New prop to force high performance on mobile
 }) => {
   const vantaRef = useRef(null);
+  const containerRef = useRef(null);
   const [vantaEffect, setVantaEffect] = useState(null);
   const [isMobile, setIsMobile] = useState(false);
   const [isScriptLoaded, setIsScriptLoaded] = useState(false);
@@ -309,6 +310,11 @@ const VantaBackground = ({
       try {
         console.log('Initializing Vanta effect');
         
+        // Store the class name in containerRef for optimization detection
+        if (className) {
+          containerRef.current = { classList: { contains: (cls) => className.includes(cls) } };
+        }
+        
         // Adjust parameters based on device performance
         let performanceSettings = {
           actualBirdSize: birdSize,
@@ -323,17 +329,36 @@ const VantaBackground = ({
         
         // Apply performance-based settings - use optimized settings for mobile but maintain 60fps
         if (forceHighPerformanceRef.current && isMobile) {
-          // Mobile high performance mode - more similar to desktop but optimized for mobile
-          performanceSettings = {
-            actualBirdSize: birdSize * 1.2, // Larger birds = fewer birds needed
-            actualQuantity: Math.max(1, quantity * 0.5), // Significantly reduce bird count for mobile
-            actualSpeedLimit: speedLimit * 0.8, // Slower speed for better performance
-            actualFps: 60, // Always maintain 60fps
-            actualWingSpan: wingSpan * 0.95, // Almost same wingspan
-            actualSeparation: separation * 1.2, // More separation between birds
-            actualAlignment: alignment * 0.9, // Slightly reduce alignment complexity
-            actualCohesion: cohesion * 0.9 // Slightly reduce cohesion complexity
-          };
+          // Check if this is LandingPage by class name
+          const isLandingPage = containerRef.current && 
+            containerRef.current.classList.contains('hero-vanta-background');
+          
+          // Use more aggressive optimization for LandingPage
+          if (isLandingPage) {
+            console.log('Applying extreme optimization for LandingPage on mobile');
+            performanceSettings = {
+              actualBirdSize: birdSize * 1.5, // Much larger birds = much fewer birds
+              actualQuantity: Math.max(1, quantity * 0.3), // Very few birds
+              actualSpeedLimit: speedLimit * 0.7, // Slower movement
+              actualFps: 50, // Slightly reduced fps for better performance
+              actualWingSpan: wingSpan * 0.9,
+              actualSeparation: separation * 1.5, // Much more separation
+              actualAlignment: alignment * 0.7, // Reduce computation complexity
+              actualCohesion: cohesion * 0.7 // Reduce computation complexity
+            };
+          } else {
+            // Normal mobile optimization for other pages
+            performanceSettings = {
+              actualBirdSize: birdSize * 1.2, // Larger birds = fewer birds needed
+              actualQuantity: Math.max(1, quantity * 0.5), // Significantly reduce bird count for mobile
+              actualSpeedLimit: speedLimit * 0.8, // Slower speed for better performance
+              actualFps: 60, // Always maintain 60fps
+              actualWingSpan: wingSpan * 0.95, // Almost same wingspan
+              actualSeparation: separation * 1.2, // More separation between birds
+              actualAlignment: alignment * 0.9, // Slightly reduce alignment complexity
+              actualCohesion: cohesion * 0.9 // Slightly reduce cohesion complexity
+            };
+          }
         } else if (devicePerformance === 'very-low') {
           // Reduced settings for very low-end devices, but ensure birds are visible
           performanceSettings = {
@@ -525,6 +550,31 @@ const VantaBackground = ({
           }
         }
 
+        // Add extra optimization specifically for LandingPage
+        if (isMobile && effect && effect.setOptions && 
+            containerRef.current && containerRef.current.classList.contains('hero-vanta-background')) {
+          try {
+            // Add LandingPage-specific extreme optimizations
+            effect.setOptions({
+              colorMode: "lerp", // Simpler color mode
+              backgroundColor: backgroundColor, // Ensure background color is applied
+              backgroundAlpha: 0, // Keep background transparent 
+              showDots: false, // Don't show dots at bird positions for better performance
+              scaleMobile: Math.min(0.75, scaleMobile), // Ensure mobile scale is not too high
+              renderLines: false, // Disable lines between birds
+            });
+            
+            // Further decrease quality on very low-end devices
+            if (devicePerformance === 'very-low' || devicePerformance === 'low') {
+              if (effect.renderer && effect.renderer.setPixelRatio) {
+                effect.renderer.setPixelRatio(0.75); // Lower pixel ratio for better performance
+              }
+            }
+          } catch (e) {
+            console.warn('Failed to apply LandingPage-specific optimizations:', e);
+          }
+        }
+
         console.log('Vanta effect initialized successfully');
         setVantaEffect(effect);
       } catch (error) {
@@ -686,7 +736,7 @@ const VantaBackground = ({
 
   return (
     <div 
-      ref={vantaRef} 
+      ref={vantaRef}
       className={`vanta-background ${className}`} 
       style={{ 
         position: 'absolute', 
