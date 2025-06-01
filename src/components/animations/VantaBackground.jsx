@@ -306,20 +306,20 @@ const VantaBackground = ({
           if (isLandingPage) {
             console.log('Applying extreme optimization for LandingPage on mobile');
             performanceSettings = {
-              actualBirdSize: birdSize * 2.0, // Much larger birds = much fewer birds
-              actualQuantity: Math.max(1, quantity * 0.2), // Very few birds
+              actualBirdSize: birdSize, // Gunakan ukuran burung sesuai konfigurasi asli
+              actualQuantity: quantity, // Pertahankan jumlah burung sesuai konfigurasi
               actualSpeedLimit: speedLimit * 0.6, // Slower movement
               actualFps: 30, // Reduced fps for better performance
               actualWingSpan: wingSpan * 0.8,
-              actualSeparation: separation * 2.0, // Much more separation
+              actualSeparation: separation * 1.8, // Much more separation
               actualAlignment: alignment * 0.5, // Reduce computation complexity
               actualCohesion: cohesion * 0.5 // Reduce computation complexity
             };
           } else {
             // Normal mobile optimization for other pages
             performanceSettings = {
-              actualBirdSize: birdSize * 1.5, // Larger birds = fewer birds needed
-              actualQuantity: Math.max(1, quantity * 0.3), // Significantly reduce bird count for mobile
+              actualBirdSize: birdSize, // Gunakan ukuran burung sesuai konfigurasi asli
+              actualQuantity: quantity, // Pertahankan jumlah burung sesuai konfigurasi 
               actualSpeedLimit: speedLimit * 0.7, // Slower speed for better performance
               actualFps: 30, // Reduced FPS for mobile
               actualWingSpan: wingSpan * 0.9, // Almost same wingspan
@@ -558,17 +558,17 @@ const VantaBackground = ({
             // Disable shadows completely
             effect.renderer.shadowMap.enabled = false;
             
-            // Simplified materials
-            if (effect.birds && effect.birds.geometry) {
-              if (effect.setOptions) {
-                effect.setOptions({
-                  quantity: Math.max(0.5, performanceSettings.actualQuantity * 0.7),
-                  birdSize: performanceSettings.actualBirdSize * 1.3,
-                  speedLimit: performanceSettings.actualSpeedLimit * 0.8,
-                  backgroundAlpha: 0,
-                  colorMode: "lerp" // Mode warna yang lebih ringan
-                });
-              }
+            // Optimal settings for birds with jumlah burung tetap
+            if (effect.setOptions) {
+              // Optimize by changing other parameters instead of quantity
+              effect.setOptions({
+                quantity: quantity, // Gunakan jumlah burung yang dikonfigurasi
+                birdSize: birdSize, // Gunakan ukuran burung yang dikonfigurasi
+                speedLimit: speedLimit * 0.7, // Slow down the birds
+                separation: separation * 1.5, // Increase separation
+                backgroundAlpha: 0,
+                colorMode: "lerp" // Mode warna yang lebih ringan
+              });
             }
             
             // Set global THREE quality settings

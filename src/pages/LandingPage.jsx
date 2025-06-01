@@ -79,13 +79,13 @@ function LandingPage() {
                 color1: isDarkMode ? 0x0077ff : 0x0077ff,
                 color2: isDarkMode ? 0x4b0082 : 0x4169e1,
                 colorMode: "lerp",
-                birdSize : 3.0,
+                birdSize : 1.2,
                 wingSpan : 20.0,
                 speedLimit : 3.0,
                 separation : 150.0,
                 alignment : 10.0,
                 cohesion : 10.0,
-                quantity : 0.75,
+                quantity : 3.0,
                 backgroundAlpha: 0.0,
                 forceMobileHighPerformance: true
               });
@@ -381,13 +381,13 @@ function LandingPage() {
           color1={isDarkMode ? 0x0077ff : 0x0077ff}
           color2={isDarkMode ? 0x4b0082 : 0x4169e1}
           colorMode="lerp"
-          birdSize={3.0}
+          birdSize={1.2}
           wingSpan={20.0}
           speedLimit={3.0}
           separation={150.0}
           alignment={10.0}
           cohesion={10.0}
-          quantity={0.75}
+          quantity={3.0}
           backgroundAlpha={0.0}
           forceMobileHighPerformance={true}
         />

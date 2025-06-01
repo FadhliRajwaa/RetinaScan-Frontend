@@ -205,40 +205,32 @@ const OptimizedBackgroundSwitch = (props) => {
   return (
     <VantaBackground 
       {...props} 
-      // Mengurangi jumlah birds untuk LandingPage di mobile
+      // Mempertahankan jumlah burung sesuai konfigurasi asli tapi mengoptimalkan ukuran
       quantity={
-        // Jika ini adalah LandingPage (berdasarkan className)
+        // Untuk LandingPage (berdasarkan className)
         props.className && props.className.includes('hero-vanta-background')
         ? (devicePerformance === 'low' 
-            ? Math.max(0.5, (props.quantity || 3) * 0.15) // Sangat sedikit burung
-            : devicePerformance === 'medium'
-              ? Math.max(0.5, (props.quantity || 3) * 0.3) // Sedikit burung
-              : Math.max(0.5, (props.quantity || 3) * 0.5)) // Lebih banyak burung untuk high
+            ? Math.max(1.5, props.quantity || 3) // Mempertahankan jumlah burung
+            : props.quantity || 3) // Gunakan jumlah burung yang dikonfigurasi
         // Untuk halaman lain
-        : (devicePerformance === 'low'
-            ? Math.max(0.5, (props.quantity || 3) * 0.3)
-            : devicePerformance === 'medium'
-              ? Math.max(0.5, (props.quantity || 3) * 0.6)
-              : props.quantity || 3)
+        : props.quantity || 3
       }
-      // Memperbesar ukuran birds untuk meningkatkan visibilitas dengan jumlah yang lebih sedikit
+      // Menyesuaikan ukuran birds berdasarkan performa perangkat
       birdSize={
         props.className && props.className.includes('hero-vanta-background')
         ? (devicePerformance === 'low' 
-            ? (props.birdSize || 1.5) * 2.0
+            ? Math.max(1.0, (props.birdSize || 1.5) * 1.5) // Burung lebih besar di device lemah
             : devicePerformance === 'medium'
-              ? (props.birdSize || 1.5) * 1.5
-              : props.birdSize || 1.5)
-        : (devicePerformance === 'low'
-            ? (props.birdSize || 1.5) * 1.5
-            : props.birdSize || 1.5)
+              ? Math.max(0.8, (props.birdSize || 1.5) * 1.2) // Burung ukuran sedang
+              : props.birdSize || 1.5) // Gunakan ukuran asli
+        : props.birdSize || 1.5
       }
       // Mengurangi kecepatan untuk performa lebih baik
       speedLimit={
         devicePerformance === 'low' 
-          ? (props.speedLimit || 5.0) * 0.6
+          ? (props.speedLimit || 5.0) * 0.5 // Sangat lambat di device lemah
           : devicePerformance === 'medium'
-            ? (props.speedLimit || 5.0) * 0.8
+            ? (props.speedLimit || 5.0) * 0.7 // Lambat di device sedang
             : props.speedLimit || 5.0
       }
       forceMobileHighPerformance={devicePerformance !== 'high'} // Aktifkan optimasi untuk semua kecuali high
